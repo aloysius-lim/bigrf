@@ -18,6 +18,7 @@ Objects can be created by calls of the form \code{new("bigcforest", ...)}, but m
     \item{\code{factors}:}{Object of class \code{"logical"} ~~ }
     \item{\code{ylevels}:}{Object of class \code{"character"} ~~ }
     \item{\code{nlevels}:}{Object of class \code{"integer"} ~~ }
+    \item{\code{ytable}:}{Object of class \code{"table"} ~~ }
     \item{\code{varselect}:}{Object of class \code{"integer"} ~~ }
     \item{\code{contvarseq}:}{Object of class \code{"integer"} ~~ }
     \item{\code{nclass}:}{Object of class \code{"integer"} ~~ }

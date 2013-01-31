@@ -48,6 +48,10 @@ void movedataWorker(MatrixAccessor<int> aAcc, const int *factors,
     const int *contvarseq, int ndstart, int ndend, const int *idmove,
     int *ncase, int bestvar, int bestvarA, int nCols);
     
+/* Predicts classification for test set. */
+template <typename xtype>
+SEXP treepredict(BigMatrix* x, int ntest, SEXP forestP, SEXP treeP);
+    
 /* Utility function for "unpacking"" an integer into an array of 1s and 0s (i.e.
    binary). */
 void unpack(unsigned long long npack, int icat[], int l);

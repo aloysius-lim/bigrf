@@ -92,50 +92,23 @@ combine.treeresults <- function(forest, newtree) {
     
     forest@oobpred[forest@oobtimes > 0L] <-
         max.col(forest@oobvotes[forest@oobtimes > 0L, ])
-    #       sapply(which(forest@oobtimes > 0L),
-    #              function(i) which.max(forest@oobvotes[i, ]))
     
     for (c in seq_len(forest@nclass)) {
         forest@trainclserr[c] <- sum(y == c & forest@oobpred != c)
     }
     
     forest@trainerr <- sum(forest@trainclserr) / forest@nsample
-    forest@trainclserr <- forest@trainclserr / as.numeric(table(y))
-    
-    # Get test set error estimates ---------------------------------------------
-    
-    # if (ntest > 0) {
-    #   testreelite.result <- testreelite(xts,ntest,ncol(x),treemap,
-    #                         bestnumsplit,bestvar,nodeclass,maxnodes,ndbigtree,
-    #                         cat,jts,maxcat,bestcatsplit,nodexts)
-    #   for (n in seq_len(ntest0)) {
-    #     qts[jts[n],n] <- qts[jts[n], n] + tree@nodewt[nodexts[n]]
-    #   }
-    # }
+    forest@trainclserr <- forest@trainclserr / as.numeric(forest@ytable)
     
     # Give running output ------------------------------------------------------
-    if (forest@printclserr && treenum == oldntrees + 1L) {
-        t <- table(y)
-        if (length(forest@ylevels)) {
-            names(t) <- forest@ylevels
-        }
-        cat("Class counts (training data:)\n")
-        print(t)
-        cat("\n")
-        rm(t)
-        # if (ntest > 0 && labelts == 1) {
-        # cat('Class counts--training data:', ncts)
-        # }
+    
+    if (treenum == oldntrees + 1L) {
         cat("OOB errors:\n")
         if (forest@printclserr) {
             cat(" Tree  Overall error  Error by class\n")
             cat("                      ")
-            if (length(forest@ylevels)) {
-                cat(format(forest@ylevels, justify="right", width=5), sep="  ")
-            } else {
-                cat(format(seq_len(forest@nclass), justify="right", width=5),
-                    sep="  ")
-            }
+            cat(format(names(forest@ytable), justify="right", width=5),
+                sep="  ")
             cat("\n")
         } else {
             cat(" Tree  Overall error\n")
@@ -144,176 +117,20 @@ combine.treeresults <- function(forest, newtree) {
     
     if ((treenum - oldntrees) %% forest@printerrfreq == 0L ||
             treenum == oldntrees + ntrees) {
-        
-        if (forest@printerrfreq > 0L) {
-            cat(format(treenum, justify="right", width=5),
-                format(100 * forest@trainerr, justify="right", width=13,
-                       digits=3, nsmall=2), sep="  ")
-            if (forest@printclserr) {
-                cat("",
-                    format(100 * forest@trainclserr, justify="right",
-                           width=max(nchar(forest@ylevels), 5), digits=3, nsmall=2),
-                    sep="  ")
-            }
-            cat("\n")
+        cat(format(treenum, justify="right", width=5),
+            format(100 * forest@trainerr, justify="right", width=13,
+                   digits=3, nsmall=2), sep="  ")
+        if (forest@printclserr) {
+            cat("",
+                format(100 * forest@trainclserr, justify="right",
+                       width=max(nchar(forest@ylevels), 5), digits=3, nsmall=2),
+                sep="  ")
         }
-        # if (ntest > 0) {
-        #   comperrts.result <- comperrts(qts,clts,ntest,nclass,errts,tmissts,ncts,jests,labelts)
-        #   if (printerrfreq > 0) {
-        #     if (labelts == 1) {
-        # 		   if (printclserr) {
-        #          cat(treenum, 100 * comperrts.result$errts,
-        #              100 * comperrts.result$tmissts)
-        # 		   } else {
-        #          cat(treenum, 100 * comperrts.result$errts)
-        # 		   }
-        # 		}
-        #   }
-        # }
-        
+        cat("\n")
     }
     
     return(forest)
 }
-
-
-
-# # -------------------------------------------------------
-#   subroutine runforest[nvarx,ntest,nclass,maxcat,maxnodes,   labelts,ntrees,clts,xts,bestnumsplit,qts,treemap,bestcatsplit,   cat,nodeclass,jts,jests,bestvar,tmissts,ncts,   fill,missfill,code,errts,nodewt,outts,idataout,imax,   outfreq,outclass,nodexts,isumout,mtab]
-# # 
-# # reads a forest file and runs new data through it
-# # 
-# 	real xts[nvarx,ntest],bestnumsplit[maxnodes],tmissts[nclass], 	qts[nclass,ntest],fill[nvarx],nodewt[maxnodes],outts[ntest]
-# # 
-# 	integer treemap[2,maxnodes], 	cat[nvarx],nodeclass[maxnodes],jests[ntest], 	bestvar[maxnodes],jts[ntest],clts[ntest],nodexts[maxnodes], 	ncts[nclass],imax[ntest],bestcatsplit[maxcat,maxnodes], 	isumout,mtab[nclass,nclass]
-# 
-# # 
-# 	integer nvarx,ntest,nclass,maxcat,maxnodes,labelts, 	ntrees,missfill,outfreq,outclass,idataout
-# 	real errts,code
-# 	integer m,j,n,treenum,nnodes,idummy
-# 	qts <- matrix(0, nclass, ntest)
-# # 
-# 	read[1,*] [cat[m],m <- 1,nvarx]
-# # 
-# 	if (missfill == 1) {
-# 		read[1,*] [fill[m],m <- 1,nvarx]
-# # 	fast fix on the test data -
-# 		xfill.result <- xfill(xts,ntest,nvarx,fill,code)
-# 	}
-# # 
-# 	if (labelts == 1) {
-# 		for (n in seq_len(ntest) {
-# 			ncts[clts[n]]=ncts[clts[n]]+1
-# 		}
-# 	}
-# # 
-# # START DOWN FOREST
-# # 
-# 	for (treenum in seq_len(ntrees) {
-# 		read[1,*] nnodes
-# 		for (n in seq_len(nnodes) {
-# 			read[1,*] idummy,nodestatus[n],bestvar[n], 			treemap[1,n],treemap[2,n],nodeclass[n], 			bestnumsplit[n],nodewt[n],[bestcatsplit[j,n],j <- 1,maxcat]
-#     		}
-# 		
-# 		testreelite.result <- testreelite(xts,ntest,nvarx,treemap, 	bestnumsplit,bestvar,nodeclass,maxnodes,nnodes, 		cat,jts,maxcat,bestcatsplit,nodexts)
-#    		for (n in seq_len(ntest) {
-# 			qts[jts[n],n]=qts[jts[n],n]+nodewt[nodexts[n]]
-# 		}
-# 		
-# 		if (labelts == 1) {
-# 			if (mod[treenum,outfreq] == 0 && treenum <= ntrees) {
-# 				comperrts.result <- comperrts(qts,clts,ntest,nclass,errts,  				tmissts,ncts,jests,labelts)
-# 				if (outclass) {
-# 					write[*,'[i8,100f10.2]']  					treenum,100 * errts,[100 * tmissts[j],j <- 1,nclass]
-# 				} else {
-# 					write[*,'[i8,2f10.2]'] treenum,100 * errts
-# 				}
-# 			}
-# 		}
-# # 
-# 	} # treenum
-# # 
-# 	if (idataout == 2) {
-# 		if (labelts == 1) {
-# 			for (n in seq_len(ntest) {
-# 				write[7,'[3i5,1000f10.3]'] n,clts[n],jests[n],  				[qts[j,n],j <- 1,nclass],[xts[m,n],m <- 1,nvarx]
-# 			}
-# 		} else {
-# 			for (n in seq_len(ntest) {
-# 				write[7,'[3i5,1000f10.3]'] n,jests[n],  				[qts[j,n],j <- 1,nclass],[xts[m,n],m <- 1,nvarx]
-# 			}
-# 		}
-# 	}
-# 	close[7]
-# 	if (isumout == 1) {
-# 		if (labelts == 1) {
-# 		   write[*,*] 'final error test %    ',100 * errts 
-#  		   mtab <- matrix(0L, nclass, nclass)
-#  		   for (n in seq_len(ntest) {
-#  			mtab[clts[n],jests[n]]=mtab[clts[n],jests[n]]+1
-#  		   }
-#  		   write[*,*] 'Test set confusion matrix:'
-#  		   write[*,*] '	    true class '
-#  		   print *
-#  		   write[*,'[20i6]']  [j,j <- 1,nclass]
-#  		   print *
-#  		   for (n in seq_len(nclass) {
-#  			write[*,'[20i6]']  n,[mtab[j,n],j <- 1,nclass]
-#  		   }
-#  		   print *
-#  		}
-# 	}
-# 	end
-#
-
-
-
-# -------------------------------------------------------
-# 	subroutine testreelite[xts,ntest,nvarx,treemap,treemap,
-#                          bestnumsplit,bestvar,nodeclass,maxnodes,nnodes,
-#                          cat,jts,maxcat,bestcatsplit,nodexts]
-# # 
-# # predicts the class of all objects in xts
-# # 
-# # input:
-# 	real xts[nvarx,ntest],bestnumsplit[maxnodes]
-# 	integer treemap[2,maxnodes],bestvar[maxnodes],nodeclass[maxnodes], 	cat[nvarx],treemap[maxnodes],bestcatsplit[maxcat,maxnodes]
-# 	integer ntest,nvarx,maxnodes,nnodes,maxcat
-# # 
-# # output: 
-# 	integer jts[ntest],nodexts[ntest]
-# # 
-# 	integer n,kt,k,m,jcat
-# # 
-# 	n <- 1
-# 903	kt <- 1
-# 	for (k in seq_len(nnodes) {
-# 		if (treemap[kt, 1] == 0L) {
-# 			jts[n]=nodeclass[kt]
-# 			nodexts[n]=kt
-# 			goto 100
-# 		}
-# 		m <- bestvar[kt]
-# 		if (cat[m] == 1) {
-# 			if (xts[m,n] <= bestnumsplit[kt]) { 
-# 				kt <- treemap[kt, 1]
-# 			} else {
-# 				kt <- treemap[kt, 2]
-# 			}
-# 		}
-# 		if (cat[m] > 1) {
-# 			jcat <- nint[xts[m,n]]
-# 			if (bestcatsplit[[kt]][jcat] == 1) {
-# 				kt <- treemap[kt, 1]
-# 			} else {
-# 				kt <- treemap[kt, 2]
-# 			}
-# 		}
-# 	} # k
-# 100	n <- n + 1
-# 	if[n <= ntest] goto 903
-# 	end
-#
 
 
 

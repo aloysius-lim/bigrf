@@ -197,12 +197,14 @@ bigrfc <- function(x,
     }
     
     # Check cachepath.
-    if (!is.character(cachepath)) {
-        stop("Argument cachepath must be a character string.")
+    if (!(is.null(cachepath) || is.character(cachepath))) {
+        stop("Argument cachepath must be a character string, or NULL.")
     }
-    if (!file.exists(cachepath)) {
-        if (!dir.create(cachepath)) {
-            stop("Cannot create directory ", cachepath, ".")
+    if (!is.null(cachepath)) {
+        if (!file.exists(cachepath)) {
+            if (!dir.create(cachepath)) {
+                stop("Cannot create directory ", cachepath, ".")
+            }
         }
     }
     
@@ -214,7 +216,12 @@ bigrfc <- function(x,
     
     # Convert x to big.matrix, as C functions only support this at the moment.
     if (class(x) != "big.matrix") {
-        x <- as.big.matrix(x)
+        if (is.null(cachepath)) {
+            x <- as.big.matrix(x)
+        } else {
+            x <- as.big.matrix(x, backingfile="x", descriptorfile="x.desc",
+                               backingpath=cachepath)
+        }
     }
     
     forest <- new("bigcforest",
@@ -222,6 +229,7 @@ bigrfc <- function(x,
                   factors=factors,
                   ylevels=ylevels,
                   nlevels=nlevels,
+                  ytable=table(0),
                   varselect=varselect,
                   nclass=ifelse(supervised, nclass, 2L),
                   classweights=classweights,

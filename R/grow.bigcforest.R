@@ -21,7 +21,7 @@ grow.bigcforest <- function(forest,
     
     # Check x.
     if (!(class(x) %in% c("big.matrix", "matrix", "data.frame"))) {
-        stop("Argument x must be a big.matrix.")
+        stop("Argument x must be a big.matrix, matrix or data.frame.")
     }
     
     # Check y.
@@ -84,7 +84,12 @@ grow.bigcforest <- function(forest,
 
     # Convert x to big.matrix, as C functions only support this at the moment.
     if (class(x) != "big.matrix") {
-        x <- as.big.matrix(x)
+        if (is.null(forest@cachepath)) {
+            x <- as.big.matrix(x)
+        } else {
+            x <- as.big.matrix(x, backingfile="x", descriptorfile="x.desc",
+                               backingpath=forest@cachepath)
+        }
     }
     
     # Add synthetic class for unsupervised learning ----------------------------
@@ -96,10 +101,14 @@ grow.bigcforest <- function(forest,
             if (trace) message("Creating a synthetic class for unsupervised ",
                                "learning.")
             x.old <- x
-            x <- big.matrix(forest@nsample, ncol(x), type="double",
-                            backingfile="x.unsupervised",
-                            descriptorfile="x.unsupervised.desc",
-                            backingpath=forest@cachepath)
+            if (is.null(forest@cachepath)) {
+                x <- big.matrix(forest@nsample, ncol(x), type="double")
+            } else {
+                x <- big.matrix(forest@nsample, ncol(x), type="double",
+                                backingfile="x.unsupervised",
+                                descriptorfile="x.unsupervised.desc",
+                                backingpath=forest@cachepath)
+            }
             for (m in seq_len(ncol(x))) {
                 k <- as.integer(runif(forest@nsample - nrow(x), 0, nrow(x)) + 1)
                 x[seq_len(nrow(x)), m] <- x.old[seq_len(nrow(x)), m]
@@ -114,6 +123,18 @@ grow.bigcforest <- function(forest,
     
     
     
+    # Tabulate y ---------------------------------------------------------------
+    class(y) <- "factor"
+    if (forest@supervised) {
+        levels(y) <- forest@ylevels
+    } else {
+        levels(y) <- c("original", "synthesized")
+    }
+    forest@ytable <- table(y, deparse.level=0);
+    y <- as.integer(y)
+    
+    
+
     # Initialize for run -------------------------------------------------------
     
     oldntrees <- forest@ntrees
@@ -124,10 +145,16 @@ grow.bigcforest <- function(forest,
         asave <- attach.resource("asave.desc", path=forest@cachepath)
     } else {
         if (trace) message("Setting up asave big.matrix.")
-        asave <- big.matrix(forest@nsample, length(forest@varselect),
-                            type="integer",
-                            backingfile="asave", descriptorfile="asave.desc",
-                            backingpath=forest@cachepath)
+        if (is.null(forest@cachepath)) {
+            asave <- big.matrix(forest@nsample, length(forest@varselect),
+                                type="integer")
+        } else {
+            asave <- big.matrix(forest@nsample, length(forest@varselect),
+                                type="integer",
+                                backingfile="asave",
+                                descriptorfile="asave.desc",
+                                backingpath=forest@cachepath)
+        }
         makea(x, asave, forest@factors, forest@varselect)
     }
     
@@ -159,35 +186,49 @@ grow.bigcforest <- function(forest,
         
         if (trace) message("Tree ", treenum,
                            ": Setting up a and a.out big.matrix's.")
-        cachefiles <- paste0(forest@cachepath, "/",
-                             c("a-", "a-", "a.out-", "a.out-"), treenum,
-                             c("", ".desc", "", ".desc"))
         if (any(!forest@factors)) {
-            a <- big.matrix(sum(insamp > 0L), sum(!forest@factors),
-                            type="integer",
-                            backingfile=paste0("a-", treenum),
-                            descriptorfile=paste0("a-", treenum, ".desc"),
-                            backingpath=forest@cachepath)
-            a.out <- big.matrix(sum(insamp == 0L), sum(!forest@factors),
+            if (is.null(forest@cachepath)) {
+                a <- big.matrix(sum(insamp > 0L), sum(!forest@factors),
+                                type="integer")
+                a.out <- big.matrix(sum(insamp == 0L), sum(!forest@factors),
+                                    type="integer")
+            } else {
+                a <- big.matrix(sum(insamp > 0L), sum(!forest@factors),
                                 type="integer",
-                                backingfile=paste0("a.out-", treenum),
-                                descriptorfile=paste0("a.out-", treenum, ".desc"),
+                                backingfile=paste0("a-", treenum),
+                                descriptorfile=paste0("a-", treenum, ".desc"),
                                 backingpath=forest@cachepath)
+                a.out <- big.matrix(sum(insamp == 0L), sum(!forest@factors),
+                                    type="integer",
+                                    backingfile=paste0("a.out-", treenum),
+                                    descriptorfile=paste0("a.out-", treenum,
+                                                          ".desc"),
+                                    backingpath=forest@cachepath)
+            }
             moda(asave, a, forest@factors, insamp)
             moda(asave, a.out, forest@factors, insamp == 0L)
         } else {
-            a <- big.matrix(1L, 1L,
-                            type="integer",
-                            backingfile=paste0("a-", treenum),
-                            descriptorfile=paste0("a-", treenum, ".desc"),
-                            backingpath=forest@cachepath)
-            a.out <- big.matrix(1L, 1L,
-                                type="integer",
-                                backingfile=paste0("a.out-", treenum),
-                                descriptorfile=paste0("a.out-", treenum, ".desc"),
+            if (is.null(forest@cachepath)) {
+                a <- big.matrix(1L, 1L, type="integer")
+                a.out <- big.matrix(1L, 1L, type="integer")
+            } else {
+                a <- big.matrix(1L, 1L, type="integer",
+                                backingfile=paste0("a-", treenum),
+                                descriptorfile=paste0("a-", treenum, ".desc"),
                                 backingpath=forest@cachepath)
+                a.out <- big.matrix(1L, 1L, type="integer",
+                                    backingfile=paste0("a.out-", treenum),
+                                    descriptorfile=paste0("a.out-", treenum,
+                                                          ".desc"),
+                                    backingpath=forest@cachepath)
+            }
         }
-        on.exit(file.remove(cachefiles))
+        if (!is.null(forest@cachepath)) {
+            cachefiles <- paste0(forest@cachepath, "/",
+                                 c("a-", "a-", "a.out-", "a.out-"), treenum,
+                                 c("", ".desc", "", ".desc"))
+            on.exit(file.remove(cachefiles))
+        }
         
         # Build tree -----------------------------------------------------------
         
@@ -239,26 +280,9 @@ grow.bigcforest <- function(forest,
     
     # Print results ------------------------------------------------------------
     cat("\n")
-    show(forest)
+    summary(forest)
     
 
-    
-    # # -------------------------------------------------------
-    # # SEND INFO ON TRAINING AND/OR TEST SET DATA TO FILE 
-    #
-    # if (idataout == 2 && ntest > 0) {
-    # 	if (labelts == 1) {
-    # 		for (n in seq_len(ntest0) {
-    # 			write[7,'[3i5,1000f10.3]'] n,clts[n],jests[n],
-    #       [qts[j,n],j=1,nclass],[xts[m,n],m=1,ncol(x)]
-    # 		}
-    # 	} else {
-    # 		for (n in seq_len(ntest0) {
-    # 			write[7,'[2i5,1000f10.3]'] n,jests[n],
-    #       [qts[j,n],j=1,nclass],[xts[m,n],m=1,ncol(x)]
-    # 		}
-    # 	}
-    # }
     
     # # -------------------------------------------------------
     # # SEND FILL TO FILE [ROUGH FILL ONLY]
