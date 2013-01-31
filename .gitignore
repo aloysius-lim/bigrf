@@ -4,10 +4,14 @@
 
 # R Studio files
 *.Rproj
+.Rproj.user
 
 # Files generated on build
 src-i386
 src-x86_64
+src/*.o
+src/*.so
+src/*.dll
 
 # Example code in package build process
 *-Ex.R

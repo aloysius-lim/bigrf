@@ -1,0 +1,30 @@
+Package: bigrf
+Version: 0.1-1
+Date: 2013-01-31
+Title: Big Random Forests--Classification and Regression Forests for Large Data Sets
+Authors@R: c(person("Aloysius", "Lim", role = c("aut", "cre"),
+                    email = "aloysius.lim@gmail.com"),
+             person("Leo", "Breiman", role = "aut",
+                    email="leo@stat.berkeley.edu"),
+             person("Adele", "Cutler", role = "aut",
+                     email="adele@math.usu.edu"))
+Author: Aloysius Lim, Leo Breiman, Adele Cutler
+Maintainer: Aloysius Lim <aloysius.lim@gmail.com>
+Depends: methods, bigmemory
+Imports: foreach
+LinkingTo: bigmemory
+Suggests: MASS, doMC, doMPI, doRedis, doSNOW
+Enhances: bigmemory
+Description: This is an implementation of Leo Breiman and Adele Cutler's
+  Random Forest algorithms for classification and regression, optimized for data
+  sets that are too large to fit or be processed in memory. It utilizes
+  bigmemory disk-based memory for caching of intermediate computations, and
+  foreach to parallelize the tree-buliding process. This package performs
+  particularly well for large data sets that cause excessive virtual memory
+  swapping by the OS. Currently, only classification trees with limited
+  functionality are implemented. More functions and regression trees will be
+  added in the future.
+License: GPL-3
+Copyright: 2013 Aloysius Lim
+URL: https://github.com/aloysius-lim/bigrf
+BugReports: https://github.com/aloysius-lim/bigrf/issues
