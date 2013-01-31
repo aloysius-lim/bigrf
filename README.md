@@ -1,7 +1,7 @@
 bigrf
 =====
 
-This is an implementation of Leo Breiman and Adele Cutler's Random Forest algorithms for classification and regression, optimized for data sets that are too large to fit or be processed in memory. It utilizes `[bigmemory](http://cran.r-project.org/web/packages/bigmemory/)` disk-based memory for caching of intermediate computations, and `[foreach](http://cran.r-project.org/web/packages/foreach/)` to parallelize the tree-buliding process. This package performs particularly well for large data sets that cause excessive virtual memory swapping by the OS. Currently, only classification trees with limited functionality are implemented. More functions and regression trees will be added in the future.
+This is an implementation of Leo Breiman and Adele Cutler's Random Forest algorithms for classification and regression, optimized for data sets that are too large to fit or be processed in memory. It utilizes [`bigmemory`](http://cran.r-project.org/web/packages/bigmemory/) disk-based memory for caching of intermediate computations, and [`foreach`](http://cran.r-project.org/web/packages/foreach/) to parallelize the tree-buliding process. This package performs particularly well for large data sets that cause excessive virtual memory swapping by the OS. Currently, only classification trees with limited functionality are implemented. More functions and regression trees will be added in the future.
 
 Capabilities and Usage
 ----------------------
@@ -12,12 +12,12 @@ After a forest is grown, more trees can be grown in the same forest by passing t
 
 Multiple forests grown with the same data and parameters can be merged together using `merge`. This is useful, for example, for building forests in parallel on multiple machines, then merging the results into one big forest.
 
-To build trees in parallel, the appropriate parallel backend for `[foreach](http://cran.r-project.org/web/packages/foreach/)` must be registered. For example, if you wish to use `[doMC](http://cran.r-project.org/web/packages/doMC/)` utilizing all available cores on your machine, run the following before calling `bigrfc` or `grow` (see the documentation for `foreach` for more details):
+To build trees in parallel, the appropriate parallel backend for [`foreach`](http://cran.r-project.org/web/packages/foreach/) must be registered. For example, if you wish to use [`doMC`](http://cran.r-project.org/web/packages/doMC/) utilizing all available cores on your machine, run the following before calling `bigrfc` or `grow` (see the documentation for `foreach` for more details):
 
     library(doMC)
     registerDoMC(cores=multicore:::detectCores(all.tests=TRUE))
 
-This package performs particularly well for large data sets that cause excessive virtual memory swapping by the OS, which often renders the system unusable for other tasks or unresponsive to user input. Other random forest algorithms (e.g. `[randomForest](http://cran.r-project.org/web/packages/randomForest/)` and `[cforest](http://cran.r-project.org/web/packages/party/)`) may achieve higher performance on smaller data sets.
+This package performs particularly well for large data sets that cause excessive virtual memory swapping by the OS, which often renders the system unusable for other tasks or unresponsive to user input. Other random forest algorithms (e.g. [`randomForest`](http://cran.r-project.org/web/packages/randomForest/) and [`cforest`](http://cran.r-project.org/web/packages/party/)) may achieve higher performance on smaller data sets.
 
 Currently, only classification trees with limited functionality are implemented. More functions and regression trees will be added in the future.
 
