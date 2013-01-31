@@ -28,8 +28,24 @@ Original Fortran77 code by Leo Breiman and Adele Cutler.
 
 R port with disk caching and parallelization enhancements by Aloysius Lim.
 
+Licences
+--------
+
+`bigrf` is licensed under the [GNU General Public License Version 3 (GPLv3)](http://www.gnu.org/licenses/gpl.html).
+
+License information from original code:
+
+> Copyright 2002-2003  Leo Breiman and Adele Cutler.
+> 
+> This is free open source software but its use, in part or in whole, in any commercial product that is sold for profit is prohibited without the written consent of Leo Breiman and Adele Cutler.
+> 
+> We very much appreciate bug notices and suggested improvements.
+> 
+> leo@stat.berkeley.edu   adele@math.usu.edu
+
 References
 ----------
+
 Breiman, Leo. "Random forests." *Machine learning* 45, no. 1 (2001): 5-32.
 
 Usage Examples
