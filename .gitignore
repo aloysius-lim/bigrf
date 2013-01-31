@@ -1,5 +1,13 @@
-# History files
+# History and local environment files
 .Rhistory
+.RData
+
+# R Studio files
+*.Rproj
+
+# Files generated on build
+src-i386
+src-x86_64
 
 # Example code in package build process
 *-Ex.R
