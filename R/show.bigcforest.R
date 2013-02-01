@@ -1,6 +1,6 @@
 show.bigcforest <- function(object) {
     cat("Random forest with", object@ntrees, "trees, trained on",
-        object@nsample, "samples with", length(object@varselect),
+        object@nexamples, "examples with", length(object@varselect),
         "variables.\n")
 }
 

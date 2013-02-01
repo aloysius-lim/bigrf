@@ -8,12 +8,11 @@
 }
 \usage{
   bigrfc(x, y = NULL, ntrees = 500L, supervised = !is.null(y),
-      nlevels = NULL, varselect = NULL,
-      nsplitvar = round(sqrt(ifelse(is.null(varselect), ncol(x),
-      length(varselect)))), maxeslevels = 11L,
-      nrandsplit = 1023L, maxndsize = 1L, classweights = NULL,
-      printerrfreq = 10L, printclserr = TRUE,
-      cachepath = tempdir(), trace = FALSE)
+    nlevels = NULL, varselect = NULL,
+    nsplitvar = round(sqrt(ifelse(is.null(varselect), ncol(x),
+    length(varselect)))), maxeslevels = 11L, nrandsplit = 1023L,
+    maxndsize = 1L, classweights = NULL, printerrfreq = 10L,
+    printclserr = TRUE, cachepath = tempdir(), trace = FALSE)
 }
 \arguments{
   \item{x}{
@@ -44,7 +43,7 @@
     Number of random splits to examine for categorical variables with more than maxeslevels levels. Default: 1,023.
   }
   \item{maxndsize}{
-    Maximum number of samples in each node when growing the trees. Nodes will be split if they have more than this number of samples. Default: 1.
+    Maximum number of examples in each node when growing the trees. Nodes will be split if they have more than this number of examples. Default: 1.
   }
   \item{classweights}{
     For supervised learning, a numeric vector of class weights, or \code{NULL} if all classes should be weighted equally. Not used for unsupervised learning.

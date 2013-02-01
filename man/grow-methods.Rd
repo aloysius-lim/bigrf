@@ -5,10 +5,11 @@
 \alias{grow,bigcforest-method}
 \title{Methods for Function \code{grow} in Package \pkg{bigrf}}
 \description{
- Grow more trees in a random forest.
+ Grows more trees in a random forest.
 }
 \usage{
-  \S4method{grow}{bigcforest}(forest, x, y=NULL, ntrees=500L, reuse.cache=FALSE, trace=FALSE)
+  \S4method{grow}{bigcforest}(forest, x, y=NULL, ntrees=500L, printerrfreq=10L,
+    printclserr=TRUE, reuse.cache=FALSE, trace=FALSE)
 }
 \arguments{
   \item{forest}{
@@ -23,8 +24,14 @@
   \item{ntrees}{
     The number of additional trees to grow in the forest.
   }
+  \item{printerrfreq}{
+    An integer, specifying how often error estimates should be printed to the screen. Default: error estimates will be printed every 10 trees.
+  }
+  \item{printclserr}{
+    \code{TRUE} for error estimates for individual classes to be printed, in addition to the overall error estimates. Default: \code{TRUE}.
+  }
   \item{reuse.cache}{
-    \code{TRUE} to reuse disk caches from previous tree-growing runs, which may significantly reduce initialization time for large data sets. Currently, only the \code{big.matrix}'s \code{asave}, \code{b} and \code{x} (for unsupervised learning only) are reused. If \code{TRUE}, user must ensure that the files \file{asave}, \file{asave.desc}, \file{b}, \file{b.desc}, \file{x} (unspervised learning) and \file{x.desc} (unsupervised learning) in \code{forest@cachepath} have not been modified or deleted since the previous run.
+    \code{TRUE} to reuse disk caches from previous tree-growing runs, which may significantly reduce initialization time for large data sets. Currently, only the \code{big.matrix}'s \code{asave}, \code{b} and \code{x} are reused. If \code{TRUE}, user must ensure that the files \file{asave}, \file{asave.desc}, \file{b}, \file{b.desc}, \file{x} and \file{x.desc} in \code{forest@cachepath} have not been modified or deleted since the previous run.
   }
   \item{trace}{
     \code{TRUE} to turn on verbose output, \code{FALSE} otherwise. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.

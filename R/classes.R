@@ -1,12 +1,13 @@
 setClassUnion("character.or.NULL", c("character", "NULL"))
+setClassUnion("integer.or.NULL", c("integer", "NULL"))
+setClassUnion("numeric.or.NULL", c("numeric", "NULL"))
+setClassUnion("logical.or.NULL", c("logical", "NULL"))
+setClassUnion("table.or.NULL", c("table", "NULL"))
 
 setClass("bigcforest",
          representation=representation(
-             # x
-             # y
-             # asave
              supervised="logical",
-             nsample="integer",
+             nexamples="integer",
              factors="logical",
              ylevels="character",
              nlevels="integer",
@@ -28,8 +29,6 @@ setClass("bigcforest",
              trainerr="numeric",
              trainconfusion="table",
              avgini="numeric",
-             printerrfreq="integer",
-             printclserr="logical",
              cachepath="character.or.NULL"
          ),
          contains="list")
@@ -57,13 +56,10 @@ setClass("bigcprediction",
              testlabelled="logical",
              nclass="integer",
              ntrees="integer",
-             testytable="table",
+             testytable="table.or.NULL",
              testvotes="matrix",
-             testclserr="numeric",
-             testerr="numeric",
-             testconfusion="table",
-             printerrfreq="integer",
-             printclserr="logical",
-             cachepath="character.or.NULL"
+             testclserr="numeric.or.NULL",
+             testerr="numeric.or.NULL",
+             testconfusion="table.or.NULL"
          ),
          contains="integer")

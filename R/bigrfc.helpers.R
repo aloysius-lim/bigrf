@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
-# makea constructs the nsample x nvarx integer matrix a. For each numerical 
-# variable with values x[n,m],n=1,...,nsample, the x-values are sorted from 
-# lowest to highest. Denote these by xs[n,m]. Then asave[n,m] is the case number
-# in which xs[n,m] occurs. If the mth variable is categorical, then asave[n,m]
-# is the category of the nth case number. asave is a big.matrix passed by
-# reference.
+# makea constructs the nexamples x nvarx integer matrix a. For each numerical 
+# variable with values x[n,m],n=1,...,nexamples, the x-values are sorted from 
+# lowest to highest. Denote these by xs[n,m]. Then asave[n,m] is the example
+# number in which xs[n,m] occurs. If the mth variable is categorical, then
+# asave[n,m] is the category of the nth example number. asave is a big.matrix
+# passed by reference.
 makea <- function(x, asave, factors, varselect) {
     v5 <- numeric(length(varselect))
     v95 <- numeric(length(varselect))
@@ -70,6 +70,8 @@ combine.treeresults <- function(forest, newtree) {
     y <- newtree$y
     insamp <- newtree$insamp
     tree <- newtree$tree
+    printerrfreq <- newtree$printerrfreq
+    printclserr <- newtree$printclserr
     rm(newtree)
     
     forest[[treenum]] <- tree
@@ -97,14 +99,14 @@ combine.treeresults <- function(forest, newtree) {
         forest@trainclserr[c] <- sum(y == c & forest@oobpred != c)
     }
     
-    forest@trainerr <- sum(forest@trainclserr) / forest@nsample
+    forest@trainerr <- sum(forest@trainclserr) / forest@nexamples
     forest@trainclserr <- forest@trainclserr / as.numeric(forest@ytable)
     
     # Give running output ------------------------------------------------------
     
     if (treenum == oldntrees + 1L) {
         cat("OOB errors:\n")
-        if (forest@printclserr) {
+        if (printclserr) {
             cat(" Tree  Overall error  Error by class\n")
             cat("                      ")
             cat(format(names(forest@ytable), justify="right", width=5),
@@ -115,12 +117,12 @@ combine.treeresults <- function(forest, newtree) {
         }
     }
     
-    if ((treenum - oldntrees) %% forest@printerrfreq == 0L ||
+    if ((treenum - oldntrees) %% printerrfreq == 0L ||
             treenum == oldntrees + ntrees) {
         cat(format(treenum, justify="right", width=5),
             format(100 * forest@trainerr, justify="right", width=13,
                    digits=3, nsmall=2), sep="  ")
-        if (forest@printclserr) {
+        if (printclserr) {
             cat("",
                 format(100 * forest@trainclserr, justify="right",
                        width=max(nchar(forest@ylevels), 5), digits=3, nsmall=2),
@@ -130,6 +132,73 @@ combine.treeresults <- function(forest, newtree) {
     }
     
     return(forest)
+}
+
+
+
+# ------------------------------------------------------------------------------
+# Combine results of tree builds. To be used only as a .combine function in
+# foreach().
+combine.treepredictresults <- function(prediction, treepredict.result) {
+    y <- treepredict.result$y
+    forest <- treepredict.result$forest
+    tree <- treepredict.result$tree
+    t <- treepredict.result$t
+    printerrfreq <- treepredict.result$printerrfreq
+    printclserr <- treepredict.result$printclserr
+    
+    # Compute votes.
+    for (c in seq_len(prediction@nclass)) {
+        w <- which(treepredict.result$testpredclass == c)
+        prediction@testvotes[w, c] <- prediction@testvotes[w, c] +
+            tree@nodewt[treepredict.result$testprednode[w]]
+    }
+    rm(c, w)
+    prediction[seq_len(prediction@ntest)] <- max.col(prediction@testvotes)
+    
+    # If test set labels were given, compute test error.
+    if (!is.null(y)) {
+        prediction@testclserr <- integer(prediction@nclass)
+        for (c in seq_len(prediction@nclass)) {
+            prediction@testclserr[c] <-
+                sum(y == c & prediction[] != c)
+        }
+        prediction@testerr <- sum(prediction@testclserr) / prediction@ntest
+        prediction@testclserr <-
+            prediction@testclserr / as.numeric(prediction@testytable)
+    }
+    
+    # Give running output --------------------------------------------------
+    if (t == 1L) {
+        if (printclserr && !is.null(y)) {
+            cat("Test errors:\n")
+            cat(" Tree  Overall error  Error by class\n")
+            cat("                      ")
+            cat(format(names(prediction@testytable), justify="right",
+                       width=5),
+                sep="  ")
+            cat("\n")
+        } else {
+            cat("Processing tree number:\n")
+        }
+    }
+    
+    if (t %% printerrfreq == 0L || t == forest@ntrees) {
+        cat(format(t, justify="right", width=5))
+        if (!is.null(y) && printclserr) {
+            cat("",
+                format(100 * prediction@testerr, justify="right", width=13,
+                       digits=3, nsmall=2),
+                format(100 * prediction@testclserr, justify="right",
+                       width=max(nchar(names(prediction@testytable)), 5),
+                       digits=3,
+                       nsmall=2),
+                sep="  ")
+        }
+        cat("\n")
+    }
+    
+    return(prediction)
 }
 
 
@@ -250,7 +319,7 @@ combine.treeresults <- function(forest, newtree) {
 
 
 # -------------------------------------------------------
-# varimp <- function(x, nsample, nvarx, y, insamp, trainpredclass, impn, varselect, qimpm,
+# varimp <- function(x, nexamples, nvarx, y, insamp, trainpredclass, impn, varselect, qimpm,
 #                    treemap, bestnumsplit, bestvar, nodeclass,
 #                    nnodes, factors, bestcatsplit, nodewt, trainprednode, mimp) {
 #   sqsd <- numeric(mimp)
@@ -260,12 +329,12 @@ combine.treeresults <- function(forest, newtree) {
 #   joob <- which(insamp == 0L)
 #   nout <- length(joob)
 #   # Update count of correct oob classifications.
-#   # trainpredclass[n]=y[n] if case n is correctly classified.
+#   # trainpredclass[n]=y[n] if example n is correctly classified.
 #   w <- which(trainpredclass[joob] == y[joob])
 #   right <- sum(nodewt[trainprednode[joob[w]]])
 # 
 #   if (impn == 1L) {
-#     qimp <- numeric(nsample)
+#     qimp <- numeric(nexamples)
 #     qimp[joob[w]] <- nodewt[trainprednode[joob[w]]] / nout
 #   }
 #   # iv[j]=1 if variable j was used to split on
@@ -280,7 +349,7 @@ combine.treeresults <- function(forest, newtree) {
 #                                       factors, bestcatsplit)
 #       rightimp <- 0
 #       for (n in seq_len(nout)) {
-#         # the nth out-of-bag case is the nnth original case
+#         # the nth out-of-bag example is the nnth original example
 #         nn <- joob[n]
 #         if (impn == 1L) {
 #           if (testreeimp.result$jvr[n] == y[nn]) {
@@ -296,7 +365,7 @@ combine.treeresults <- function(forest, newtree) {
 #       sqsd[k] <- sqsd[k] + ((right - rightimp) ^ 2) / (nout ^ 2)
 #     } else {
 #       for (n in seq_len(nout)) {
-#         # the nth out-of-bag case is the nnth original case
+#         # the nth out-of-bag example is the nnth original example
 #         nn <- joob[n]
 #         if (impn == 1L) {
 #           if (trainpredclass[nn] == y[nn]) {
@@ -454,11 +523,11 @@ combine.treeresults <- function(forest, newtree) {
 # 			for (n in seq_len(ns) {
 # 				if (its[n] == 0) {
 # # 				wc[n] is the number of unseen neighbors 
-# # 				of case n that are predicted to be 
+# # 				of example n that are predicted to be 
 # # 				in class jp
 # # 				loz[n,1],...,loz[n,nrnn] point to 
 # # 				the nrnn nearest neighbors of 
-# # 				case n 
+# # 				example n 
 # 					for (k in seq_len(nrnn) {
 # 						nn <- loz[n,k]
 # 						if (its[nn] == 0) {
@@ -468,7 +537,7 @@ combine.treeresults <- function(forest, newtree) {
 # 					}
 # 				}
 # 			}
-# # 		find the unseen case with the largest number 
+# # 		find the unseen example with the largest number 
 # # 		of unseen predicted - class - jp neighbors
 # 			nclose <- 0
 # 			npu <- 0
@@ -478,14 +547,14 @@ combine.treeresults <- function(forest, newtree) {
 # 					nclose <- wc[n]
 # 				}
 # 			}
-# # 		if nclose <- 0,no case has any unseen predicted - class - jp neighbors
+# # 		if nclose <- 0,no example has any unseen predicted - class - jp neighbors
 # # 		can't find another prototype for this class - reduce npend by 1 and
 # # 		start finding prototypes for the next class
 # 			if (nclose == 0) {
 # 				npend[jp]=i - 1
 # 				goto 93
 # 			}
-# # 		case npu has the largest number 
+# # 		example npu has the largest number 
 # # 		of unseen predicted - class - jp neighbors
 # # 		put these neighbors in a list of length nclose
 # 			ii <- 0	
@@ -725,10 +794,10 @@ combine.treeresults <- function(forest, newtree) {
 
 
 # # ------------------------------------------------------
-# 	subroutine locateout[y,tout,outtr,ncp,isort,devout, 	near,nsample,nclass,rmedout]
+# 	subroutine locateout[y,tout,outtr,ncp,isort,devout, 	near,nexamples,nclass,rmedout]
 # # 
 # 	real outtr[near],tout[near],devout[nclass],rmedout[nclass]
-#      	integer y[nsample],isort[nsample],ncp[near],near,nsample, 	nclass
+#      	integer y[nexamples],isort[nexamples],ncp[near],near,nexamples, 	nclass
 # 	real rmed, dev
 # 	integer jp,nt,n,i
 #      
@@ -741,7 +810,7 @@ combine.treeresults <- function(forest, newtree) {
 # 				ncp[nt]=n
 # 			}
 # 		}
-# 		quicksort.result <- quicksort(tout,isort,1,nt,nsample)
+# 		quicksort.result <- quicksort(tout,isort,1,nt,nexamples)
 # 		rmed <- tout[[1 + nt]/2]
 # 		dev <- 0
 # 		for (i in seq_len(nt) {
@@ -839,16 +908,16 @@ combine.treeresults <- function(forest, newtree) {
 
 # # -------------------------------------------------------
 # 
-# 	subroutine xfill[x,nsample,nvarx,fill,code]
+# 	subroutine xfill[x,nexamples,nvarx,fill,code]
 # # 
 # # input:
 # 	real code,fill[nvarx]
-# 	integer nvarx,nsample
+# 	integer nvarx,nexamples
 # # output:
-# 	real x[nvarx,nsample]
+# 	real x[nvarx,nexamples]
 # # local:
 # 	integer n,m
-# 	for (n in seq_len(nsample) {
+# 	for (n in seq_len(nexamples) {
 # 		for (m in seq_len(nvarx) {
 # 			if[abs[x[n, m]-code] < 8.232D - 11]  				x[n, m]=fill[m]
 # 		} # m
@@ -858,11 +927,11 @@ combine.treeresults <- function(forest, newtree) {
 
 
 # # -------------------------------------------------------
-# 	subroutine roughfix[x,v,ncase,nvarx,nsample,cat,code, 	nrcat,maxcat,fill]
+# 	subroutine roughfix[x,v,ncase,nvarx,nexamples,cat,code, 	nrcat,maxcat,fill]
 # # 
-# 	real x[nvarx,nsample],v[nsample],fill[nvarx],code
-# 	  integer ncase[nsample],cat[nvarx],nrcat[maxcat]
-# 	integer nvarx,nsample,maxcat
+# 	real x[nvarx,nexamples],v[nexamples],fill[nvarx],code
+# 	  integer ncase[nexamples],cat[nvarx],nrcat[maxcat]
+# 	integer nvarx,nexamples,maxcat
 # 	integer m,n,nt,j,jmax,lcat,nmax
 # 	real rmed
 # # 
@@ -870,13 +939,13 @@ combine.treeresults <- function(forest, newtree) {
 # 		if (cat[m] == 1) {
 # # 		continuous variable
 # 			nt <- 0
-# 			for (n in seq_len(nsample) {
+# 			for (n in seq_len(nexamples) {
 # 				if (abs[x[n, m]-code] >= 8.232D - 11) {
 # 					nt <- nt + 1
 # 					v[nt]=x[n, m]
 # 				}
 # 			}
-# 	   		call quicksort [v,ncase,1,nt,nsample]
+# 	   		call quicksort [v,ncase,1,nt,nexamples]
 # 			if (nt > 0) {
 # 				rmed <- v[[nt + 1]/2]
 # 			} else {
@@ -887,7 +956,7 @@ combine.treeresults <- function(forest, newtree) {
 # # 		categorical variable
 # 			lcat <- cat[m]
 # 			nrcat <- integer(maxcat)
-# 			for (n in seq_len(nsample) {
+# 			for (n in seq_len(nexamples) {
 # 				if (abs[x[n, m]-code] >= 8.232D - 11) {
 # 					j <- nint[x[n, m]]
 # 					nrcat[j]=nrcat[j]+1
@@ -904,7 +973,7 @@ combine.treeresults <- function(forest, newtree) {
 # 			fill[m]=real[jmax]
 # 		}
 # 	} # m
-# 	for (n in seq_len(nsample) {
+# 	for (n in seq_len(nexamples) {
 # 		for (m in seq_len(nvarx) {
 # 			if[abs[x[n, m]-code] < 8.232D - 11] x[n, m]=fill[m]
 # 		}

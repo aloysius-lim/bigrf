@@ -21,13 +21,13 @@ merge.bigcforest <- function(x, y, class.labels=NULL) {
             stop("Argument class.labels must be a factor or integer vector of ",
                  "class labels.")
         }
-        if (length(class.labels) != x@nsample) {
+        if (length(class.labels) != x@nexamples) {
             stop("Argument class.labels must have as many elements as there ",
                  "are rows in x.")
         }
     } else {
-        class.labels <- c(rep.int(1L, x@nsample / 2),
-                          rep.int(2L, x@nsample / 2))
+        class.labels <- c(rep.int(1L, x@nexamples / 2),
+                          rep.int(2L, x@nexamples / 2))
     }
     
     
@@ -58,7 +58,7 @@ merge.bigcforest <- function(x, y, class.labels=NULL) {
         x@trainclserr[c] <- sum(class.labels == c & x@oobpred != c)
     }
     
-    x@trainerr <- sum(x@trainclserr) / x@nsample
+    x@trainerr <- sum(x@trainclserr) / x@nexamples
     x@trainclserr <- x@trainclserr / as.numeric(table(class.labels))
     
     # Calculate confusion matrix

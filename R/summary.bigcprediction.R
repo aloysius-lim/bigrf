@@ -1,6 +1,6 @@
 summary.bigcprediction <- function(object) {
     cat("Random forest with", object@ntrees, "trees, tested on",
-        object@ntest, "samples.\n\n")
+        object@ntest, "examples\n\n")
     if (object@testlabelled) {
         cat("Test set labels:\n")
         print(object@testytable)

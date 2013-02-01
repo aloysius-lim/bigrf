@@ -20,10 +20,10 @@ extern "C" {
  * C++ functions.
  */
 
-/* Prepares the a matrix based on random sample of rows for modelling. For each
-   continuous variable, copies only the in-sample indices from asave to a. Data
-   for categorical variables are not copied, as they are stored in asave. This
-   functions should only be called if there are any continuous variables. */
+/* Prepares the a matrix based on random sample of examples for modelling. For
+   each continuous variable, copies only the in-sample indices from asave to a.
+   Data for categorical variables are not copied, as they are stored in asave.
+   This function should only be called if there are any continuous variables. */
 SEXP moda(SEXP asaveP, SEXP aP, SEXP factorsP, SEXP insampP) {
     // Initialize function arguments.
     BigMatrix *asave = (BigMatrix*)R_ExternalPtrAddr(asaveP);

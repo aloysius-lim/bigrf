@@ -1,9 +1,10 @@
 \name{merge-methods}
 \docType{methods}
+\alias{merge}
 \alias{merge-methods}
 \alias{merge,bigcforest,bigcforest-method}
 \title{Methods for Function \code{merge} in Package \pkg{bigrf}}
-\description{Merge two random forests into one.}
+\description{Merges two random forests into one.}
 \usage{
   \S4method{merge}{bigcforest,bigcforest}(x, y, class.labels=NULL)
 }

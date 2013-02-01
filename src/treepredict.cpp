@@ -72,10 +72,10 @@ SEXP treepredict(BigMatrix* x, int ntest, SEXP forestP, SEXP treeP) {
     SET_NAMES(retP, retNamesP);
     // Test set predictions for test cases in a particular tree.
     int *testpredclass = INTEGER(VECTOR_ELT(retP, 0));
-    // Final node that each test case ended up in, in a particular tree.
+    // Final node that each test example ended up in, in a particular tree.
     int *testprednode = INTEGER(VECTOR_ELT(retP, 1));
     
-    // Test each test sample.
+    // Test each test example.
     for (int i = 0; i < ntest; i++) {
         // Go down the tree until we reach a terminal node.
         int nd = 0;

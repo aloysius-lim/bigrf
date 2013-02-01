@@ -35,6 +35,10 @@ predict.bigcforest <- function(object, x, y=NULL,
             stop("Argument y must have as many elements as there are rows in ",
                  "x.")
         }
+        if (!forest@supervised && any(y != 0L | y != 1L)) {
+            stop("Forest was built with unsupervised learning. y must contain ",
+                 "only 0s (for original data) or 1s (for synthesized data.")
+        }
     }
     
     # Check printerrfreq.
@@ -71,7 +75,7 @@ predict.bigcforest <- function(object, x, y=NULL,
     
     # Convert x to big.matrix, as C functions only support this at the moment.
     if (class(x) != "big.matrix") {
-        if (is.null(forest@cachepath)) {
+        if (is.null(cachepath)) {
             x <- as.big.matrix(x)
         } else {
             x <- as.big.matrix(x, backingfile="xtest",
@@ -88,7 +92,7 @@ predict.bigcforest <- function(object, x, y=NULL,
         ytable <- table(y, deparse.level=0)
         y <- as.integer(y)
     } else {
-        ytable <- table(0);
+        ytable <- NULL
     }
     
     # fast fix on the test data
@@ -104,77 +108,33 @@ predict.bigcforest <- function(object, x, y=NULL,
                       ntrees=forest@ntrees,
                       testytable=ytable,
                       testvotes=matrix(0, ntest, forest@nclass),
-                      testclserr=numeric(forest@nclass),
-                      testerr=0,
-                      testconfusion=table(0),
-                      printerrfreq=printerrfreq,
-                      printclserr=printclserr,
-                      cachepath=cachepath
+                      testclserr=if(is.null(y)) NULL else
+                          numeric(forest@nclass),
+                      testerr=if(is.null(y)) NULL else 0,
+                      testconfusion=NULL
     )
-    rm(ntest, ytable, printerrfreq, printclserr, cachepath)
+    rm(ntest, ytable)
     
     
     
     # Compute test results -----------------------------------------------------
     
     # Loop through all trees.
-    for (t in seq_len(forest@ntrees)) {
-        if (trace) message("Running tree ", t, " on test cases.")
+    prediction <- foreach(t=seq_len(forest@ntrees),
+                          .combine=combine.treepredictresults, .init=prediction,
+                          .inorder=FALSE, .verbose=FALSE) %dopar% {
+        if (trace) message("Running tree ", t, " on test examples.")
         tree <- forest[[t]]
 
         treepredict.result <- .Call("treepredictC", x@address, xtype,
                                     prediction@ntest, forest, tree);
-        
-        # Compute votes.
-        for (c in seq_len(prediction@nclass)) {
-            w <- which(treepredict.result$testpredclass == c)
-            prediction@testvotes[w, c] <- prediction@testvotes[w, c] +
-                tree@nodewt[treepredict.result$testprednode[w]]
-        }
-        rm(c, w)
-        prediction[seq_len(prediction@ntest)] <- max.col(prediction@testvotes)
-        
-        # If test set labels were given, compute test error.
-        if (!is.null(y)) {
-            prediction@testclserr <- integer(prediction@nclass)
-            for (c in seq_len(prediction@nclass)) {
-                prediction@testclserr[c] <-
-                    sum(y == c & prediction[] != c)
-            }
-            prediction@testerr <- sum(prediction@testclserr) / prediction@ntest
-            prediction@testclserr <-
-                prediction@testclserr / as.numeric(prediction@testytable)
-        }
-        
-        # Give running output --------------------------------------------------
-        if (t == 1L) {
-            cat("Test errors:\n")
-            if (prediction@printclserr && !is.null(y)) {
-                cat(" Tree  Overall error  Error by class\n")
-                cat("                      ")
-                cat(format(names(prediction@testytable), justify="right",
-                           width=5),
-                    sep="  ")
-                cat("\n")
-            } else {
-                cat(" Tree  Overall error\n")
-            }
-        }
-        
-        if (t %% prediction@printerrfreq == 0L || t == forest@ntrees) {
-            cat(format(t, justify="right", width=5),
-                format(100 * prediction@testerr, justify="right", width=13,
-                       digits=3, nsmall=2), sep="  ")
-            if (!is.null(y) && prediction@printclserr) {
-                cat("",
-                    format(100 * prediction@testclserr, justify="right",
-                           width=max(nchar(names(prediction@testytable)), 5),
-                           digits=3,
-                           nsmall=2),
-                    sep="  ")
-            }
-            cat("\n")
-        }
+        treepredict.result$t <- t
+        treepredict.result$y <- y
+        treepredict.result$forest <- forest
+        treepredict.result$tree <- tree
+        treepredict.result$printerrfreq <- printerrfreq
+        treepredict.result$printclserr <- printclserr
+        treepredict.result
     }
     cat("\n")
     
@@ -182,10 +142,9 @@ predict.bigcforest <- function(object, x, y=NULL,
     
     if (!is.null(y)) {
         pred <- prediction[]
-        pred[pred == 0L] <- prediction@nclass + 1L
         if (length(forest@ylevels)) {
             class(pred) <- "factor"
-            levels(pred) <- c(forest@ylevels, "Never out-of-bag")
+            levels(pred) <- forest@ylevels
             class(y) <- "factor"
             levels(y) <- forest@ylevels
         }

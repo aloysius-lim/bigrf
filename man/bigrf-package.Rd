@@ -30,11 +30,11 @@ grow-methods            Methods for Function 'grow' in Package 'bigrf'
 merge-methods           Methods for Function 'merge' in Package 'bigrf'
 show,bigcforest-method  Methods for Function 'show' in Package 'bigrf'
 }
-The main entry point for this package is \code{\link{bigrfc}}, which is used to grow a classification random forest based on the given data and forest-growing parameters. \code{bigrfc} returns an object of class \code{"\linkS4class{bigcforest}"} representing the grown forest and containing objects of class \code{"\linkS4class{bigctree}"}.
+The main entry point for this package is \code{\link[bigrf]{bigrfc}}, which is used to grow a classification random forest based on the given data and forest-growing parameters. \code{bigrfc} returns an object of class \code{"\linkS4class{bigcforest}"} representing the grown forest and containing objects of class \code{"\linkS4class{bigctree}"}.
 
-After a forest is grown, more trees can be grown in the same forest by passing the forest to \code{\link{grow}}.
+After a forest is grown, more trees can be grown in the same forest by passing the forest to \code{\link[bigrf]{grow}}.
 
-Multiple forests grown with the same data and parameters can be merged together using \code{\link{merge}}. This is useful, for example, for building forests in parallel on multiple machines, then merging the results into one big forest.
+Multiple forests grown with the same data and parameters can be merged together using \code{\link[bigrf]{merge}}. This is useful, for example, for building forests in parallel on multiple machines, then merging the results into one big forest.
 
 To build trees in parallel, the appropriate parallel backend for \pkg{\link[foreach:foreach-package]{foreach}} must be registered. For example, if you wish to use \pkg{\link[doMC:doMC-package]{doMC}} utilizing all available cores on your machine, run the following before calling \code{bigrfc} or \code{grow} (see \pkg{\link[=foreach-package]{foreach}} for more details):
 

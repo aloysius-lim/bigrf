@@ -1,6 +1,6 @@
 show.bigcprediction <- function(object) {
     cat("Random forest with", object@ntrees, "trees, tested on",
-        object@ntest, "samples.\n")
+        object@ntest, "examples\n")
     print(object[seq_along(object)])
 }
 

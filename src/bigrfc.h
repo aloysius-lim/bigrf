@@ -12,6 +12,10 @@
 #ifndef BIGRFC_HELPERS_H
 #define BIGRFC_HELPERS_H
 
+/* Synthesizes second class for unsupervised learning. */
+template <typename xtype>
+void synthesizeUnsupervised(SEXP xP, SEXP xNewP);
+
 /* Prepares the a matrix based on random sample of rows for modelling. */
 SEXP moda(SEXP asaveP, SEXP aP, SEXP factorsP, SEXP insampP);
 
@@ -32,13 +36,13 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *asave,
     
 /* Moves the data in the current node to the left and right children, according
    to the best split on the current node. */
-void movedata(BigMatrix *asave, BigMatrix *a, int nsample, const int *factors,
+void movedata(BigMatrix *asave, BigMatrix *a, int nexamples, const int *factors,
     const int *contvarseq, int ndstart, int *ndendl, int ndend, int *ncase,
     int bestvar, int nbest, const int *bestcatsplit);
 
-/* Similar to movedata, except for out-of-bag samples. */
+/* Similar to movedata, except for out-of-bag examples. */
 template <typename xType>
-void movedataOut(BigMatrix *x, BigMatrix *asave, BigMatrix *a, int nsample,
+void movedataOut(BigMatrix *x, BigMatrix *asave, BigMatrix *a, int nexamples,
     const int *factors, const int *varselect, const int *contvarseq,
     int ndstart, int *ndendl, int ndend, int *ncase, int bestvar,
     double bestnumsplit, const int *bestcatsplit);

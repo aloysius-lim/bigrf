@@ -2,6 +2,8 @@ grow.bigcforest <- function(forest,
                             x,
                             y=NULL,
                             ntrees=500L,
+                            printerrfreq=10L,
+                            printclserr=TRUE,
                             reuse.cache=FALSE,
                             trace=FALSE) {
     
@@ -49,6 +51,22 @@ grow.bigcforest <- function(forest,
     ntrees <- as.integer(round(ntrees))
     if (ntrees < 1L) {
         stop("Argument ntrees must be at least 1.")
+    }
+    
+    # Check printerrfreq.
+    if (!is.numeric(printerrfreq) ||
+            abs(printerrfreq - round(printerrfreq)) >=
+            .Machine$double.eps ^ 0.5) {
+        stop ("Argument printerrfreq must be an integer.")
+    }
+    printerrfreq <- as.integer(round(printerrfreq))
+    if (printerrfreq < 1L) {
+        stop("Argument printerrfreq cannot be less than 1.")
+    }
+    
+    # Check printclserr.
+    if (!is.logical(printclserr)) {
+        stop ("Argument printclserr must be a logical.")
     }
     
     # Check reuse.cache.
@@ -102,34 +120,28 @@ grow.bigcforest <- function(forest,
                                "learning.")
             x.old <- x
             if (is.null(forest@cachepath)) {
-                x <- big.matrix(forest@nsample, ncol(x), type="double")
+                x <- big.matrix(forest@nexamples, ncol(x), type=typeof(x.old))
             } else {
-                x <- big.matrix(forest@nsample, ncol(x), type="double",
+                x <- big.matrix(forest@nexamples, ncol(x), type=typeof(x.old),
                                 backingfile="x.unsupervised",
                                 descriptorfile="x.unsupervised.desc",
                                 backingpath=forest@cachepath)
             }
-            for (m in seq_len(ncol(x))) {
-                k <- as.integer(runif(forest@nsample - nrow(x), 0, nrow(x)) + 1)
-                x[seq_len(nrow(x)), m] <- x.old[seq_len(nrow(x)), m]
-                x[(nrow(x) + 1):forest@nsample, m] <- x.old[k, m]
-            }
-            rm(x.old, m, k)
+            .Call("synthesizeUnsupervisedC", x.old@address, x@address,
+                  as.integer(.Call("CGetType", x.old@address,
+                                   PACKAGE="bigmemory")))
+            rm(x.old)
         }
         
-        y <- c(rep.int(1L, nrow(x)), rep.int(2L, forest@nsample - nrow(x)))
-        forest@nclass <- 2L
+        y <- c(rep.int(1L, nrow(x) / 2),
+               rep.int(2L, forest@nexamples - nrow(x) / 2))
     }
     
     
     
     # Tabulate y ---------------------------------------------------------------
     class(y) <- "factor"
-    if (forest@supervised) {
-        levels(y) <- forest@ylevels
-    } else {
-        levels(y) <- c("original", "synthesized")
-    }
+    levels(y) <- forest@ylevels
     forest@ytable <- table(y, deparse.level=0);
     y <- as.integer(y)
     
@@ -146,10 +158,10 @@ grow.bigcforest <- function(forest,
     } else {
         if (trace) message("Setting up asave big.matrix.")
         if (is.null(forest@cachepath)) {
-            asave <- big.matrix(forest@nsample, length(forest@varselect),
+            asave <- big.matrix(forest@nexamples, length(forest@varselect),
                                 type="integer")
         } else {
-            asave <- big.matrix(forest@nsample, length(forest@varselect),
+            asave <- big.matrix(forest@nexamples, length(forest@varselect),
                                 type="integer",
                                 backingfile="asave",
                                 descriptorfile="asave.desc",
@@ -172,10 +184,10 @@ grow.bigcforest <- function(forest,
         
         if (trace) message("Tree ", treenum, ": Taking bootstrap sample.")
         
-        insamp <- integer(forest@nsample)
-        inweight <- numeric(forest@nsample)
+        insamp <- integer(forest@nexamples)
+        inweight <- numeric(forest@nexamples)
         
-        k <- as.integer(runif(forest@nsample, 0, forest@nsample) + 1)
+        k <- as.integer(runif(forest@nexamples, 0, forest@nexamples) + 1)
         t <- table(k)
         insamp[as.integer(names(t))] <- as.integer(t)
         inweight[as.integer(names(t))] <-
@@ -236,13 +248,14 @@ grow.bigcforest <- function(forest,
         tree <- buildtree(x, y, asave, a, a.out, forest, insamp, inweight,
                           treenum, trace)
         list(treenum=treenum,
-           oldntrees=oldntrees,
-           ntrees=ntrees,
-           y=y,
-           insamp=insamp,
-           tree=tree,
-           trace=trace)
-        
+             oldntrees=oldntrees,
+             ntrees=ntrees,
+             y=y,
+             insamp=insamp,
+             tree=tree,
+             printerrfreq=printerrfreq,
+             printclserr=printclserr,
+             trace=trace)
     }
   
     
@@ -267,12 +280,10 @@ grow.bigcforest <- function(forest,
     
     pred <- forest@oobpred
     pred[pred == 0L] <- forest@nclass + 1L
-    if (length(forest@ylevels)) {
-        class(pred) <- "factor"
-        levels(pred) <- c(forest@ylevels, "Never out-of-bag")
-        class(y) <- "factor"
-        levels(y) <- forest@ylevels
-    }
+    class(pred) <- "factor"
+    levels(pred) <- c(forest@ylevels, "Never out-of-bag")
+    class(y) <- "factor"
+    levels(y) <- forest@ylevels
     forest@trainconfusion <- table(y, pred, dnn=c("Actual", "Predicted"))
     rm(pred)
     

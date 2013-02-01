@@ -45,7 +45,7 @@ bigrfc <- function(x,
             nclass <- length(ylevels)
             y <- as.integer(y)
         } else if (is.integer(y)) {
-            ylevels <- character()
+            ylevels <- as.character(unique(y))
             nclass <- length(unique(y))
         } else {
             stop("Argument y must be a factor or integer vector of class ",
@@ -55,6 +55,9 @@ bigrfc <- function(x,
             stop("Argument y must have as many elements as there are rows in ",
                  "x.")
         }
+    } else {
+        ylevels = c("original", "synthesized")
+        nclass = 2L;
     }
     
     # Check ntrees.
@@ -239,56 +242,42 @@ bigrfc <- function(x,
                   maxeslevels=maxeslevels,
                   nrandsplit=nrandsplit,
                   trainconfusion=table(0),
-                  printerrfreq=printerrfreq,
-                  printclserr=printclserr,
                   cachepath=cachepath)
     rm(supervised, factors, nlevels, varselect, nclass, classweights, nsplitvar,
-       maxndsize, maxeslevels, nrandsplit, printerrfreq, printclserr, cachepath)
+       maxndsize, maxeslevels, nrandsplit, cachepath)
     
-    # The number of cases in the test set, or 0 if there is no test set.
-    # ntest <- 0
-    
-    # 0 if the test set has no class labels, 1 if the test set has class labels. 
-    # labelts <- 0
-    
-    # Number of samples to be used to build model.
-    forest@nsample <- ifelse(forest@supervised, as.integer(nrow(x)),
+    # Number of examples to be used to build model.
+    forest@nexamples <- ifelse(forest@supervised, as.integer(nrow(x)),
                              2L * as.integer(nrow(x)))
     
     # Maximum number of nodes in any given tree.
-    # Theoretically, 2*nsample - 1 should be enough
-    forest@maxnodes <- 2L * forest@nsample + 1L
+    # Theoretically, 2*nexamples - 1 should be enough
+    forest@maxnodes <- 2L * forest@nexamples + 1L
     
     # Sequence number of categorical variables. Used to index columns of a and
     # a.out later.
     forest@contvarseq <- integer(length(forest@factors))
     forest@contvarseq[!forest@factors] <- seq_len(sum(!forest@factors))
     
-    # iftest <- ntest / (ntest - .1)
-    
-    # ntest0 <- (1L - iftest) + ntest
-    
     # if (supervised) {
     #   wtx <- classweights[y]
     # } else {
-    #   wtx <- rep.int(1, nsample)
+    #   wtx <- rep.int(1, nexamples)
     # }
     
-    # Number of trees for which the each sample has been out-of-bag.
-    forest@oobtimes <- integer(forest@nsample)
-    forest@oobvotes <- matrix(0, forest@nsample, forest@nclass)
-    forest@oobpred <- integer(forest@nsample)
+    # Number of trees for which the each example has been out-of-bag.
+    forest@oobtimes <- integer(forest@nexamples)
+    forest@oobvotes <- matrix(0, forest@nexamples, forest@nclass)
+    forest@oobpred <- integer(forest@nexamples)
     forest@trainclserr <- numeric(forest@nclass)
-    # if (ntest > 0) {
-    #    qts <- matrix(0, nclass, ntest)
-    # }
     forest@avgini <- numeric(length(forest@varselect))
     
     
     
     # Grow forest --------------------------------------------------------------
     
-    forest <- grow.bigcforest(forest, x, y, ntrees, trace=trace)
+    forest <- grow.bigcforest(forest, x, y, ntrees, printerrfreq=printerrfreq,
+                              printclserr=printclserr, trace=trace)
     
     return(forest)
 }
