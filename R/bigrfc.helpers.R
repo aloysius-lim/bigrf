@@ -63,7 +63,6 @@ buildtree <- function(x, y, asave, a, a.out, forest, insamp, inweight, treenum,
 # Combine results of tree builds. To be used only as a .combine function in
 # foreach().
 combine.treeresults <- function(forest, newtree) {
-    trace <- newtree$trace
     treenum <- forest@ntrees + 1L
     oldntrees <- newtree$oldntrees
     ntrees <- newtree$ntrees

@@ -13,16 +13,21 @@ bigrfc <- function(x,
                    printerrfreq=10L,
                    printclserr=TRUE,
                    cachepath=tempdir(),
-                   trace=FALSE) {
+                   trace=0L) {
     
     # Check arguments ----------------------------------------------------------
     
     # Check trace.
-    if (!is.logical(trace)) {
-        stop ("Argument trace must be a logical.")
+    if (!is.numeric(trace) ||
+            abs(trace - round(trace)) >= .Machine$double.eps ^ 0.5) {
+        stop ("Argument trace must be an integer.")
+    }
+    trace <- as.integer(round(trace))
+    if (trace < 0L || trace > 2L) {
+        stop("Argument trace must be 0, 1 or 2.")
     }
     
-    if (trace) message("Checking arguments.")
+    if (trace >= 1L) message("Checking arguments in bigrfc.")
     
     # Check supervised.
     if (!is.logical(supervised)) {
@@ -215,7 +220,7 @@ bigrfc <- function(x,
     
     # Initialize parameters ----------------------------------------------------
     
-    if (trace) message("Initializing parameters.")
+    if (trace >= 1L) message("Initializing parameters in bigrfc.")
     
     # Convert x to big.matrix, as C functions only support this at the moment.
     if (class(x) != "big.matrix") {

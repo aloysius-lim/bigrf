@@ -9,7 +9,7 @@ Predicts classes of a test set using a random forest.
 }
 \usage{
   \S4method{predict}{bigcforest}(object, x, y=NULL, printerrfreq=10L,
-  printclserr=TRUE, cachepath=tempdir(), trace=FALSE)
+  printclserr=TRUE, cachepath=tempdir(), trace=0L)
 }
 \arguments{
   \item{object}{
@@ -31,7 +31,7 @@ Predicts classes of a test set using a random forest.
     Path to folder where data caches used in building the forest can be stored. If \code{NULL}, then the \code{big.matrix}'s will be created in memory, with no disk caching; this will be suitable for small data sets. Default: \code{tempdir()}.
   }
   \item{trace}{
-    \code{TRUE} to turn on verbose output, \code{FALSE} otherwise. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.
+    \code{0} for no verbose output. \code{1} to print verbose output on prediction by trees. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.
   }
 }
 \details{

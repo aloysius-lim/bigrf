@@ -2,15 +2,20 @@ predict.bigcforest <- function(object, x, y=NULL,
                                printerrfreq=10L,
                                printclserr=TRUE,
                                cachepath=tempdir(),
-                               trace=FALSE) {
+                               trace=0L) {
     # Check arguments ----------------------------------------------------------
     
     # Check trace.
-    if (!is.logical(trace)) {
-        stop ("Argument trace must be a logical.")
+    if (!is.numeric(trace) ||
+            abs(trace - round(trace)) >= .Machine$double.eps ^ 0.5) {
+        stop ("Argument trace must be an integer.")
+    }
+    trace <- as.integer(round(trace))
+    if (trace < 0L || trace > 1L) {
+        stop("Argument trace must be 0 or 1.")
     }
     
-    if (trace) message("Checking arguments.")
+    if (trace >= 1L) message("Checking arguments.")
     
     # Check forest.
     forest <- object
@@ -123,7 +128,7 @@ predict.bigcforest <- function(object, x, y=NULL,
     prediction <- foreach(t=seq_len(forest@ntrees),
                           .combine=combine.treepredictresults, .init=prediction,
                           .inorder=FALSE, .verbose=FALSE) %dopar% {
-        if (trace) message("Running tree ", t, " on test examples.")
+        if (trace >= 1L) message("Running tree ", t, " on test examples.")
         tree <- forest[[t]]
 
         treepredict.result <- .Call("treepredictC", x@address, xtype,

@@ -146,7 +146,7 @@ SEXP buildtree(BigMatrix *x, const int *y, BigMatrix *asave, BigMatrix *a,
         bestnumsplit[i] = 0;
         termincount[i] = 0;
     }
-    for (int i; i < nexamples; i++) {
+    for (int i = 0; i < nexamples; i++) {
         trainprednode[i] = 0;
         trainpredclass[i] = 0;
     }
@@ -202,7 +202,8 @@ SEXP buildtree(BigMatrix *x, const int *y, BigMatrix *asave, BigMatrix *a,
     // Main loop.
     int nd;
     for (nd = 0; nd < maxnodes; nd++) {
-        if (trace) Rprintf("Tree %d: Processing node %d.\n", treenum, nd + 1);
+        if (trace >= 2)
+            Rprintf("Tree %d: Processing node %d.\n", treenum, nd + 1);
         
         if (nd > *nnodes) {
             break;
@@ -504,7 +505,7 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *asave,
             // take the best of nrandsplit random splits. Otherwise, perform an
             // exhaustive search for the best split over all partitions of the
             // variable levels.
-            unsigned long long maxlsearch;
+            unsigned long maxlsearch;
             if (lcat <= maxeslevels) {
                 // Exhaustive search.
                 maxlsearch = R_pow_di(2, lcat - 1) - 1;
@@ -513,7 +514,7 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *asave,
                 maxlsearch = nrandsplit;
             }
             // Test each split (random or exhustive).
-            for (unsigned long long n = 1; n <= maxlsearch; n++) {
+            for (unsigned long n = 1; n <= maxlsearch; n++) {
                 // Set up icat to indicate which variables to split on.
                 if (lcat <= maxeslevels) {
                     // Exhaustive search.
@@ -737,7 +738,7 @@ void movedataWorker(MatrixAccessor<int> aAcc, const int *factors,
 /* Utility function for "unpacking"" an integer into an array of 1s and 0s (i.e.
    binary). Used to represent best categorical splits (ncatsplit). Requires
    an empty array icat to be passed in. */
-void unpack(unsigned long long npack, int *icat, int l) {
+void unpack(unsigned long npack, int *icat, int l) {
     icat[0] = npack % 2;
     for (int k = 1; k < l; k++) {
         npack = (npack - icat[k - 1]) / 2;
@@ -748,8 +749,8 @@ void unpack(unsigned long long npack, int *icat, int l) {
 
 
 /* The reverse of unpack. */
-unsigned long long pack(int *icat, int l) {
-    unsigned long long n = 0;
+unsigned long pack(int *icat, int l) {
+    unsigned long n = 0;
     for (int i = l - 1; i >= 0; i--) {
         n *= 2;
         n += icat[i];

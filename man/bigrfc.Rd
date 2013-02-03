@@ -12,7 +12,7 @@
     nsplitvar = round(sqrt(ifelse(is.null(varselect), ncol(x),
     length(varselect)))), maxeslevels = 11L, nrandsplit = 1023L,
     maxndsize = 1L, classweights = NULL, printerrfreq = 10L,
-    printclserr = TRUE, cachepath = tempdir(), trace = FALSE)
+    printclserr = TRUE, cachepath = tempdir(), trace = 0L)
 }
 \arguments{
   \item{x}{
@@ -58,7 +58,7 @@
     Path to folder where data caches used in building the forest can be stored. If \code{NULL}, then the \code{big.matrix}'s will be created in memory, with no disk caching; this will be suitable for small data sets. Default: \code{tempdir()}.
   }
   \item{trace}{
-    \code{TRUE} to turn on verbose output, \code{FALSE} otherwise. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.
+    \code{0} for no verbose output. \code{1} to print verbose output on tree building. \code{2} to print more verbose output on processing of individual nodes. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.
   }
 }
 \details{

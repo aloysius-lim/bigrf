@@ -5,16 +5,21 @@ grow.bigcforest <- function(forest,
                             printerrfreq=10L,
                             printclserr=TRUE,
                             reuse.cache=FALSE,
-                            trace=FALSE) {
+                            trace=0L) {
     
     # Check arguments ----------------------------------------------------------
     
     # Check trace.
-    if (!is.logical(trace)) {
-        stop ("Argument trace must be a logical.")
+    if (!is.numeric(trace) ||
+            abs(trace - round(trace)) >= .Machine$double.eps ^ 0.5) {
+        stop ("Argument trace must be an integer.")
+    }
+    trace <- as.integer(round(trace))
+    if (trace < 0L || trace > 2L) {
+        stop("Argument trace must be 0, 1 or 2.")
     }
     
-    if (trace) message("Checking arguments.")
+    if (trace >= 1L) message("Checking arguments in grow.")
     
     # Check forest.
     if (!class(forest) == "bigcforest") {
@@ -116,8 +121,8 @@ grow.bigcforest <- function(forest,
         if (reuse.cache) {
             x <- attach.resource("x.desc", path=forest@cachepath)
         } else {
-            if (trace) message("Creating a synthetic class for unsupervised ",
-                               "learning.")
+            if (trace >= 1L) message("Creating a synthetic class for ",
+                                     "unsupervised learning.")
             x.old <- x
             if (is.null(forest@cachepath)) {
                 x <- big.matrix(forest@nexamples, ncol(x), type=typeof(x.old))
@@ -153,10 +158,10 @@ grow.bigcforest <- function(forest,
     
     # Set up asave big.matrix.
     if (reuse.cache) {
-        if (trace) message("Loading asave big.matrix.")
+        if (trace >= 1L) message("Loading asave big.matrix.")
         asave <- attach.resource("asave.desc", path=forest@cachepath)
     } else {
-        if (trace) message("Setting up asave big.matrix.")
+        if (trace >= 1L) message("Setting up asave big.matrix.")
         if (is.null(forest@cachepath)) {
             asave <- big.matrix(forest@nexamples, length(forest@varselect),
                                 type="integer")
@@ -177,12 +182,12 @@ grow.bigcforest <- function(forest,
     forest <- foreach(treenum=(forest@ntrees + 1):(forest@ntrees + ntrees),
                       .combine=combine.treeresults, .init=forest,
                       .inorder=FALSE, .verbose=FALSE) %dopar% {
-        if (trace) message("Building tree ", treenum, " of ",
-                           oldntrees + ntrees, ".")
+        if (trace >= 1L) message("Building tree ", treenum, " of ",
+                                 oldntrees + ntrees, ".")
         
         # Take a bootstrap sample ----------------------------------------------
         
-        if (trace) message("Tree ", treenum, ": Taking bootstrap sample.")
+        if (trace >= 2L) message("Tree ", treenum, ": Taking bootstrap sample.")
         
         insamp <- integer(forest@nexamples)
         inweight <- numeric(forest@nexamples)
@@ -196,8 +201,8 @@ grow.bigcforest <- function(forest,
         
         # Set up a and a.out big.matrix's for caching --------------------------
         
-        if (trace) message("Tree ", treenum,
-                           ": Setting up a and a.out big.matrix's.")
+        if (trace >= 2L) message("Tree ", treenum,
+                                 ": Setting up a and a.out big.matrix's.")
         if (any(!forest@factors)) {
             if (is.null(forest@cachepath)) {
                 a <- big.matrix(sum(insamp > 0L), sum(!forest@factors),
@@ -244,7 +249,7 @@ grow.bigcforest <- function(forest,
         
         # Build tree -----------------------------------------------------------
         
-        if (trace) message("Tree ", treenum, ": Building tree.")
+        if (trace >= 2L) message("Tree ", treenum, ": Building tree.")
         tree <- buildtree(x, y, asave, a, a.out, forest, insamp, inweight,
                           treenum, trace)
         list(treenum=treenum,
@@ -254,15 +259,14 @@ grow.bigcforest <- function(forest,
              insamp=insamp,
              tree=tree,
              printerrfreq=printerrfreq,
-             printclserr=printclserr,
-             trace=trace)
+             printclserr=printclserr)
     }
   
     
     
     # Normalize votes ----------------------------------------------------------
     
-    # if (trace) message("Normalizing votes.")
+    # if (trace >= 1L) message("Normalizing votes.")
     # w <- which(forest@oobtimes > 0)
     # for (c in seq_len(forest@nclass)) {
     #   forest@oobvotes[w, c] <- forest@oobvotes[w, c] / forest@oobtimes[w]
