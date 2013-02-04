@@ -37,9 +37,6 @@
     \code{0} for no verbose output. \code{1} to print verbose output on tree building. \code{2} to print more verbose output on processing of individual nodes. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.
   }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
 \value{
   The object supplied as the \code{forest} argument, with additional trees grown.
 }
@@ -49,21 +46,6 @@
       Grow more trees in the given classification forest.
     }
   }
-}
-\references{
-%% ~put references to the literature/web site here ~
-}
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 # Classify cars in the Cars93 data set by type (Compact, Large,

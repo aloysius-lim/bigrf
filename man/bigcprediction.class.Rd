@@ -38,22 +38,6 @@ Class \code{"\linkS4class{data.frameRowLabels}"}, by class "integer", distance 2
     \item{summary}{\code{signature(object = "bigcprediction")}: Prints summary information on the prediction results, including test error estimates and the confusion matrix, if test labells were supplied during prediction.}
 	 }
 }
-\references{
-%%  ~~put references to the literature/web site here~~
-}
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%%  ~~objects to See Also as \code{\link{~~fun~~}}, ~~~
-%%  ~~or \code{\linkS4class{CLASSNAME}} for links to other classes ~~~
-}
 \examples{
 showClass("bigcprediction")
 }

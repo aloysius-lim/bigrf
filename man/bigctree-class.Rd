@@ -30,22 +30,6 @@ Objects can be created by calls of the form \code{new("bigctree", ...)}, but mos
 \section{Methods}{
 No methods defined with class "bigctree" in the signature.
 }
-\references{
-%%  ~~put references to the literature/web site here~~
-}
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%%  ~~objects to See Also as \code{\link{~~fun~~}}, ~~~
-%%  ~~or \code{\linkS4class{CLASSNAME}} for links to other classes ~~~
-}
 \examples{
 showClass("bigctree")
 }

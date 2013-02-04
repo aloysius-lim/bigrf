@@ -38,7 +38,7 @@ Predicts classes of a test set using a random forest.
   These methods copy all the trees from \code{y} into \code{x}, and calculates the error statistics and confusion matrices of the merged forest.
 }
 \value{
-  The merged forest of the same class as the input arguments.
+  An object of class \code{"\linkS4class{bigcprediction}"} containing the prediction results.
 }
 \section{Methods}{
 \describe{
