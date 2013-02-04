@@ -92,12 +92,14 @@ grow.bigcforest <- function(forest,
                  '" does not exist. Cannot reuse cache.')
         }
         if (!forest@supervised) {
-            if (!file.exists(paste0(forest@cachepath, "/", "x"))) {
-                stop('File "', paste0(forest@cachepath, "/", "x"),
+            if (!file.exists(paste0(forest@cachepath, "/", "x.unsupervised"))) {
+                stop('File "', paste0(forest@cachepath, "/", "x.unsupervised"),
                      '" does not exist. Cannot reuse cache.')
             }
-            if (!file.exists(paste0(forest@cachepath, "/", "x.desc"))) {
-                stop('File "', paste0(forest@cachepath, "/", "x.desc"),
+            if (!file.exists(paste0(forest@cachepath, "/",
+                                    "x.unsupervised.desc"))) {
+                stop('File "',
+                     paste0(forest@cachepath, "/", "x.unsupervised.desc"),
                      '" does not exist. Cannot reuse cache.')
             }
         }
@@ -119,7 +121,7 @@ grow.bigcforest <- function(forest,
     
     if (!forest@supervised) {
         if (reuse.cache) {
-            x <- attach.resource("x.desc", path=forest@cachepath)
+            x <- attach.resource("x.unsupervised.desc", path=forest@cachepath)
         } else {
             if (trace >= 1L) message("Creating a synthetic class for ",
                                      "unsupervised learning.")
@@ -256,7 +258,6 @@ grow.bigcforest <- function(forest,
              oldntrees=oldntrees,
              ntrees=ntrees,
              y=y,
-             insamp=insamp,
              tree=tree,
              printerrfreq=printerrfreq,
              printclserr=printclserr)
