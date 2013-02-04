@@ -1,3 +1,7 @@
+setGeneric("grow", function(forest, ...) standardGeneric("grow"))
+
+
+
 grow.bigcforest <- function(forest,
                             x,
                             y=NULL,
