@@ -2,14 +2,14 @@ bigrfc <- function(x,
                    y=NULL,
                    ntrees=500L,
                    supervised=!is.null(y),
-                   nlevels=NULL,
                    varselect=NULL,
+                   varnlevels=NULL,
                    nsplitvar=round(sqrt(ifelse(is.null(varselect), ncol(x),
                                                length(varselect)))),
                    maxeslevels=11L,
                    nrandsplit=1023L,
                    maxndsize=1L,
-                   classweights=NULL,
+                   yclasswts=NULL,
                    printerrfreq=10L,
                    printclserr=TRUE,
                    cachepath=tempdir(),
@@ -39,7 +39,7 @@ bigrfc <- function(x,
         stop("Argument x must be a big.matrix, matrix or data.frame.")
     }
     
-    # Check y, and set nclass, the number of classes in the response variable.
+    # Check y, and set ynclass, the number of classes in the response variable.
     # Also, if y is a factor vector, set ylevels, the original factor labels.
     if (supervised) {
         if (is.null(y)) {
@@ -47,11 +47,11 @@ bigrfc <- function(x,
         }
         if (is.factor(y)) {
             ylevels <- levels(y)
-            nclass <- length(ylevels)
+            ynclass <- length(ylevels)
             y <- as.integer(y)
         } else if (is.integer(y)) {
             ylevels <- as.character(unique(y))
-            nclass <- length(unique(y))
+            ynclass <- length(unique(y))
         } else {
             stop("Argument y must be a factor or integer vector of class ",
                  "labels.")
@@ -62,7 +62,7 @@ bigrfc <- function(x,
         }
     } else {
         ylevels = c("original", "synthesized")
-        nclass = 2L;
+        ynclass = 2L;
     }
     
     # Check ntrees.
@@ -94,36 +94,36 @@ bigrfc <- function(x,
         }
     }
 
-    # Check nlevels, and set factors, a logical vector indicating which
+    # Check varnlevels, and set factorvars, a logical vector indicating which
     # variables of x are factors.
     if (class(x) == "data.frame") {
-        if (!is.null(nlevels)) {
-            warning("Argument nlevels argument is ignored for data.frames. ",
-                    "nlevels will be inferred from columns of x instead.")
+        if (!is.null(varnlevels)) {
+            warning("Argument varnlevels argument is ignored for data.frames. ",
+                    "varnlevels will be inferred from columns of x instead.")
         }
-        factors <- sapply(x[varselect], is.factor)
-        nlevels <- integer(length(varselect))
-        nlevels[factors] <- as.integer(sapply(x[varselect][factors],
-                                              function(n) length(levels(n))))
-    } else if (is.null(nlevels)) {
-        warning("x is not a data.frame and argument nlevels is not specified. ",
-                "Number of levels cannot be inferred so all variables will be ",
-                "treated as numeric.")
-        factors <- logical(length(varselect))
-        nlevels <- numeric(length(varselect))
+        factorvars <- sapply(x[varselect], is.factor)
+        varnlevels <- integer(length(varselect))
+        varnlevels[factorvars] <- as.integer(sapply(x[varselect][factorvars],
+                                                 function(n) length(levels(n))))
+    } else if (is.null(varnlevels)) {
+        warning("x is not a data.frame and argument varnlevels is not ",
+                "specified. Number of levels cannot be inferred so all ",
+                "variables will be treated as numeric.")
+        factorvars <- logical(length(varselect))
+        varnlevels <- numeric(length(varselect))
     } else {
-        if (!is.integer(nlevels)) {
-            stop("Argument nlevels must be an integer vector.")
+        if (!is.integer(varnlevels)) {
+            stop("Argument varnlevels must be an integer vector.")
         }
-        if (length(nlevels) != length(varselect)) {
-            stop("Argument nlevels must have the same number of elements as ",
+        if (length(varnlevels) != length(varselect)) {
+            stop("Argument varnlevels must have the same number of elements as ",
                  "the number of variables being used.")
         }
-        if (any(nlevels == 1L)) {
-            stop("Variable(s) ", paste(which(nlevels == 1L), collapse=", "),
+        if (any(varnlevels == 1L)) {
+            stop("Variable(s) ", paste(which(varnlevels == 1L), collapse=", "),
                  " have only 1 level each, and cannot be used to split nodes.")
         }
-        factors <- nlevels > 0L
+        factorvars <- varnlevels > 0L
     }
     
     # Check nsplitvar.
@@ -172,21 +172,21 @@ bigrfc <- function(x,
         stop("Argument maxndsize must be at least 1.")
     }
     
-    # Check classweights.
+    # Check yclasswts.
     if (!is.null(y)) {
-        if (is.null(classweights)) {
-            classweights <- rep.int(1L, nclass)
+        if (is.null(yclasswts)) {
+            yclasswts <- rep.int(1L, ynclass)
         } else {
-            if (!is.numeric(classweights)) {
-                stop("Argument classweights must be a numeric vector.")
+            if (!is.numeric(yclasswts)) {
+                stop("Argument yclasswts must be a numeric vector.")
             }
-            if (length(classweights) != nclass) {
-                stop("Argument classweights must have the same number of ",
+            if (length(yclasswts) != ynclass) {
+                stop("Argument yclasswts must have the same number of ",
                      "elements as there are levels in y.")
             }
         }
     }
-    classweights <- scale(classweights, center=FALSE)
+    yclasswts <- scale(yclasswts, center=FALSE)
     
     # Check printerrfreq.
     if (!is.numeric(printerrfreq) ||
@@ -234,13 +234,13 @@ bigrfc <- function(x,
     
     forest <- new("bigcforest",
                   supervised=supervised,
-                  factors=factors,
-                  ylevels=ylevels,
-                  nlevels=nlevels,
-                  ytable=table(0),
                   varselect=varselect,
-                  nclass=ifelse(supervised, nclass, 2L),
-                  classweights=classweights,
+                  factorvars=factorvars,
+                  varnlevels=varnlevels,
+                  ylevels=ylevels,
+                  ytable=table(0),
+                  ynclass=ifelse(supervised, ynclass, 2L),
+                  yclasswts=yclasswts,
                   ntrees=0L,
                   nsplitvar=nsplitvar,
                   maxndsize=maxndsize,
@@ -248,8 +248,8 @@ bigrfc <- function(x,
                   nrandsplit=nrandsplit,
                   trainconfusion=table(0),
                   cachepath=cachepath)
-    rm(supervised, factors, nlevels, varselect, nclass, classweights, nsplitvar,
-       maxndsize, maxeslevels, nrandsplit, cachepath)
+    rm(supervised, factorvars, varnlevels, varselect, ynclass, yclasswts,
+       nsplitvar, maxndsize, maxeslevels, nrandsplit, cachepath)
     
     # Number of examples to be used to build model.
     forest@nexamples <- ifelse(forest@supervised, as.integer(nrow(x)),
@@ -261,20 +261,20 @@ bigrfc <- function(x,
     
     # Sequence number of categorical variables. Used to index columns of a and
     # a.out later.
-    forest@contvarseq <- integer(length(forest@factors))
-    forest@contvarseq[!forest@factors] <- seq_len(sum(!forest@factors))
+    forest@contvarseq <- integer(length(forest@factorvars))
+    forest@contvarseq[!forest@factorvars] <- seq_len(sum(!forest@factorvars))
     
     # if (supervised) {
-    #   wtx <- classweights[y]
+    #   wtx <- yclasswts[y]
     # } else {
     #   wtx <- rep.int(1, nexamples)
     # }
     
     # Number of trees for which the each example has been out-of-bag.
     forest@oobtimes <- integer(forest@nexamples)
-    forest@oobvotes <- matrix(0, forest@nexamples, forest@nclass)
+    forest@oobvotes <- matrix(0, forest@nexamples, forest@ynclass)
     forest@oobpred <- integer(forest@nexamples)
-    forest@trainclserr <- numeric(forest@nclass)
+    forest@trainclserr <- numeric(forest@ynclass)
     forest@avgini <- numeric(length(forest@varselect))
     
     

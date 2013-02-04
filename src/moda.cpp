@@ -8,8 +8,8 @@
  */
 extern "C" {
     
-    SEXP modaC(SEXP asaveP, SEXP aP, SEXP factorsP, SEXP insampP) {
-        return moda(asaveP, aP, factorsP, insampP);
+    SEXP modaC(SEXP asaveP, SEXP aP, SEXP factorvarsP, SEXP insampP) {
+        return moda(asaveP, aP, factorvarsP, insampP);
     }
     
 }
@@ -24,14 +24,14 @@ extern "C" {
    each continuous variable, copies only the in-sample indices from asave to a.
    Data for categorical variables are not copied, as they are stored in asave.
    This function should only be called if there are any continuous variables. */
-SEXP moda(SEXP asaveP, SEXP aP, SEXP factorsP, SEXP insampP) {
+SEXP moda(SEXP asaveP, SEXP aP, SEXP factorvarsP, SEXP insampP) {
     // Initialize function arguments.
     BigMatrix *asave = (BigMatrix*)R_ExternalPtrAddr(asaveP);
     BigMatrix *a = (BigMatrix*)R_ExternalPtrAddr(aP);
     MatrixAccessor<int> asaveAcc(*asave);
     MatrixAccessor<int> aAcc(*a);
     int *asaveCol, *aCol;
-    int *factors = LOGICAL(factorsP), *insamp = INTEGER(insampP);
+    int *factorvars = LOGICAL(factorvarsP), *insamp = INTEGER(insampP);
     
     // Set up working variables.
     index_type nCols = asave->ncol();
@@ -41,7 +41,7 @@ SEXP moda(SEXP asaveP, SEXP aP, SEXP factorsP, SEXP insampP) {
     // For each numerical variable, move all the in-sample data to the top rows
     // of a.
     for (ia = 0, ib = 0; ia < nCols; ia++) {
-        if (factors[ia] == 0) {
+        if (factorvars[ia] == 0) {
             asaveCol = asaveAcc[ia];
             aCol = aAcc[ib++];
             for (ja = 0, jb = 0; ja < nRows; ja++) {

@@ -51,7 +51,7 @@ SEXP treepredict(BigMatrix* x, int ntest, SEXP forestP, SEXP treeP) {
     
     // Initialize function arguments.
     MatrixAccessor<xtype> xAcc(*x);
-    const int *factors = INTEGER(GET_SLOT(forestP, install("factors")));
+    const int *factorvars = INTEGER(GET_SLOT(forestP, install("factorvars")));
     const int *varselect = INTEGER(GET_SLOT(forestP, install("varselect")));
     const int nnodes = *INTEGER(GET_SLOT(treeP, install("nnodes")));
     const int *bestvar = INTEGER(GET_SLOT(treeP, install("bestvar")));
@@ -82,7 +82,7 @@ SEXP treepredict(BigMatrix* x, int ntest, SEXP forestP, SEXP treeP) {
         while (treemap1[nd] > 0) {
             int bv = bestvar[nd] - 1;
             double xVal = xAcc[varselect[bv] - 1][i];
-            if (!factors[bv]) {
+            if (!factorvars[bv]) {
                 // This node was split on a numerical variable.
                 if (xVal <= bestnumsplit[nd]) {
                     nd = treemap1[nd] - 1;

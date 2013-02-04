@@ -172,7 +172,7 @@ grow.bigcforest <- function(forest,
                                 descriptorfile="asave.desc",
                                 backingpath=forest@cachepath)
         }
-        makea(x, asave, forest@factors, forest@varselect)
+        makea(x, asave, forest@factorvars, forest@varselect)
     }
     
     
@@ -196,34 +196,34 @@ grow.bigcforest <- function(forest,
         t <- table(k)
         insamp[as.integer(names(t))] <- as.integer(t)
         inweight[as.integer(names(t))] <-
-          as.integer(t) * forest@classweights[y[as.integer(names(t))]]
+          as.integer(t) * forest@yclasswts[y[as.integer(names(t))]]
         rm(k, t)
         
         # Set up a and a.out big.matrix's for caching --------------------------
         
         if (trace >= 2L) message("Tree ", treenum,
                                  ": Setting up a and a.out big.matrix's.")
-        if (any(!forest@factors)) {
+        if (any(!forest@factorvars)) {
             if (is.null(forest@cachepath)) {
-                a <- big.matrix(sum(insamp > 0L), sum(!forest@factors),
+                a <- big.matrix(sum(insamp > 0L), sum(!forest@factorvars),
                                 type="integer")
-                a.out <- big.matrix(sum(insamp == 0L), sum(!forest@factors),
+                a.out <- big.matrix(sum(insamp == 0L), sum(!forest@factorvars),
                                     type="integer")
             } else {
-                a <- big.matrix(sum(insamp > 0L), sum(!forest@factors),
+                a <- big.matrix(sum(insamp > 0L), sum(!forest@factorvars),
                                 type="integer",
                                 backingfile=paste0("a-", treenum),
                                 descriptorfile=paste0("a-", treenum, ".desc"),
                                 backingpath=forest@cachepath)
-                a.out <- big.matrix(sum(insamp == 0L), sum(!forest@factors),
+                a.out <- big.matrix(sum(insamp == 0L), sum(!forest@factorvars),
                                     type="integer",
                                     backingfile=paste0("a.out-", treenum),
                                     descriptorfile=paste0("a.out-", treenum,
                                                           ".desc"),
                                     backingpath=forest@cachepath)
             }
-            moda(asave, a, forest@factors, insamp)
-            moda(asave, a.out, forest@factors, insamp == 0L)
+            moda(asave, a, forest@factorvars, insamp)
+            moda(asave, a.out, forest@factorvars, insamp == 0L)
         } else {
             if (is.null(forest@cachepath)) {
                 a <- big.matrix(1L, 1L, type="integer")
@@ -268,7 +268,7 @@ grow.bigcforest <- function(forest,
     
     # if (trace >= 1L) message("Normalizing votes.")
     # w <- which(forest@oobtimes > 0)
-    # for (c in seq_len(forest@nclass)) {
+    # for (c in seq_len(forest@ynclass)) {
     #   forest@oobvotes[w, c] <- forest@oobvotes[w, c] / forest@oobtimes[w]
     #   # if (ntest > 0L) {
     #   #   for (n in seq_len(ntest0)) {
@@ -283,7 +283,7 @@ grow.bigcforest <- function(forest,
     # Calculate confusion matrix -----------------------------------------------
     
     pred <- forest@oobpred
-    pred[pred == 0L] <- forest@nclass + 1L
+    pred[pred == 0L] <- forest@ynclass + 1L
     class(pred) <- "factor"
     levels(pred) <- c(forest@ylevels, "Never out-of-bag")
     class(y) <- "factor"

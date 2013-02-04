@@ -17,14 +17,14 @@ Objects can be created by calls of the form \code{new("bigcforest", ...)}, but m
     \item{\code{.Data}:}{Object of class \code{"list"}. Each element is a \code{"\linkS4class{bigctree}"}, representing a tree in the random classification forest.}
     \item{\code{supervised}:}{Object of class \code{"logical"}. \code{TRUE} if supervised learning was used; \code{FALSE} if unsupervised learning was used.}
     \item{\code{nexamples}:}{Object of class \code{"integer"}. Number of examples in the training set (including synthesized examples for unsupervised learning).}
-    \item{\code{factors}:}{Object of class \code{"logical"}. Indicates which variables are factors or categorical (\code{TRUE})), and which are numeric (\code{FALSE}).}
-    \item{\code{ylevels}:}{Object of class \code{"character"}. Class labels.}
-    \item{\code{nlevels}:}{Object of class \code{"integer"}. Number of levels in each categorical variable, or \code{0} for numeric variables.}
-    \item{\code{ytable}:}{Object of class \code{"table"}. Counts of training examples in each class.}
     \item{\code{varselect}:}{Object of class \code{"integer"}. Indices of the columns of \code{x} that were used to train the model.}
+    \item{\code{factorvars}:}{Object of class \code{"logical"}. Indicates which variables are factors or categorical (\code{TRUE})), and which are numeric (\code{FALSE}).}
+    \item{\code{varnlevels}:}{Object of class \code{"integer"}. Number of levels in each categorical variable, or \code{0} for numeric variables.}
     \item{\code{contvarseq}:}{Object of class \code{"integer"}. Maps the continuous variables in \code{varselect} to the columns in \code{big.matrix} \code{a}. Meant for internal use by \code{bigrfc} or \code{grow} when growing trees.}
-    \item{\code{nclass}:}{Object of class \code{"integer"}. Number of classes.}
-    \item{\code{classweights}:}{Object of class \code{"matrix"}. One-dimensional matrix of scaled weights for each class.}
+    \item{\code{ylevels}:}{Object of class \code{"character"}. Class labels.}
+    \item{\code{ynclass}:}{Object of class \code{"integer"}. Number of classes.}
+    \item{\code{ytable}:}{Object of class \code{"table"}. Counts of training examples in each class.}
+    \item{\code{yclasswts}:}{Object of class \code{"matrix"}. One-dimensional matrix of scaled weights for each class.}
     \item{\code{ntrees}:}{Object of class \code{"integer"}. Number of trees in the forest.}
     \item{\code{maxnodes}:}{Object of class \code{"integer"}. Maximum number of nodes needed to grow trees fully. The actual number of nodes in each tree will be smaller than or equal to this.}
     \item{\code{nsplitvar}:}{Object of class \code{"integer"}. Number of variables to split on at each node.}

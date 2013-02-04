@@ -5,16 +5,16 @@
 # number in which xs[n,m] occurs. If the mth variable is categorical, then
 # asave[n,m] is the category of the nth example number. asave is a big.matrix
 # passed by reference.
-makea <- function(x, asave, factors, varselect) {
+makea <- function(x, asave, factorvars, varselect) {
     v5 <- numeric(length(varselect))
     v95 <- numeric(length(varselect))
     
-    for (var in which(!factors)) {
+    for (var in which(!factorvars)) {
         asave[, var] <- order(x[, varselect[var]])
         # v5[var] <- quantile(x[, varselect[var]], probs=0.05)
         # v95[var] <- quantile(x[, varselect[var]], probs=0.95)
     }
-    for (var in which(factors)) {
+    for (var in which(factorvars)) {
         asave[, var] <- as.integer(x[, varselect[var]])
     }
     
@@ -25,9 +25,9 @@ makea <- function(x, asave, factors, varselect) {
 
 
 # ------------------------------------------------------------------------------
-moda <- function(asave, a, factors, insamp) {
-    return(.Call("modaC", asave@address, a@address, factors, as.integer(insamp),
-                PACKAGE="bigrf"))
+moda <- function(asave, a, factorvars, insamp) {
+    return(.Call("modaC", asave@address, a@address, factorvars,
+                 as.integer(insamp), PACKAGE="bigrf"))
 }
 
 
@@ -80,7 +80,7 @@ combine.treeresults <- function(forest, newtree) {
     
     # Get out-of-bag estimates -------------------------------------------------
     
-    for (c in seq_len(forest@nclass)) {
+    for (c in seq_len(forest@ynclass)) {
         # Process for out-of-bag cases for this class.
         w <- which(tree@trainpredclass == c & insamp == 0L)
         forest@oobvotes[w, c] <- forest@oobvotes[w, c] +
@@ -94,7 +94,7 @@ combine.treeresults <- function(forest, newtree) {
     forest@oobpred[forest@oobtimes > 0L] <-
         max.col(forest@oobvotes[forest@oobtimes > 0L, ])
     
-    for (c in seq_len(forest@nclass)) {
+    for (c in seq_len(forest@ynclass)) {
         forest@trainclserr[c] <- sum(y == c & forest@oobpred != c)
     }
     
@@ -147,7 +147,7 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
     printclserr <- treepredict.result$printclserr
     
     # Compute votes.
-    for (c in seq_len(prediction@nclass)) {
+    for (c in seq_len(prediction@ynclass)) {
         w <- which(treepredict.result$testpredclass == c)
         prediction@testvotes[w, c] <- prediction@testvotes[w, c] +
             tree@nodewt[treepredict.result$testprednode[w]]
@@ -157,8 +157,8 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
     
     # If test set labels were given, compute test error.
     if (!is.null(y)) {
-        prediction@testclserr <- integer(prediction@nclass)
-        for (c in seq_len(prediction@nclass)) {
+        prediction@testclserr <- integer(prediction@ynclass)
+        for (c in seq_len(prediction@ynclass)) {
             prediction@testclserr[c] <-
                 sum(y == c & prediction[] != c)
         }
@@ -206,7 +206,7 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
 # Predicts the class of out-of-bag-cases for variable importance. Also computes
 # nodexvr
 # testreeimp <- function(x, joob, nout, mr, treemap, bestnumsplit,
-#                        bestvar, nodeclass, nnodes, factors, bestcatsplit) {
+#                        bestvar, nodeclass, nnodes, factorvars, bestcatsplit) {
 #   jvr <- integer(nout)
 #   nodexvr <- integer(nout)
 # 	pjoob <- sample(joob[seq_len(nout)], nout)
@@ -225,14 +225,14 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
 # 	    } else {
 # 	      xmn <- x[joob[n], varselect[m]]
 # 	    }
-# 	    if (!factors[m]) {
+# 	    if (!factorvars[m]) {
 # 	      if (xmn <= bestnumsplit[kt]) { 
 # 	        kt <- treemap[kt, 1]
 # 	      } else {
 # 	        kt <- treemap[kt, 2]
 # 	      }
 # 	    }
-# 	    if (factors[m]) {
+# 	    if (factorvars[m]) {
 # 	      jcat <- xmn
 # 	      if (bestcatsplit[[kt]][jcat] == 1L) {
 # 	        kt <- treemap[kt, 1]
@@ -281,19 +281,19 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
 
 
 # # -------------------------------------------------------
-# 	subroutine comperrts[qts,clts,ntest,nclass,errts,   tmissts,ncts,jests,labelts]
+# 	subroutine comperrts[qts,clts,ntest,ynclass,errts,   tmissts,ncts,jests,labelts]
 # # 
 # # 
-# 	integer clts[ntest],ncts[nclass],jests[ntest]
-# 	real qts[nclass,ntest],tmissts[nclass]
-# 	integer ntest,nclass,labelts
+# 	integer clts[ntest],ncts[ynclass],jests[ntest]
+# 	real qts[ynclass,ntest],tmissts[ynclass]
+# 	integer ntest,ynclass,labelts
 # 	real errts,cmax
 # 	integer n,j,jmax
-# 	tmissts <- numeric(nclass)
+# 	tmissts <- numeric(ynclass)
 # 	errts <- 0
 # 	for (n in seq_len(ntest) {
 # 		cmax <- 0
-# 		for (j in seq_len(nclass) {
+# 		for (j in seq_len(ynclass) {
 # 			if (qts[j,n] > cmax) {
 # 				jmax <- j
 # 				cmax <- qts[j,n]
@@ -309,7 +309,7 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
 # 	}
 # 	if (labelts == 1) {
 # 		errts <- errts / ntest
-# 		for (j in seq_len(nclass) {
+# 		for (j in seq_len(ynclass) {
 # 			tmissts[j]=tmissts[j]/ncts[j]
 # 		}
 # 	}
@@ -320,7 +320,7 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
 # -------------------------------------------------------
 # varimp <- function(x, nexamples, nvarx, y, insamp, trainpredclass, impn, varselect, qimpm,
 #                    treemap, bestnumsplit, bestvar, nodeclass,
-#                    nnodes, factors, bestcatsplit, nodewt, trainprednode, mimp) {
+#                    nnodes, factorvars, bestcatsplit, nodewt, trainprednode, mimp) {
 #   sqsd <- numeric(mimp)
 #   avimp <- numeric(mimp)
 #   
@@ -345,7 +345,7 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
 #     if (iv[k] == 1L) {
 #       testreeimp.result <- testreeimp(x, joob, nout, mr, treemap, 
 #                                       bestnumsplit, bestvar, nodeclass, nnodes,
-#                                       factors, bestcatsplit)
+#                                       factorvars, bestcatsplit)
 #       rightimp <- 0
 #       for (n in seq_len(nout)) {
 #         # the nth out-of-bag example is the nnth original example
@@ -504,16 +504,16 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
 
 
 # # -------------------------------------------------------
-# 	subroutine compprot[loz,nrnn,ns,nvarx,its,  	oobpred,wc,nclass,x,varselect,temp,cat,maxcat,  	jpur,inear,nprot,protlow,prothigh,prot,protfreq,  	protvlow,protvhigh,protv,popclass,npend,freq,v5,v95]
+# 	subroutine compprot[loz,nrnn,ns,nvarx,its,  	oobpred,wc,ynclass,x,varselect,temp,cat,maxcat,  	jpur,inear,nprot,protlow,prothigh,prot,protfreq,  	protvlow,protvhigh,protv,popclass,npend,freq,v5,v95]
 # # 
-# 	integer nrnn,ns,nvarx,nclass,length(varselect),nprot,maxcat
-# 	integer loz[ns,nrnn],oobpred[ns],varselect[nvarx],its[ns],  	jpur[nrnn],inear[nrnn],npend[nclass],cat[nvarx]
-# 	real wc[ns],prot[nvarx,nprot,nclass],  	protlow[nvarx,nprot,nclass],prothigh[nvarx,nprot,nclass], 	protfreq[nvarx,nprot,nclass,maxcat],  	protvlow[nvarx,nprot,nclass],protvhigh[nvarx,nprot,nclass], 	x[nvarx,ns],temp[nrnn],protv[nvarx,nprot,nclass],  	popclass[nprot,nclass],freq[maxcat],v5[nvarx],v95[nvarx]
+# 	integer nrnn,ns,nvarx,ynclass,length(varselect),nprot,maxcat
+# 	integer loz[ns,nrnn],oobpred[ns],varselect[nvarx],its[ns],  	jpur[nrnn],inear[nrnn],npend[ynclass],cat[nvarx]
+# 	real wc[ns],prot[nvarx,nprot,ynclass],  	protlow[nvarx,nprot,ynclass],prothigh[nvarx,nprot,ynclass], 	protfreq[nvarx,nprot,ynclass,maxcat],  	protvlow[nvarx,nprot,ynclass],protvhigh[nvarx,nprot,ynclass], 	x[nvarx,ns],temp[nrnn],protv[nvarx,nprot,ynclass],  	popclass[nprot,ynclass],freq[maxcat],v5[nvarx],v95[nvarx]
 # 	integer ii,i,k,n,jp,npu,mm,m,nclose,jj,ll,jmax,nn
 # 	real fmax,dt
 # 
 # 
-# 	for (jp in seq_len(nclass) {
+# 	for (jp in seq_len(ynclass) {
 # 		its <- integer(ns)
 # # 	we try to find nprot prototypes for this class:
 # 		npend[jp]=nprot
@@ -793,14 +793,14 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
 
 
 # # ------------------------------------------------------
-# 	subroutine locateout[y,tout,outtr,ncp,isort,devout, 	near,nexamples,nclass,rmedout]
+# 	subroutine locateout[y,tout,outtr,ncp,isort,devout, 	near,nexamples,ynclass,rmedout]
 # # 
-# 	real outtr[near],tout[near],devout[nclass],rmedout[nclass]
-#      	integer y[nexamples],isort[nexamples],ncp[near],near,nexamples, 	nclass
+# 	real outtr[near],tout[near],devout[ynclass],rmedout[ynclass]
+#      	integer y[nexamples],isort[nexamples],ncp[near],near,nexamples, 	ynclass
 # 	real rmed, dev
 # 	integer jp,nt,n,i
 #      
-# 	for (jp in seq_len(nclass) {
+# 	for (jp in seq_len(ynclass) {
 # 		nt <- 0
 # 		for (n in seq_len(near) {
 # 			if (y[n] == jp) {

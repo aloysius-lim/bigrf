@@ -54,7 +54,7 @@ merge.bigcforest <- function(x, y, class.labels=NULL) {
     x@oobpred[x@oobtimes > 0L] <-
         sapply(which(x@oobtimes > 0L), function(i) which.max(x@oobvotes[i, ]))
     
-    for (c in seq_len(x@nclass)) {
+    for (c in seq_len(x@ynclass)) {
         x@trainclserr[c] <- sum(class.labels == c & x@oobpred != c)
     }
     
@@ -64,7 +64,7 @@ merge.bigcforest <- function(x, y, class.labels=NULL) {
     # Calculate confusion matrix
     
     pred <- x@oobpred
-    pred[pred == 0L] <- x@nclass + 1L
+    pred[pred == 0L] <- x@ynclass + 1L
     if (length(x@ylevels)) {
         class(pred) <- "factor"
         levels(pred) <- c(x@ylevels, "Never out-of-bag")

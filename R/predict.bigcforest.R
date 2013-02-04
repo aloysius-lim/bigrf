@@ -109,12 +109,12 @@ predict.bigcforest <- function(object, x, y=NULL,
     prediction <- new("bigcprediction",
                       ntest=ntest,
                       testlabelled=!is.null(y),
-                      nclass=forest@nclass,
+                      ynclass=forest@ynclass,
                       ntrees=forest@ntrees,
                       testytable=ytable,
-                      testvotes=matrix(0, ntest, forest@nclass),
+                      testvotes=matrix(0, ntest, forest@ynclass),
                       testclserr=if(is.null(y)) NULL else
-                          numeric(forest@nclass),
+                          numeric(forest@ynclass),
                       testerr=if(is.null(y)) NULL else 0,
                       testconfusion=NULL
     )
