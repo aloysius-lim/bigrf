@@ -211,7 +211,7 @@ varimp.bigcforest <- function(forest, x=NULL, y=NULL,
     se <- sqrt((importance.sq - importance ^ 2) / forest@ntrees)
     zscore <- importance / se
     # Complementary error function
-    significance <- 2 * pnorm(zscore * sqrt(2), lower = FALSE)
+    significance <- 2 * pnorm(zscore * sqrt(2), lower.tail = FALSE)
     
     if (impbyexample) {
         for (var in seq_len(nvar)) {
