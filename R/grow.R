@@ -161,6 +161,9 @@ grow.bigcforest <- function(forest,
     # Initialize for run -------------------------------------------------------
     
     oldntrees <- forest@ntrees
+    length(forest@trainerr) <- oldntrees + ntrees
+    forest@trainclserr <- rbind(forest@trainclserr,
+                                matrix(0, ntrees, forest@ynclass))
     
     # Set up asave big.matrix.
     if (reuse.cache) {

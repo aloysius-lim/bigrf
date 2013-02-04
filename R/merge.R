@@ -35,42 +35,52 @@ merge.bigcforest <- function(x, y, class.labels=NULL) {
     # Merge forests ------------------------------------------------------------
     
     # Copy trees, keeping memory usage to a minimum.
-    for (t in y@ntrees) {
-        x[[x@ntrees + t]] <- y[[1L]]
+    oldxntrees <- x@ntrees
+    x@ntrees <- x@ntrees + y@ntrees
+    for (t in seq_len(y@ntrees)) {
+        x[[oldxntrees + t]] <- y[[1L]]
         y[[1L]] <- NULL
     }
     
-    # Set number of trees.
-    x@ntrees <- x@ntrees + y@ntrees
+    # Error estimates
+    length(x@trainerr) <- x@ntrees
+    x@trainclserr <- rbind(x@trainclserr, matrix(0, y@ntrees, x@ynclass))
     
-    # Merge counts of oob times.
-    x@oobtimes <- x@oobtimes + y@oobtimes
-    
-    # Get out-of-bag estimates.
-    x@oobvotes <- x@oobvotes + y@oobvotes
-    x@varginidec <- x@varginidec + y@varginidec
-    
-    # Get training set error estimates
-    x@oobpred[x@oobtimes > 0L] <-
-        sapply(which(x@oobtimes > 0L), function(i) which.max(x@oobvotes[i, ]))
-    
-    for (c in seq_len(x@ynclass)) {
-        x@trainclserr[c] <- sum(class.labels == c & x@oobpred != c)
+    for (t in (oldxntrees + 1):x@ntrees) {
+        tree <- x[[t]]
+        
+        # Count number of times examples are out-of-bag.
+        w <- tree@insamp == 0L
+        x@oobtimes[w] <- x@oobtimes[w] + 1L
+        
+        for (c in seq_len(x@ynclass)) {
+            # Out-of-bag examples with votes for this class.
+            w2 <- w & tree@trainpredclass == c
+            x@oobvotes[w2, c] <- x@oobvotes[w2, c] +
+                tree@nodewt[tree@trainprednode[w2]]
+        }
+        
+        x@oobpred[x@oobtimes > 0L] <- max.col(x@oobvotes[x@oobtimes > 0L, ])
+        
+        for (c in seq_len(x@ynclass)) {
+            x@trainclserr[t, c] <- sum(class.labels == c & x@oobpred != c)
+        }
+        
+        x@trainerr[t] <- sum(x@trainclserr[t, ]) / x@nexamples
+        x@trainclserr[t, ] <- x@trainclserr[t, ] / as.numeric(x@ytable)
     }
     
-    x@trainerr <- sum(x@trainclserr) / x@nexamples
-    x@trainclserr <- x@trainclserr / as.numeric(table(class.labels))
+    # Accumulate gini decreases for each variable
+    x@varginidec <- x@varginidec + y@varginidec
     
     # Calculate confusion matrix
     
     pred <- x@oobpred
     pred[pred == 0L] <- x@ynclass + 1L
-    if (length(x@ylevels)) {
-        class(pred) <- "factor"
-        levels(pred) <- c(x@ylevels, "Never out-of-bag")
-        class(class.labels) <- "factor"
-        levels(class.labels) <- x@ylevels
-    }
+    class(pred) <- "factor"
+    levels(pred) <- c(x@ylevels, "Never out-of-bag")
+    class(class.labels) <- "factor"
+    levels(class.labels) <- x@ylevels
     x@trainconfusion <- table(class.labels, pred, dnn=c("Actual", "Predicted"))
     
     return(x)

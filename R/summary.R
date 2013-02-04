@@ -4,9 +4,14 @@ summary.bigcforest <- function(object) {
         "variables.\n\n")
     cat("Training set labels:\n")
     print(object@ytable)
+    cat("\n")
     
-    cat("\nOverall error rate:",
-        format(100 * object@trainerr, digits=3, nsmall=2), "\n\n")
+    cat("Error rates:\n")
+    errors <- c(object@trainerr[object@ntrees],
+                object@trainclserr[object@ntrees, ]) * 100
+    names(errors) <- c("Overall", object@ylevels)
+    print(errors)
+    cat("\n")
     
     cat("Training set confusion matrix (OOB):\n")
     print(object@trainconfusion)

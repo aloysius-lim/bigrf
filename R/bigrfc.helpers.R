@@ -81,7 +81,7 @@ combine.treeresults <- function(forest, newtree) {
     # Get out-of-bag estimates -------------------------------------------------
     
     for (c in seq_len(forest@ynclass)) {
-        # Process for out-of-bag cases for this class.
+        # Out-of-bag examples with votes for this class.
         w <- which(tree@trainpredclass == c & tree@insamp == 0L)
         forest@oobvotes[w, c] <- forest@oobvotes[w, c] +
             tree@nodewt[tree@trainprednode[w]]
@@ -94,11 +94,13 @@ combine.treeresults <- function(forest, newtree) {
         max.col(forest@oobvotes[forest@oobtimes > 0L, ])
     
     for (c in seq_len(forest@ynclass)) {
-        forest@trainclserr[c] <- sum(y == c & forest@oobpred != c)
+        forest@trainclserr[treenum, c] <- sum(y == c & forest@oobpred != c)
     }
     
-    forest@trainerr <- sum(forest@trainclserr) / forest@nexamples
-    forest@trainclserr <- forest@trainclserr / as.numeric(forest@ytable)
+    forest@trainerr[treenum] <- sum(forest@trainclserr[treenum, ]) /
+        forest@nexamples
+    forest@trainclserr[treenum, ] <- forest@trainclserr[treenum, ] /
+        as.numeric(forest@ytable)
     
     # Accumulate Gini decreases for each variable ------------------------------
     
@@ -122,11 +124,11 @@ combine.treeresults <- function(forest, newtree) {
     if ((treenum - oldntrees) %% printerrfreq == 0L ||
             treenum == oldntrees + ntrees) {
         cat(format(treenum, justify="right", width=5),
-            format(100 * forest@trainerr, justify="right", width=13,
+            format(100 * forest@trainerr[treenum], justify="right", width=13,
                    digits=3, nsmall=2), sep="  ")
         if (printclserr) {
             cat("",
-                format(100 * forest@trainclserr, justify="right",
+                format(100 * forest@trainclserr[treenum, ], justify="right",
                        width=max(nchar(forest@ylevels), 5), digits=3, nsmall=2),
                 sep="  ")
         }
