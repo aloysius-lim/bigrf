@@ -56,6 +56,12 @@ void movedataWorker(MatrixAccessor<int> aAcc, const int *factorvars,
 template <typename xtype>
 SEXP treepredict(BigMatrix* x, int ntest, SEXP forestP, SEXP treeP);
     
+/* Predicts classification for out-of-bag examples in training set, with the
+   specified variable randomly permuted. */
+template <typename xtype>
+SEXP treepredictimp(BigMatrix* x, int nout, const int *whichout,
+    const int *whichpermout, int permutevar, SEXP forestP, SEXP treeP);
+
 /* Utility function for "unpacking"" an integer into an array of 1s and 0s (i.e.
    binary). */
 void unpack(unsigned long npack, int icat[], int l);

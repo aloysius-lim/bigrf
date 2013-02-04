@@ -48,7 +48,7 @@ merge.bigcforest <- function(x, y, class.labels=NULL) {
     
     # Get out-of-bag estimates.
     x@oobvotes <- x@oobvotes + y@oobvotes
-    x@avgini <- x@avgini + y@avgini
+    x@varginidec <- x@varginidec + y@varginidec
     
     # Get training set error estimates
     x@oobpred[x@oobtimes > 0L] <-

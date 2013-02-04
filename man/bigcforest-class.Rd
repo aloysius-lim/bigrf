@@ -37,7 +37,7 @@ Objects can be created by calls of the form \code{new("bigcforest", ...)}, but m
     \item{\code{trainclserr}:}{Object of class \code{"numeric"}. Training errors of out-of-bag examples, by class.}
     \item{\code{trainerr}:}{Object of class \code{"numeric"}. Total training error of out-of-bag examples.}
     \item{\code{trainconfusion}:}{Object of class \code{"table"}. Confusion matrix for out-of-bag examples.}
-    \item{\code{avgini}:}{Object of class \code{"numeric"}. Average decrease in Gini index across all trees.}
+    \item{\code{varginidec}:}{Object of class \code{"numeric"}. Decrease in Gini impurity for each variable over all trees.}
     \item{\code{cachepath}:}{Object of class \code{"character.or.NULL"}. Path to folder where data caches used in building the forest were stored.}
   }
 }
@@ -49,7 +49,9 @@ Class \code{"\linkS4class{vector}"}, by class "list", distance 2.
   \describe{
     \item{grow}{\code{signature(forest = "bigcforest")}: Grows more trees in the random forest. See \code{\link[bigrf]{grow}} for details.}
     \item{merge}{\code{signature(x = "bigcforest", y = "bigcforest")}: Merges two random forests into one. See \code{\link[bigrf]{merge}} for details.}
-    \item{predict}{\code{signature(object = "bigcforest")}: Predicts the classes of a new test set using the random forest.}
+    \item{predict}{\code{signature(object = "bigcforest")}: Predicts the classes of a new test set using the random forest. See \code{\link[bigrf]{predict}} for details.}
+    \item{varimp}{\code{signature(forest = "bigcforest")}: Calculates variable importance. See \code{\link[bigrf]{varimp}} for details.}
+    \item{fastimp}{\code{signature(forest = "bigcforest")}: Calculates variable importance using a quicker but less accurate method. See \code{\link[bigrf]{fastimp}} for details.}
     \item{show}{\code{signature(object = "bigcforest")}: Prints the random forest.}
     \item{summary}{\code{signature(object = "bigcforest")}: Prints summary information on the random forest, including out-of-bag training error estimates and the confusion matrix.}
 	 }

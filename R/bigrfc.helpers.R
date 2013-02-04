@@ -67,7 +67,6 @@ combine.treeresults <- function(forest, newtree) {
     oldntrees <- newtree$oldntrees
     ntrees <- newtree$ntrees
     y <- newtree$y
-    insamp <- newtree$insamp
     tree <- newtree$tree
     printerrfreq <- newtree$printerrfreq
     printclserr <- newtree$printclserr
@@ -76,18 +75,18 @@ combine.treeresults <- function(forest, newtree) {
     forest[[treenum]] <- tree
     forest@ntrees <- treenum
     
-    forest@oobtimes[insamp == 0L] <- forest@oobtimes[insamp == 0L] + 1L
+    forest@oobtimes[tree@insamp == 0L] <-
+        forest@oobtimes[tree@insamp == 0L] + 1L
     
     # Get out-of-bag estimates -------------------------------------------------
     
     for (c in seq_len(forest@ynclass)) {
         # Process for out-of-bag cases for this class.
-        w <- which(tree@trainpredclass == c & insamp == 0L)
+        w <- which(tree@trainpredclass == c & tree@insamp == 0L)
         forest@oobvotes[w, c] <- forest@oobvotes[w, c] +
             tree@nodewt[tree@trainprednode[w]]
     }
     rm(c, w)
-    forest@avgini <- forest@avgini + tree@tgini
     
     # Get training set error estimates -----------------------------------------
     
@@ -100,6 +99,10 @@ combine.treeresults <- function(forest, newtree) {
     
     forest@trainerr <- sum(forest@trainclserr) / forest@nexamples
     forest@trainclserr <- forest@trainclserr / as.numeric(forest@ytable)
+    
+    # Accumulate Gini decreases for each variable ------------------------------
+    
+    forest@varginidec <- forest@varginidec + tree@tgini
     
     # Give running output ------------------------------------------------------
     

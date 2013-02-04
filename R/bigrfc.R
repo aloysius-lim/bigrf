@@ -275,7 +275,7 @@ bigrfc <- function(x,
     forest@oobvotes <- matrix(0, forest@nexamples, forest@ynclass)
     forest@oobpred <- integer(forest@nexamples)
     forest@trainclserr <- numeric(forest@ynclass)
-    forest@avgini <- numeric(length(forest@varselect))
+    forest@varginidec <- numeric(length(forest@varselect))
     
     
     

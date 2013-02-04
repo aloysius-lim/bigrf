@@ -28,7 +28,7 @@ setClass("bigcforest",
              trainclserr="numeric",
              trainerr="numeric",
              trainconfusion="table",
-             avgini="numeric",
+             varginidec="numeric",
              cachepath="character.or.NULL"
          ),
          contains="list")
