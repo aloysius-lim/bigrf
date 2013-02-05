@@ -8,7 +8,7 @@
 Calculates variable importance based on out-of-bag estimates. For each tree in the forest, the predictions of the out-of-bag examples are recorded. Then, each variable v is randomly permuted in the out-of-bag examples, and the tree is used to classify the out-of-bag examples again, to get a measure of the importance of variable v.
 }
 \usage{
-  \S4method{varimp}{bigcforest}(forest, x=NULL, y=NULL, impbyexample=FALSE,
+  \S4method{varimp}{bigcforest}(forest, x=NULL, y, impbyexample=FALSE,
     reuse.cache=FALSE, trace=0L)
 }
 \arguments{
@@ -19,7 +19,7 @@ Calculates variable importance based on out-of-bag estimates. For each tree in t
     A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. The data must not have changed, otherwise unexpected modelling results may occur. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation.
   }
   \item{y}{
-    An integer or factor vector of response variables that was used in growing the forest. Must be specified for supervised learning. The data must not have changed, otherwise unexpected modelling results may occur.
+    An integer or factor vector of response variables that was used in growing the forest. The data must not have changed, otherwise unexpected modelling results may occur.
   }
   \item{impbyexample}{
     A logical indicating whether to compute the variable importance for each out-of-bag example.

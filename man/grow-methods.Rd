@@ -8,7 +8,7 @@
  Grows more trees in a random forest.
 }
 \usage{
-  \S4method{grow}{bigcforest}(forest, x, y=NULL, ntrees=500L, printerrfreq=10L,
+  \S4method{grow}{bigcforest}(forest, x=NULL, y, ntrees=500L, printerrfreq=10L,
     printclserr=TRUE, reuse.cache=FALSE, trace=0L)
 }
 \arguments{
@@ -19,7 +19,7 @@
     A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. The data must not have changed, otherwise unexpected modelling results may occur. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation.
   }
   \item{y}{
-    An integer or factor vector of response variables that was used in growing the forest. Must be specified for supervised learning. The data must not have changed, otherwise unexpected modelling results may occur.
+    An integer or factor vector of response variables that was used in growing the forest. The data must not have changed, otherwise unexpected modelling results may occur.
   }
   \item{ntrees}{
     The number of additional trees to grow in the forest.

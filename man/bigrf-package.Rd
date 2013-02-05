@@ -20,6 +20,7 @@ Built: \tab R 2.15.1; universal-apple-darwin9.8.0; 2013-01-31 04:38:12 UTC; unix
 }
 
 Index:
+
 \preformatted{
 bigcforest-class        Class '"bigcforest"'
 bigctree-class          Class '"bigctree"'
@@ -30,6 +31,7 @@ grow-methods            Methods for Function 'grow' in Package 'bigrf'
 merge-methods           Methods for Function 'merge' in Package 'bigrf'
 show,bigcforest-method  Methods for Function 'show' in Package 'bigrf'
 }
+
 The main entry point for this package is \code{\link[bigrf]{bigrfc}}, which is used to grow a classification random forest based on the given data and forest-growing parameters. \code{bigrfc} returns an object of class \code{"\linkS4class{bigcforest}"} representing the grown forest and containing objects of class \code{"\linkS4class{bigctree}"}.
 
 After a forest is grown, more trees can be grown in the same forest by passing the forest to \code{\link[bigrf]{grow}}.
@@ -43,11 +45,13 @@ library(doMC)
 registerDoMC(cores=multicore:::detectCores(all.tests=TRUE))
 }
 
-This package performs particularly well for large data sets that cause excessive virtual memory swapping by the OS, which often renders the system unusable for other tasks or unresponsive to user input. Other random forest algorithms (e.g. \code{\link[randomForest]{randomForest}} and \code{\link[party]{cforest}}) may achieve higher performance on smaller data sets.
-
 Grown forests can be used to predict the results for new examples using the \code{\link[bigrf]{predict}} method.
 
+Unsupervised learning (as described by Breiman and Cutler) is supported via the \code{\link[bigrf]{generateSyntheticClass}} to generate the second synthetic class. 
+
 The \code{\link[bigrf]{varimp}} and \code{\link[bigrf]{fastimp}} offer two ways to calculate the relative importance of the training variables in growing the forest.
+
+This package performs particularly well for large data sets that cause excessive virtual memory swapping by the OS, which often renders the system unusable for other tasks or unresponsive to user input. Other random forest algorithms (e.g. \code{\link[randomForest]{randomForest}} and \code{\link[party]{cforest}}) may achieve higher performance on smaller data sets.
 
 Currently, only classification trees with limited functionality are implemented. More functions and regression trees will be added in the future.
 }
@@ -60,6 +64,8 @@ Maintainer: Aloysius Lim <aloysius.lim@gmail.com>
 }
 \references{
 Breiman, Leo. "Random forests." Machine learning 45, no. 1 (2001): 5-32.
+
+Random Forests web page: \url{http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm}
 }
 \keyword{package}
 \keyword{models}

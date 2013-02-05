@@ -1,7 +1,6 @@
 bigrfc <- function(x,
-                   y=NULL,
+                   y,
                    ntrees=500L,
-                   supervised=!is.null(y),
                    varselect=NULL,
                    varnlevels=NULL,
                    nsplitvar=round(sqrt(ifelse(is.null(varselect), ncol(x),
@@ -29,11 +28,6 @@ bigrfc <- function(x,
     
     if (trace >= 1L) message("Checking arguments in bigrfc.")
     
-    # Check supervised.
-    if (!is.logical(supervised)) {
-        stop("Argument supervised must be a logical.")
-    }
-    
     # Check x.
     if (!(class(x) %in% c("big.matrix", "matrix", "data.frame"))) {
         stop("Argument x must be a big.matrix, matrix or data.frame.")
@@ -41,29 +35,21 @@ bigrfc <- function(x,
     
     # Check y, and set ynclass, the number of classes in the response variable.
     # Also, if y is a factor vector, set ylevels, the original factor labels.
-    if (supervised) {
-        if (is.null(y)) {
-            stop("Argument y must be specified for supervised learning.")
+    if (is.integer(y)) {
+        if (min(y) < 1L) {
+            stop("Elements in argument y must not be less than 1. The class ",
+                 "labels coded in y should start with 1.")
         }
-        if (is.factor(y)) {
-            ylevels <- levels(y)
-            ynclass <- length(ylevels)
-            y <- as.integer(y)
-        } else if (is.integer(y)) {
-            ylevels <- as.character(unique(y))
-            ynclass <- length(unique(y))
-        } else {
-            stop("Argument y must be a factor or integer vector of class ",
-                 "labels.")
-        }
-        if (length(y) != nrow(x)) {
-            stop("Argument y must have as many elements as there are rows in ",
-                 "x.")
-        }
-    } else {
-        ylevels = c("original", "synthesized")
-        ynclass = 2L;
+        y <- factor(y, seq_len(max(y)))
+    } else if (!is.factor(y)) {
+        stop("Argument y must be a factor or integer vector.")
     }
+    if (length(y) != nrow(x)) {
+        stop("Argument y must have as many elements as there are rows in x.")
+    }
+    ylevels <- levels(y)
+    ynclass <- length(ylevels)
+    ytable <- table(y, deparse.level=0)
     
     # Check ntrees.
     if (!is.numeric(ntrees) ||
@@ -173,17 +159,15 @@ bigrfc <- function(x,
     }
     
     # Check yclasswts.
-    if (!is.null(y)) {
-        if (is.null(yclasswts)) {
-            yclasswts <- rep.int(1L, ynclass)
-        } else {
-            if (!is.numeric(yclasswts)) {
-                stop("Argument yclasswts must be a numeric vector.")
-            }
-            if (length(yclasswts) != ynclass) {
-                stop("Argument yclasswts must have the same number of ",
-                     "elements as there are levels in y.")
-            }
+    if (is.null(yclasswts)) {
+        yclasswts <- rep.int(1L, ynclass)
+    } else {
+        if (!is.numeric(yclasswts)) {
+            stop("Argument yclasswts must be a numeric vector.")
+        }
+        if (length(yclasswts) != ynclass) {
+            stop("Argument yclasswts must have the same number of ",
+                 "elements as there are levels in y.")
         }
     }
     yclasswts <- scale(yclasswts, center=FALSE)
@@ -222,42 +206,26 @@ bigrfc <- function(x,
     
     if (trace >= 1L) message("Initializing parameters in bigrfc.")
     
-    # Convert x to big.matrix, as C functions only support this at the moment.
-    if (class(x) != "big.matrix") {
-        if (is.null(cachepath)) {
-            x <- as.big.matrix(x)
-        } else {
-            x <- as.big.matrix(x, backingfile="x", descriptorfile="x.desc",
-                               backingpath=cachepath)
-        }
-    }
-    
     forest <- new("bigcforest",
-                  supervised=supervised,
+                  nexamples=as.integer(nrow(x)),
                   varselect=varselect,
                   factorvars=factorvars,
                   varnlevels=varnlevels,
                   ylevels=ylevels,
-                  ytable=table(0),
-                  ynclass=ifelse(supervised, ynclass, 2L),
+                  ynclass=ynclass,
+                  ytable=ytable,
                   yclasswts=yclasswts,
                   ntrees=0L,
+                  # Theoretically, 2*nexamples - 1 should be enough
+                  maxnodes=as.integer(2L * nrow(x) + 1L),
                   nsplitvar=nsplitvar,
                   maxndsize=maxndsize,
                   maxeslevels=maxeslevels,
                   nrandsplit=nrandsplit,
                   trainconfusion=table(0),
                   cachepath=cachepath)
-    rm(supervised, factorvars, varnlevels, varselect, ynclass, yclasswts,
-       nsplitvar, maxndsize, maxeslevels, nrandsplit, cachepath)
-    
-    # Number of examples to be used to build model.
-    forest@nexamples <- ifelse(forest@supervised, as.integer(nrow(x)),
-                             2L * as.integer(nrow(x)))
-    
-    # Maximum number of nodes in any given tree.
-    # Theoretically, 2*nexamples - 1 should be enough
-    forest@maxnodes <- 2L * forest@nexamples + 1L
+    rm(factorvars, varnlevels, varselect, ynclass, ytable, yclasswts, nsplitvar,
+       maxndsize, maxeslevels, nrandsplit, cachepath)
     
     # Sequence number of categorical variables. Used to index columns of a and
     # a.out later.
@@ -270,7 +238,7 @@ bigrfc <- function(x,
     #   wtx <- rep.int(1, nexamples)
     # }
     
-    # Number of trees for which the each example has been out-of-bag.
+    # Out-of-bag results and error estimates.
     forest@oobtimes <- integer(forest@nexamples)
     forest@oobvotes <- matrix(0, forest@nexamples, forest@ynclass)
     forest@oobpred <- integer(forest@nexamples)

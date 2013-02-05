@@ -3,8 +3,8 @@ setGeneric("grow", function(forest, ...) standardGeneric("grow"))
 
 
 grow.bigcforest <- function(forest,
-                            x,
-                            y=NULL,
+                            x=NULL,
+                            y,
                             ntrees=500L,
                             printerrfreq=10L,
                             printclserr=TRUE,
@@ -30,27 +30,71 @@ grow.bigcforest <- function(forest,
         stop("Argument forest must be a bigcforest created with bigrfc.")
     }
     
+    # Check reuse.cache.
+    if (!is.logical(reuse.cache)) {
+        stop ("Argument reuse.cache must be a logical.")
+    }
+    if (reuse.cache) {
+        if (!file.exists(forest@cachepath)) {
+            stop('Cache path "', forest@cachepath,
+                 '" does not exist. Cannot reuse cache.')
+        }
+        if (!file.exists(paste0(forest@cachepath, "/", "asave"))) {
+            stop('File "', paste0(forest@cachepath, "/", "asave"),
+                 '" does not exist. Cannot reuse cache.')
+        }
+        if (!file.exists(paste0(forest@cachepath, "/", "asave.desc"))) {
+            stop('File "', paste0(forest@cachepath, "/", "asave.desc"),
+                 '" does not exist. Cannot reuse cache.')
+        }
+        if (is.null(x)) {
+            if (!file.exists(paste0(forest@cachepath, "/", "x"))) {
+                stop('File "', paste0(forest@cachepath, "/", "x"),
+                     '" does not exist. Cannot reuse cache.')
+            }
+            if (!file.exists(paste0(forest@cachepath, "/",
+                                    "x.desc"))) {
+                stop('File "',
+                     paste0(forest@cachepath, "/", "x.desc"),
+                     '" does not exist. Cannot reuse cache.')
+            }
+            x <- attach.resource("x.desc", path=forest@cachepath)
+        }
+    } else {
+        if (is.null(x)) {
+            stop("Argument x must be specified if reuse.cache is FALSE.")
+        }
+    }
+    
     # Check x.
     if (!(class(x) %in% c("big.matrix", "matrix", "data.frame"))) {
         stop("Argument x must be a big.matrix, matrix or data.frame.")
     }
+    if (nrow(x) != forest@nexamples) {
+        stop("Number of rows in argument x does not match number of rows in ",
+             "original training data used to grow this forest.")
+    }
     
     # Check y.
-    if (forest@supervised) {
-        if (is.null(y)) {
-            stop("Argument y must be specified for supervised learning.")
+    if (is.integer(y)) {
+        if (min(y) < 1L) {
+            stop("Elements in argument y must not be less than 1. The class ",
+                 "labels coded in y should start with 1.")
         }
-        if (is.factor(y)) {
-            y <- as.integer(y)
-        } else if (!is.integer(y)) {
-            stop("Argument y must be a factor or integer vector of class ",
-                 "labels.")
-        }
-        if (length(y) != nrow(x)) {
-            stop("Argument y must have as many elements as there are rows in ",
-                 "x.")
-        }
+        y <- factor(y, seq_len(max(y)))
+    } else if (!is.factor(y)) {
+        stop("Argument y must be a factor or integer vector.")
     }
+    if (length(y) != nrow(x)) {
+        stop("Argument y must have as many elements as there are rows in x.")
+    }
+    if (!identical(forest@ylevels, levels(y)) ||
+            !identical(forest@ynclass, length(levels(y))) ||
+            !identical(forest@ytable, table(y, deparse.level=0))) {
+        stop("Argument y is different than that used for building the random ",
+             "forest.")
+    }
+    y <- as.integer(y)
     
     # Check ntrees.
     if (!is.numeric(ntrees) ||
@@ -78,37 +122,6 @@ grow.bigcforest <- function(forest,
         stop ("Argument printclserr must be a logical.")
     }
     
-    # Check reuse.cache.
-    if (!is.logical(reuse.cache)) {
-        stop ("Argument reuse.cache must be a logical.")
-    }
-    if (reuse.cache) {
-        if (!file.exists(forest@cachepath)) {
-            stop('Cache path "', forest@cachepath,
-                 '" does not exist. Cannot reuse cache.')
-        }
-        if (!file.exists(paste0(forest@cachepath, "/", "asave"))) {
-            stop('File "', paste0(forest@cachepath, "/", "asave"),
-                 '" does not exist. Cannot reuse cache.')
-        }
-        if (!file.exists(paste0(forest@cachepath, "/", "asave.desc"))) {
-            stop('File "', paste0(forest@cachepath, "/", "asave.desc"),
-                 '" does not exist. Cannot reuse cache.')
-        }
-        if (!forest@supervised) {
-            if (!file.exists(paste0(forest@cachepath, "/", "x.unsupervised"))) {
-                stop('File "', paste0(forest@cachepath, "/", "x.unsupervised"),
-                     '" does not exist. Cannot reuse cache.')
-            }
-            if (!file.exists(paste0(forest@cachepath, "/",
-                                    "x.unsupervised.desc"))) {
-                stop('File "',
-                     paste0(forest@cachepath, "/", "x.unsupervised.desc"),
-                     '" does not exist. Cannot reuse cache.')
-            }
-        }
-    }
-    
     
 
     # Convert x to big.matrix, as C functions only support this at the moment.
@@ -121,43 +134,8 @@ grow.bigcforest <- function(forest,
         }
     }
     
-    # Add synthetic class for unsupervised learning ----------------------------
-    
-    if (!forest@supervised) {
-        if (reuse.cache) {
-            x <- attach.resource("x.unsupervised.desc", path=forest@cachepath)
-        } else {
-            if (trace >= 1L) message("Creating a synthetic class for ",
-                                     "unsupervised learning.")
-            x.old <- x
-            if (is.null(forest@cachepath)) {
-                x <- big.matrix(forest@nexamples, ncol(x), type=typeof(x.old))
-            } else {
-                x <- big.matrix(forest@nexamples, ncol(x), type=typeof(x.old),
-                                backingfile="x.unsupervised",
-                                descriptorfile="x.unsupervised.desc",
-                                backingpath=forest@cachepath)
-            }
-            .Call("synthesizeUnsupervisedC", x.old@address, x@address,
-                  as.integer(.Call("CGetType", x.old@address,
-                                   PACKAGE="bigmemory")))
-            rm(x.old)
-        }
-        
-        y <- c(rep.int(1L, nrow(x) / 2),
-               rep.int(2L, forest@nexamples - nrow(x) / 2))
-    }
     
     
-    
-    # Tabulate y ---------------------------------------------------------------
-    class(y) <- "factor"
-    levels(y) <- forest@ylevels
-    forest@ytable <- table(y, deparse.level=0);
-    y <- as.integer(y)
-    
-    
-
     # Initialize for run -------------------------------------------------------
     
     oldntrees <- forest@ntrees
@@ -292,10 +270,9 @@ grow.bigcforest <- function(forest,
     
     pred <- forest@oobpred
     pred[pred == 0L] <- forest@ynclass + 1L
-    class(pred) <- "factor"
-    levels(pred) <- c(forest@ylevels, "Never out-of-bag")
-    class(y) <- "factor"
-    levels(y) <- forest@ylevels
+    pred <- factor(pred, levels=seq_len(forest@ynclass + 1),
+                   labels=c(forest@ylevels, "Never out-of-bag"))
+    y <- factor(y, levels=seq_len(forest@ynclass), labels=forest@ylevels)
     forest@trainconfusion <- table(y, pred, dnn=c("Actual", "Predicted"))
     rm(pred)
     

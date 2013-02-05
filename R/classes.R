@@ -6,7 +6,6 @@ setClassUnion("table.or.NULL", c("table", "NULL"))
 
 setClass("bigcforest",
          representation=representation(
-             supervised="logical",
              nexamples="integer",
              varselect="integer",
              factorvars="logical",

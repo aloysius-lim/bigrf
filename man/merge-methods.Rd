@@ -6,7 +6,7 @@
 \title{Methods for Function \code{merge} in Package \pkg{bigrf}}
 \description{Merges two random forests into one.}
 \usage{
-  \S4method{merge}{bigcforest,bigcforest}(x, y, class.labels=NULL)
+  \S4method{merge}{bigcforest,bigcforest}(x, y, class.labels)
 }
 \arguments{
   \item{x}{

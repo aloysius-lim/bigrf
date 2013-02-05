@@ -12,10 +12,6 @@
 #ifndef BIGRFC_HELPERS_H
 #define BIGRFC_HELPERS_H
 
-/* Synthesizes second class for unsupervised learning. */
-template <typename xtype>
-void synthesizeUnsupervised(SEXP xP, SEXP xNewP);
-
 /* Prepares the a matrix based on random sample of rows for modelling. */
 SEXP moda(SEXP asaveP, SEXP aP, SEXP factorvarsP, SEXP insampP);
 

@@ -2,7 +2,7 @@ setGeneric("varimp", function(forest, ...) standardGeneric("varimp"))
 
 
 
-varimp.bigcforest <- function(forest, x=NULL, y=NULL,
+varimp.bigcforest <- function(forest, x=NULL, y,
                               impbyexample=FALSE,
                               reuse.cache=FALSE,
                               trace=0L) {
@@ -31,21 +31,26 @@ varimp.bigcforest <- function(forest, x=NULL, y=NULL,
     }
     
     # Check y.
-    if (forest@supervised) {
-        if (is.null(y)) {
-            stop("Argument y must be specified for supervised learning.")
+    if (is.integer(y)) {
+        if (min(y) < 1L) {
+            stop("Elements in argument y must not be less than 1. The class ",
+                 "labels coded in y should start with 1.")
         }
-        if (is.factor(y)) {
-            y <- as.integer(y)
-        } else if (!is.integer(y)) {
-            stop("Argument y must be a factor or integer vector of class ",
-                 "labels.")
-        }
-        if (length(y) != nrow(x)) {
-            stop("Argument y must have as many elements as there are rows in ",
-                 "x.")
-        }
+        y <- factor(y, seq_len(max(y)))
+    } else if (!is.factor(y)) {
+        stop("Argument y must be a factor or integer vector.")
     }
+    if (length(y) != nrow(x)) {
+        stop("Argument y must have as many elements as there are rows in x.")
+    }
+    if (!identical(forest@ylevels, levels(y)) ||
+            !identical(forest@ynclass, length(levels(y))) ||
+            !identical(forest@ytable, table(y, deparse.level=0))) {
+        stop("Argument y is different than that used for building the random ",
+             "forest.")
+    }
+    ytable <- table(y, deparse.level=0)
+    y <- as.integer(y)
     
     # Check impbyexample.
     if (!is.logical(impbyexample)) {
@@ -69,18 +74,6 @@ varimp.bigcforest <- function(forest, x=NULL, y=NULL,
             stop('File "', paste0(forest@cachepath, "/", "asave.desc"),
                  '" does not exist. Cannot reuse cache.')
         }
-        if (!forest@supervised) {
-            if (!file.exists(paste0(forest@cachepath, "/", "x.unsupervised"))) {
-                stop('File "', paste0(forest@cachepath, "/", "x.unsupervised"),
-                     '" does not exist. Cannot reuse cache.')
-            }
-            if (!file.exists(paste0(forest@cachepath, "/",
-                                    "x.unsupervised.desc"))) {
-                stop('File "',
-                     paste0(forest@cachepath, "/", "x.unsupervised.desc"),
-                     '" does not exist. Cannot reuse cache.')
-            }
-        }
     }
     
     
@@ -94,34 +87,7 @@ varimp.bigcforest <- function(forest, x=NULL, y=NULL,
                                backingpath=forest@cachepath)
         }
     }
-    
-    # Add synthetic class for unsupervised learning ----------------------------
-    
-    if (!forest@supervised) {
-        if (reuse.cache) {
-            x <- attach.resource("x.unsupervised.desc", path=forest@cachepath)
-        } else {
-            if (trace >= 1L) message("Creating a synthetic class for ",
-                                     "unsupervised learning.")
-            x.old <- x
-            if (is.null(forest@cachepath)) {
-                x <- big.matrix(forest@nexamples, ncol(x), type=typeof(x.old))
-            } else {
-                x <- big.matrix(forest@nexamples, ncol(x), type=typeof(x.old),
-                                backingfile="x.unsupervised",
-                                descriptorfile="x.unsupervised.desc",
-                                backingpath=forest@cachepath)
-            }
-            .Call("synthesizeUnsupervisedC", x.old@address, x@address,
-                  as.integer(.Call("CGetType", x.old@address,
-                                   PACKAGE="bigmemory")))
-            rm(x.old)
-        }
-        
-        y <- c(rep.int(1L, nrow(x) / 2),
-               rep.int(2L, forest@nexamples - nrow(x) / 2))
-    }
-    
+
     
     
     # Initialize ---------------------------------------------------------------
@@ -129,15 +95,6 @@ varimp.bigcforest <- function(forest, x=NULL, y=NULL,
     nvar <- length(forest@varselect)
     ntest <- as.integer(nrow(x));
     xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
-    
-    if (!is.null(y)) {
-        class(y) <- "factor"
-        levels(y) <- forest@ylevels
-        ytable <- table(y, deparse.level=0)
-        y <- as.integer(y)
-    } else {
-        ytable <- NULL
-    }
     
     importance <- numeric(nvar)
     importance.sq <- numeric(nvar)

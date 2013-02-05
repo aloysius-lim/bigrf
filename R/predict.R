@@ -30,21 +30,26 @@ predict.bigcforest <- function(object, x, y=NULL,
     
     # Check y.
     if (!is.null(y)) {
-        if (is.factor(y)) {
-            y <- as.integer(y)
-        } else if (!is.integer(y)) {
-            stop("Argument y must be a factor or integer vector of class ",
-                 "labels.")
+        if (is.integer(y)) {
+            if (min(y) < 1L) {
+                stop("Elements in argument y must not be less than 1. The ",
+                     "class labels coded in y should start with 1.")
+            }
+            y <- factor(y, seq_len(max(y)))
+        } else if (!is.factor(y)) {
+            stop("Argument y must be a factor or integer vector.")
         }
         if (length(y) != nrow(x)) {
             stop("Argument y must have as many elements as there are rows in ",
                  "x.")
         }
-        if (!forest@supervised && any(y != 0L | y != 1L)) {
-            stop("Forest was built with unsupervised learning. y must contain ",
-                 "only 0s (for original data) or 1s (for synthesized data.")
-        }
+        ytable <- table(y, deparse.level=0)
+        y <- as.integer(y)
+    } else {
+        ytable <- NULL
     }
+    
+    
     
     # Check printerrfreq.
     if (!is.numeric(printerrfreq) ||
@@ -91,14 +96,6 @@ predict.bigcforest <- function(object, x, y=NULL,
     
     ntest <- as.integer(nrow(x));
     xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
-    if (!is.null(y)) {
-        class(y) <- "factor"
-        levels(y) <- forest@ylevels
-        ytable <- table(y, deparse.level=0)
-        y <- as.integer(y)
-    } else {
-        ytable <- NULL
-    }
     
     # fast fix on the test data
     # if(missfill.eq.1) then
@@ -148,10 +145,10 @@ predict.bigcforest <- function(object, x, y=NULL,
     if (!is.null(y)) {
         pred <- prediction[]
         if (length(forest@ylevels)) {
-            class(pred) <- "factor"
-            levels(pred) <- forest@ylevels
-            class(y) <- "factor"
-            levels(y) <- forest@ylevels
+            pred <- factor(pred, levels=seq_len(forest@ynclass),
+                           labels=forest@ylevels)
+            y <- factor(y, levels=seq_len(forest@ynclass),
+                        labels=forest@ylevels)
         }
         prediction@testconfusion <- table(y, pred, dnn=c("Actual", "Predicted"))
         rm(pred)

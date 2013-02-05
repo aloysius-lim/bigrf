@@ -1,4 +1,4 @@
-merge.bigcforest <- function(x, y, class.labels=NULL) {
+merge.bigcforest <- function(x, y, class.labels) {
     # Check arguments ----------------------------------------------------------
     
     # Check x and y.
@@ -10,25 +10,26 @@ merge.bigcforest <- function(x, y, class.labels=NULL) {
     }
     
     # Check class.labels.
-    if (x@supervised) {
-        if (is.null(class.labels)) {
-            stop("Argument class.labels must be specified for supervised ",
-                 "learning.")
+    if (is.integer(class.labels)) {
+        if (min(class.labels) < 1L) {
+            stop("Elements in argument class.labels must not be less than 1. ",
+                 "The class labels should start with 1.")
         }
-        if (is.factor(class.labels)) {
-            class.labels <- as.integer(class.labels)
-        } else if (!is.integer(class.labels)) {
-            stop("Argument class.labels must be a factor or integer vector of ",
-                 "class labels.")
-        }
-        if (length(class.labels) != x@nexamples) {
-            stop("Argument class.labels must have as many elements as there ",
-                 "are rows in x.")
-        }
-    } else {
-        class.labels <- c(rep.int(1L, x@nexamples / 2),
-                          rep.int(2L, x@nexamples / 2))
+        class.labels <- factor(class.labels, seq_len(max(class.labels)))
+    } else if (!is.factor(class.labels)) {
+        stop("Argument class.labels must be a factor or integer vector.")
     }
+    if (length(class.labels) != x@nexamples) {
+        stop("Argument class.labels must have as many elements as the number ",
+             "of training examples used to build the random forest.")
+    }
+    if (!identical(x@ylevels, levels(class.labels)) ||
+            !identical(x@ynclass, length(levels(class.labels))) ||
+            !identical(x@ytable, table(class.labels, deparse.level=0))) {
+        stop("Argument class.labels is different than that used for building ",
+             "the random forest.")
+    }
+    class.labels <- as.integer(class.labels)
     
     
     
