@@ -85,13 +85,8 @@ predict.bigcforest <- function(object, x, y=NULL,
     
     # Convert x to big.matrix, as C functions only support this at the moment.
     if (class(x) != "big.matrix") {
-        if (is.null(cachepath)) {
-            x <- as.big.matrix(x)
-        } else {
-            x <- as.big.matrix(x, backingfile="xtest",
-                               descriptorfile="xtest.desc",
-                               backingpath=cachepath)
-        }
+        if (trace >= 1L) message("Converting x into a big.matrix.")
+        x <- makex(x, "xtest", forest@cachepath)
     }
     
     ntest <- as.integer(nrow(x));

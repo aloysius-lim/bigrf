@@ -51,7 +51,7 @@ bigrfc(x, y, ntrees = 500L, varselect = NULL, varnlevels = NULL,
     \code{TRUE} for error estimates for individual classes to be printed, in addition to the overall error estimates. Default: \code{TRUE}.
   }
   \item{cachepath}{
-    Path to folder where data caches used in building the forest can be stored. If \code{NULL}, then the \code{big.matrix}'s will be created in memory, with no disk caching; this will be suitable for small data sets. Default: \code{tempdir()}.
+    Path to folder where data caches used in building the forest can be stored. If \code{NULL}, then the \code{big.matrix}'s will be created in memory with no disk caching, which would be suitable for small data sets. If caching is used, some of the cached files can be reused in other methods like \code{\link[bigrf]{grow}} and \code{\link[bigrf]{varimp}}, shortening method initialization time. If the user wishes to reuse the cached files in this manner, it is suggested that a folder other than \code{tempdir()} is used, as the operating system may automatically delete any cache files in \code{tempdir()}. Default: \code{tempdir()}.
   }
   \item{trace}{
     \code{0} for no verbose output. \code{1} to print verbose output on tree building. \code{2} to print more verbose output on processing of individual nodes. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.

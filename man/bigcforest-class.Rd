@@ -37,7 +37,7 @@ Objects can be created by calls of the form \code{new("bigcforest", ...)}, but m
     \item{\code{trainerr}:}{Object of class \code{"numeric"}. Total training error of out-of-bag examples.}
     \item{\code{trainconfusion}:}{Object of class \code{"table"}. Confusion matrix for out-of-bag examples.}
     \item{\code{varginidec}:}{Object of class \code{"numeric"}. Decrease in Gini impurity for each variable over all trees.}
-    \item{\code{cachepath}:}{Object of class \code{"character.or.NULL"}. Path to folder where data caches used in building the forest were stored.}
+    \item{\code{cachepath}:}{Object of class \code{"character.or.NULL"}. Path to folder where data caches used in building the forest were stored, or \code{NULL} if data was processed completely in memory.}
   }
 }
 \section{Extends}{

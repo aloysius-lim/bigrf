@@ -1,4 +1,58 @@
 # ------------------------------------------------------------------------------
+# Converts input variables x into a big.matrix. Argument x can be a matrix or
+# data.frame.
+makex <- function(x, backingfile="", cachepath=NULL) {
+    # Get appropriate type for new big.matrix.
+    if (class(x) == "matrix") {
+        xtype <- switch(typeof(x), double="double", integer="integer",
+                        logical="char", NULL)
+        if (is.null(xtype)) {
+            stop("Matrix x can only be a numeric, integer or logical ",
+                 "matrix.")
+        }
+    } else if (class(x) == "data.frame") {
+        xclasses <- sapply(x, class)
+        if (any(xclasses == "numeric")) {
+            xtype <- "double"
+        } else if (any(xclasses %in% c("integer", "factor"))) {
+            xtype <- "integer"
+        } else if (any(xclasses == "logical")) {
+            xtype <- "char"
+        } else {
+            stop("Data.frame x can only contain numeric, integer, factor ",
+                 "or logical data.")
+        }
+    }
+    
+    # Create big.matrix.
+    if (is.null(cachepath)) {
+        xnew <- big.matrix(nrow(x), ncol(x), type=xtype,
+                           dimnames=list(NULL, colnames(x)))
+    } else {
+        xnew <- big.matrix(nrow(x), ncol(x), type=xtype,
+                           dimnames=list(NULL, colnames(x)),
+                           backingfile=backingfile,
+                           descriptorfile=paste0(backingfile, ".desc"),
+                           backingpath=cachepath)
+    }
+    
+    # Copy data.
+    old.opt <- options(bigmemory.typecast.warning=FALSE)
+    for (j in seq_len(ncol(x))) {
+        if (xtype %in% c("integer", "char")) {
+            xnew[, j] <- as.integer(x[, j])
+        } else {
+            xnew[, j] <- x[, j]
+        }
+    }
+    options(old.opt)
+    
+    return(xnew)
+}
+
+
+
+# ------------------------------------------------------------------------------
 # makea constructs the nexamples x nvarx integer matrix a. For each numerical 
 # variable with values x[n,m],n=1,...,nexamples, the x-values are sorted from 
 # lowest to highest. Denote these by xs[n,m]. Then asave[n,m] is the example
@@ -51,7 +105,7 @@ moda <- function(asave, a, factorvars, insamp) {
 # increases to nnodes+2 and the next node to be split is numbered k+1. When no
 # more nodes can be split, buildtree returns to the main program.
 buildtree <- function(x, y, asave, a, a.out, forest, insamp, inweight, treenum,
-                       trace) {
+                      trace) {
     xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
     return(.Call("buildtreeC", x@address, xtype, y, asave@address, a@address,
                  a.out@address, forest, insamp, inweight, treenum, trace))

@@ -16,7 +16,7 @@ Calculates variable importance based on out-of-bag estimates. For each tree in t
     A random forest of class \code{"\linkS4class{bigcforest}"}.
   }
   \item{x}{
-    A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. The data must not have changed, otherwise unexpected modelling results may occur. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation.
+    A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. The data must not have changed, otherwise unexpected modelling results may occur. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation. Optional if \code{reuse.cache} is \code{TRUE}.
   }
   \item{y}{
     An integer or factor vector of response variables that was used in growing the forest. The data must not have changed, otherwise unexpected modelling results may occur.
@@ -25,7 +25,7 @@ Calculates variable importance based on out-of-bag estimates. For each tree in t
     A logical indicating whether to compute the variable importance for each out-of-bag example.
   }
   \item{reuse.cache}{
-    \code{TRUE} to reuse disk caches from previous tree-growing runs, which may significantly reduce initialization time for large data sets. Currently, only the \code{big.matrix} \code{x} is reused. If \code{TRUE}, user must ensure that the files \file{x} and \file{x.desc} in \code{forest@cachepath} have not been modified or deleted since tree building.
+    \code{TRUE} to reuse disk caches of the \code{big.matrix} \code{x} from the initial growing of the random forest, which may significantly reduce initialization time for large data sets. If \code{TRUE}, the user must ensure that the files \file{x} and \file{x.desc} in \code{forest@cachepath} have not been modified or deleted.
   }
   \item{trace}{
     \code{0} for no verbose output. \code{1} to print verbose output. Default: \code{0}.

@@ -35,6 +35,14 @@ grow.bigcforest <- function(forest,
         stop ("Argument reuse.cache must be a logical.")
     }
     if (reuse.cache) {
+        if (is.null(forest@cachepath)) {
+            stop("Cache was not used to grow this random forest. Cannot reuse ",
+                 "cache.")
+        }
+        if (is.null(forest@cachepath)) {
+            stop("Cache was not used to grow this random forest. Cannot reuse ",
+                 "cache.")
+        }
         if (!file.exists(forest@cachepath)) {
             stop('Cache path "', forest@cachepath,
                  '" does not exist. Cannot reuse cache.')
@@ -47,6 +55,14 @@ grow.bigcforest <- function(forest,
             stop('File "', paste0(forest@cachepath, "/", "asave.desc"),
                  '" does not exist. Cannot reuse cache.')
         }
+        asave <- attach.resource("asave.desc", path=forest@cachepath)
+        if (nrow(asave) != forest@nexamples ||
+                ncol(asave) != length(forest@varselect)) {
+            stop("Big.matrix asave in the cache path does not have the same ",
+                 "dimensions as the training data used to grow this random ",
+                 "forest. Cannot reuse cache.")
+        }
+        
         if (is.null(x)) {
             if (!file.exists(paste0(forest@cachepath, "/", "x"))) {
                 stop('File "', paste0(forest@cachepath, "/", "x"),
@@ -59,20 +75,26 @@ grow.bigcforest <- function(forest,
                      '" does not exist. Cannot reuse cache.')
             }
             x <- attach.resource("x.desc", path=forest@cachepath)
-        }
-    } else {
-        if (is.null(x)) {
-            stop("Argument x must be specified if reuse.cache is FALSE.")
+            if (nrow(x) != forest@nexamples) {
+                stop("Big.matrix x in the cache path does not have the same ",
+                     "number of rows as the training data used to grow this ",
+                     "random forest. Cannot reuse cache.")
+            }
         }
     }
     
     # Check x.
-    if (!(class(x) %in% c("big.matrix", "matrix", "data.frame"))) {
-        stop("Argument x must be a big.matrix, matrix or data.frame.")
-    }
-    if (nrow(x) != forest@nexamples) {
-        stop("Number of rows in argument x does not match number of rows in ",
-             "original training data used to grow this forest.")
+    if (!reuse.cache) {
+        if (is.null(x)) {
+            stop("Argument x must be specified if reuse.cache is FALSE.")
+        }
+        if (!(class(x) %in% c("big.matrix", "matrix", "data.frame"))) {
+            stop("Argument x must be a big.matrix, matrix or data.frame.")
+        }
+        if (nrow(x) != forest@nexamples) {
+            stop("Number of rows in argument x does not match number of rows ",
+                 "in the training data used to grow this forest.")
+        }
     }
     
     # Check y.
@@ -94,6 +116,7 @@ grow.bigcforest <- function(forest,
         stop("Argument y is different than that used for building the random ",
              "forest.")
     }
+    ytable <- table(y, deparse.level=0)
     y <- as.integer(y)
     
     # Check ntrees.
@@ -124,19 +147,13 @@ grow.bigcforest <- function(forest,
     
     
 
-    # Convert x to big.matrix, as C functions only support this at the moment.
-    if (class(x) != "big.matrix") {
-        if (is.null(forest@cachepath)) {
-            x <- as.big.matrix(x)
-        } else {
-            x <- as.big.matrix(x, backingfile="x", descriptorfile="x.desc",
-                               backingpath=forest@cachepath)
-        }
-    }
-    
-    
-    
     # Initialize for run -------------------------------------------------------
+    
+    # Convert x to big.matrix, as C functions in bigrf only support this.
+    if (class(x) != "big.matrix") {
+        if (trace >= 1L) message("Converting x into a big.matrix.")
+        x <- makex(x, "x", forest@cachepath)
+    }
     
     oldntrees <- forest@ntrees
     length(forest@trainerr) <- oldntrees + ntrees
@@ -144,10 +161,7 @@ grow.bigcforest <- function(forest,
                                 matrix(0, ntrees, forest@ynclass))
     
     # Set up asave big.matrix.
-    if (reuse.cache) {
-        if (trace >= 1L) message("Loading asave big.matrix.")
-        asave <- attach.resource("asave.desc", path=forest@cachepath)
-    } else {
+    if (!reuse.cache) {
         if (trace >= 1L) message("Setting up asave big.matrix.")
         if (is.null(forest@cachepath)) {
             asave <- big.matrix(forest@nexamples, length(forest@varselect),

@@ -25,9 +25,52 @@ varimp.bigcforest <- function(forest, x=NULL, y,
         stop("Argument forest must be a bigcforest created with bigrfc.")
     }
     
+    # Check reuse.cache.
+    if (!is.logical(reuse.cache)) {
+        stop ("Argument reuse.cache must be a logical.")
+    }
+    if (reuse.cache) {
+        if (is.null(forest@cachepath)) {
+            stop("Cache was not used to grow this random forest. Cannot reuse ",
+                 "cache.")
+        }
+        if (!file.exists(forest@cachepath)) {
+            stop('Cache path "', forest@cachepath,
+                 '" does not exist. Cannot reuse cache.')
+        }
+        
+        if (is.null(x)) {
+            if (!file.exists(paste0(forest@cachepath, "/", "x"))) {
+                stop('File "', paste0(forest@cachepath, "/", "x"),
+                     '" does not exist. Cannot reuse cache.')
+            }
+            if (!file.exists(paste0(forest@cachepath, "/",
+                                    "x.desc"))) {
+                stop('File "',
+                     paste0(forest@cachepath, "/", "x.desc"),
+                     '" does not exist. Cannot reuse cache.')
+            }
+            x <- attach.resource("x.desc", path=forest@cachepath)
+            if (nrow(x) != forest@nexamples) {
+                stop("Big.matrix x in the cache path does not have the same ",
+                     "number of rows as the training data used to grow this ",
+                     "random forest. Cannot reuse cache.")
+            }
+        }
+    }
+    
     # Check x.
-    if (!(class(x) %in% c("big.matrix", "matrix", "data.frame"))) {
-        stop("Argument x must be a big.matrix, matrix or data.frame.")
+    if (!reuse.cache) {
+        if (is.null(x)) {
+            stop("Argument x must be specified if reuse.cache is FALSE.")
+        }
+        if (!(class(x) %in% c("big.matrix", "matrix", "data.frame"))) {
+            stop("Argument x must be a big.matrix, matrix or data.frame.")
+        }
+        if (nrow(x) != forest@nexamples) {
+            stop("Number of rows in argument x does not match number of rows ",
+                 "in the training data used to grow this forest.")
+        }
     }
     
     # Check y.
@@ -49,48 +92,22 @@ varimp.bigcforest <- function(forest, x=NULL, y,
         stop("Argument y is different than that used for building the random ",
              "forest.")
     }
-    ytable <- table(y, deparse.level=0)
     y <- as.integer(y)
     
     # Check impbyexample.
     if (!is.logical(impbyexample)) {
         stop ("Argument impbyexample must be a logical.")
     }
-    
-    # Check reuse.cache.
-    if (!is.logical(reuse.cache)) {
-        stop ("Argument reuse.cache must be a logical.")
-    }
-    if (reuse.cache) {
-        if (!file.exists(forest@cachepath)) {
-            stop('Cache path "', forest@cachepath,
-                 '" does not exist. Cannot reuse cache.')
-        }
-        if (!file.exists(paste0(forest@cachepath, "/", "asave"))) {
-            stop('File "', paste0(forest@cachepath, "/", "asave"),
-                 '" does not exist. Cannot reuse cache.')
-        }
-        if (!file.exists(paste0(forest@cachepath, "/", "asave.desc"))) {
-            stop('File "', paste0(forest@cachepath, "/", "asave.desc"),
-                 '" does not exist. Cannot reuse cache.')
-        }
-    }
-    
-    
-    
-    # Convert x to big.matrix, as C functions only support this at the moment.
-    if (class(x) != "big.matrix") {
-        if (is.null(forest@cachepath)) {
-            x <- as.big.matrix(x)
-        } else {
-            x <- as.big.matrix(x, backingfile="x", descriptorfile="x.desc",
-                               backingpath=forest@cachepath)
-        }
-    }
-
+        
     
     
     # Initialize ---------------------------------------------------------------
+    
+    # Convert x to big.matrix, as C functions in bigrf only support this.
+    if (class(x) != "big.matrix") {
+        if (trace >= 1L) message("Converting x into a big.matrix.")
+        x <- makex(x, "x", forest@cachepath)
+    }
     
     nvar <- length(forest@varselect)
     ntest <- as.integer(nrow(x));

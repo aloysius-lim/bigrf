@@ -16,7 +16,7 @@
     A random forest of class \code{"\linkS4class{bigcforest}"}.
   }
   \item{x}{
-    A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. The data must not have changed, otherwise unexpected modelling results may occur. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation.
+    A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. The data must not have changed, otherwise unexpected modelling results may occur. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation. Optional if \code{reuse.cache} is \code{TRUE}.
   }
   \item{y}{
     An integer or factor vector of response variables that was used in growing the forest. The data must not have changed, otherwise unexpected modelling results may occur.
@@ -31,7 +31,7 @@
     \code{TRUE} for error estimates for individual classes to be printed, in addition to the overall error estimates. Default: \code{TRUE}.
   }
   \item{reuse.cache}{
-    \code{TRUE} to reuse disk caches from previous tree-growing runs, which may significantly reduce initialization time for large data sets. Currently, only the \code{big.matrix}'s \code{asave}, \code{b} and \code{x} are reused. If \code{TRUE}, user must ensure that the files \file{asave}, \file{asave.desc}, \file{b}, \file{b.desc}, \file{x} and \file{x.desc} in \code{forest@cachepath} have not been modified or deleted since the previous run.
+    \code{TRUE} to reuse disk caches of the \code{big.matrix}'s \code{x} and \code{asave} from the initial growing of the random forest, which may significantly reduce initialization time for large data sets. If \code{TRUE}, the user must ensure that the files \file{x}, \file{x.desc}, \file{asave} and \file{asave.desc} in \code{forest@cachepath} have not been modified or deleted.
   }
   \item{trace}{
     \code{0} for no verbose output. \code{1} to print verbose output on tree building. \code{2} to print more verbose output on processing of individual nodes. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.
