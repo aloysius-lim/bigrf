@@ -1,4 +1,4 @@
-summary.bigcforest <- function(object) {
+setMethod("summary", signature(object="bigcforest"), function(object) {
     cat("Random forest with", object@ntrees, "trees, trained on",
         object@nexamples, "examples with", length(object@varselect),
         "variables.\n\n")
@@ -15,13 +15,10 @@ summary.bigcforest <- function(object) {
     
     cat("Training set confusion matrix (OOB):\n")
     print(object@trainconfusion)
-}
-
-setMethod("summary", signature(object="bigcforest"), summary.bigcforest)
+})
 
 
-
-summary.bigcprediction <- function(object) {
+setMethod("summary", signature(object="bigcprediction"), function(object) {
     cat("Random forest with", object@ntrees, "trees, tested on",
         object@ntest, "examples\n\n")
     if (object@testlabelled) {
@@ -34,6 +31,4 @@ summary.bigcprediction <- function(object) {
         cat("Test set confusion matrix (OOB):\n")
         print(object@testconfusion)
     }
-}
-
-setMethod("summary", signature(object="bigcprediction"), summary.bigcprediction)
+})

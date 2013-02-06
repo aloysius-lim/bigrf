@@ -1,4 +1,8 @@
-merge.bigcforest <- function(x, y, class.labels) {
+setMethod("merge", signature(x="bigcforest", y="bigcforest"), function(
+    x,
+    y,
+    class.labels) {
+    
     # Check arguments ----------------------------------------------------------
     
     # Check x and y.
@@ -85,7 +89,4 @@ merge.bigcforest <- function(x, y, class.labels) {
     x@trainconfusion <- table(class.labels, pred, dnn=c("Actual", "Predicted"))
     
     return(x)
-}
-
-setMethod("merge", signature(x="bigcforest", y="bigcforest"),
-          merge.bigcforest)
+})

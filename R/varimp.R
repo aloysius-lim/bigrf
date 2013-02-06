@@ -2,10 +2,14 @@ setGeneric("varimp", function(forest, ...) standardGeneric("varimp"))
 
 
 
-varimp.bigcforest <- function(forest, x=NULL, y,
-                              impbyexample=FALSE,
-                              reuse.cache=FALSE,
-                              trace=0L) {
+setMethod("varimp", signature(forest="bigcforest"),  function(
+    forest,
+    x=NULL,
+    y,
+    impbyexample=FALSE,
+    reuse.cache=FALSE,
+    trace=0L) {
+    
     # Check arguments ----------------------------------------------------------
     
     # Check trace.
@@ -98,7 +102,7 @@ varimp.bigcforest <- function(forest, x=NULL, y,
     if (!is.logical(impbyexample)) {
         stop ("Argument impbyexample must be a logical.")
     }
-        
+    
     
     
     # Initialize ---------------------------------------------------------------
@@ -196,6 +200,5 @@ varimp.bigcforest <- function(forest, x=NULL, y,
     
     return(list(importance=importance, importance.ex=importance.ex,
                 zscore=zscore, significance=significance))
-}
-
-setMethod("varimp", signature(forest="bigcforest"),  varimp.bigcforest)
+})
+          

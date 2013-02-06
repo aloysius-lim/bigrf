@@ -252,8 +252,8 @@ bigrfc <- function(x,
     
     # Grow forest --------------------------------------------------------------
     
-    forest <- grow.bigcforest(forest, x, y, ntrees, printerrfreq=printerrfreq,
-                              printclserr=printclserr, trace=trace)
+    forest <- grow(forest, x, y, ntrees, printerrfreq=printerrfreq,
+                   printclserr=printclserr, trace=trace)
     
     return(forest)
 }

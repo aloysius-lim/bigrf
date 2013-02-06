@@ -2,14 +2,15 @@ setGeneric("grow", function(forest, ...) standardGeneric("grow"))
 
 
 
-grow.bigcforest <- function(forest,
-                            x=NULL,
-                            y,
-                            ntrees=500L,
-                            printerrfreq=10L,
-                            printclserr=TRUE,
-                            reuse.cache=FALSE,
-                            trace=0L) {
+setMethod("grow", signature(forest="bigcforest"), function(
+    forest,
+    x=NULL,
+    y,
+    ntrees=500L,
+    printerrfreq=10L,
+    printclserr=TRUE,
+    reuse.cache=FALSE,
+    trace=0L) {
     
     # Check arguments ----------------------------------------------------------
     
@@ -306,6 +307,4 @@ grow.bigcforest <- function(forest,
     # 	}
     
     return(forest)
-}
-
-setMethod("grow", signature(forest="bigcforest"), grow.bigcforest)
+})
