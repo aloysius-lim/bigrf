@@ -240,10 +240,12 @@ bigrfc <- function(x,
     
     # Out-of-bag results and error estimates.
     forest@oobtimes <- integer(forest@nexamples)
-    forest@oobvotes <- matrix(0, forest@nexamples, forest@ynclass)
+    forest@oobvotes <- matrix(0, forest@nexamples, forest@ynclass,
+                              dimnames=list(NULL, forest@ylevels))
     forest@oobpred <- integer(forest@nexamples)
     forest@trainerr <- numeric()
-    forest@trainclserr <- matrix(0, 0, forest@ynclass)
+    forest@trainclserr <- matrix(0, 0, forest@ynclass,
+                                 dimnames=list(NULL, forest@ylevels))
     forest@varginidec <- numeric(length(forest@varselect))
     
     

@@ -3,16 +3,13 @@ setGeneric("fastimp", function(forest, ...) standardGeneric("fastimp"))
 
 
 fastimp.bigcforest <- function(forest) {
-    # Check arguments ----------------------------------------------------------
     
-    # Check forest.
+    # Check argument forest.
     if (!class(forest) == "bigcforest") {
         stop("Argument forest must be a bigcforest created with bigrfc.")
     }
     
-    
-    
-    # Calculate fast (gini) importance -----------------------------------------
+    # Calculate fast (gini) importance.
     return(forest@varginidec / mean(forest@varginidec))
 }
 
