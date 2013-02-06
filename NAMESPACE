@@ -1,5 +1,5 @@
 exportClasses(bigcforest, bigctree, bigcprediction)
-exportMethods(grow, merge, predict, varimp, fastimp, show, summary)
+exportMethods(grow, merge, predict, varimp, fastimp, interactions, show, summary)
 export(bigrfc, generateSyntheticClass)
 import(methods, bigmemory, foreach)
 useDynLib(bigrf)
