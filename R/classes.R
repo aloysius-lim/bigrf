@@ -2,7 +2,9 @@ setClassUnion("character.or.NULL", c("character", "NULL"))
 setClassUnion("integer.or.NULL", c("integer", "NULL"))
 setClassUnion("numeric.or.NULL", c("numeric", "NULL"))
 setClassUnion("logical.or.NULL", c("logical", "NULL"))
+setClassUnion("matrix.or.NULL", c("matrix", "NULL"))
 setClassUnion("table.or.NULL", c("table", "NULL"))
+setClassUnion("big.matrix.or.NULL", c("big.matrix", "NULL"))
 
 setClass("bigcforest",
          representation=representation(
@@ -62,3 +64,10 @@ setClass("bigcprediction",
              testconfusion="table.or.NULL"
          ),
          contains="integer")
+
+setClass("bigrfprox",
+         representation=representation(
+             examples="big.matrix.or.NULL",
+             cachepath="character.or.NULL"
+         ),
+         contains="big.matrix")

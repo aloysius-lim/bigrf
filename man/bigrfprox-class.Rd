@@ -1,0 +1,33 @@
+\name{bigrfprox-class}
+\Rdversion{1.1}
+\docType{class}
+\alias{bigrfprox-class}
+
+\title{Class \code{"bigrfprox"}}
+\description{
+The proximity matrix for a random forest. Element \code{[m, n]} in the matrix indicate the number of times examples m and n end up in the same node, averaged over the number of trees in the forest. This is useful for computing scaling co-ordinates, prototypes, and outliers.
+}
+\section{Objects from the Class}{
+Objects can be created by calls of the form \code{new("bigrfprox", ...)}, but most often is the result of a call to \code{\link[bigrf]{predict}}.
+
+\code{"bigrfprox"} inherits from \code{"\linkS4class{big.matrix}"}. Given a \code{"bigrfprox"} object \code{prox}, each row represents an example, and each column represents the \code{ncol(prox)} "nearest" examples. If \code{ncol(prox)} is less than the number of examples, then the examples referred to in each row could be different. In that case, the \code{big.matrix} \code{prox@examples} indicates which examples are referred to in \code{prox}, i.e. \code{prox[i, j]} is the proximity between example \code{i} and the example \code{prox@examples[i, j]}.
+}
+\section{Slots}{
+  \describe{
+    \item{\code{examples}:}{Object of class \code{"big.matrix"}. If the number of columns in the proximity matrix is less than the number of rows, this indicates which examples are referred to in the proximity matrix. Otherwise (i.e. all pairwise proximities were computed), it is \code{NULL}.}
+    \item{\code{cachepath}:}{Object of class \code{"character"}. The cache path for the \code{big.matrix}'s for the proximity matrix and \code{examples}, or \code{NULL} if the \code{big.matrix}'s were created in memory.}
+    \item{\code{address}:}{Object of class \code{"externalptr"}. Inherited from class \code{"\linkS4class{big.matrix}"}.}
+  }
+}
+\section{Extends}{
+Class \code{"\linkS4class{big.matrix}"}, directly.
+}
+\section{Methods}{
+  \describe{
+    \item{scaling}{\code{signature(prox = "bigrfprox")}: Calculate scaling coordinates for the training examples used to build the random forest. See \code{\link[bigrf]{scaling}} for details. }
+	 }
+}
+\examples{
+showClass("bigrfprox")
+}
+\keyword{classes}

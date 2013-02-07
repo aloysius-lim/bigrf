@@ -51,7 +51,8 @@ Class \code{"\linkS4class{vector}"}, by class "list", distance 2.
     \item{predict}{\code{signature(object = "bigcforest")}: Predicts the classes of a new test set using the random forest. See \code{\link[bigrf]{predict}} for details.}
     \item{varimp}{\code{signature(forest = "bigcforest")}: Calculates variable importance. See \code{\link[bigrf]{varimp}} for details.}
     \item{fastimp}{\code{signature(forest = "bigcforest")}: Calculates variable importance using a quicker but less accurate method. See \code{\link[bigrf]{fastimp}} for details.}
-    \item{interactions}{\code{signature(forest = "bigcforest")}: Calculates variable interactions. See\code{\link[bigrf]{interactions}} for details.}
+    \item{interactions}{\code{signature(forest = "bigcforest")}: Calculates variable interactions. See \code{\link[bigrf]{interactions}} for details.}
+    \item{proximities}{\code{signature(forest = "bigcforest")}: Calculates the proximity matrix for the random forest. See \code{\link[bigrf]{proximities}} for details.}
     \item{show}{\code{signature(object = "bigcforest")}: Prints the random forest.}
     \item{summary}{\code{signature(object = "bigcforest")}: Prints summary information on the random forest, including out-of-bag training error estimates and the confusion matrix.}
 	 }
