@@ -38,7 +38,7 @@ setMethod("proximities", signature(forest="bigcforest"), function(
     } else if (!is.factor(y)) {
         stop("Argument y must be a factor or integer vector.")
     }
-    if (length(y) != nrow(x)) {
+    if (length(y) != forest@nexamples) {
         stop("Argument y must have as many elements as there are rows in x.")
     }
     if (!identical(forest@ylevels, levels(y)) ||
@@ -124,29 +124,20 @@ setMethod("proximities", signature(forest="bigcforest"), function(
             tree <- forest[[t]]
             
             # Example numbers of all examples in the same node as example i.
-            insame <- which(tree@trainprednode == tree@trainprednode[i])
-            p[insame] <- p[insame] + 1L
+            w <- which(tree@trainprednode == tree@trainprednode[i])
+            p[w] <- p[w] + 1L
             
             # Computation in original Fortran code, which does not make sense.
             # if (tree@insamp[i] > 0L) {
-            #     w <- tree@insamp[insame] == 0L
+            #     w <- tree@insamp[w] == 0L
             #     p[w] <- p[w] + wtx[i] /
             #         tree@termincount[tree@trainprednode[i]]
             # } else {
-            #     w <- tree@insamp[insame] > 0L
+            #     w <- tree@insamp[w] > 0L
             #     p[w] <- p[w] + wtx[w] / tree@termincount[tree@trainprednode[w]]
             # }
         }
         
-        # if(noutlier.eq.1) then
-        # 	rsq=0
-        # 	do k=1,near
-        # 	if(p(k).gt.0.and.cl(k).eq.cl(n)) rsq=rsq+p(k)*p(k)
-        # 	enddo
-        # 	if(rsq.eq.0) rsq=1
-        # 	outtr(n)=near/rsq
-        # endif
-	
         if (nnearest == forest@nexamples) {
             prox[i, ] <- p / forest@ntrees
         } else {
@@ -155,5 +146,6 @@ setMethod("proximities", signature(forest="bigcforest"), function(
         }
     }
     
+    # Return.
     return(proximities)
 })
