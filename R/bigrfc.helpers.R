@@ -76,33 +76,6 @@ makea <- function(x, asave, factorvars, varselect) {
 
 
 # ------------------------------------------------------------------------------
-# Buildtree consists of repeated calls to findbestsplit and movedata. 
-# Findbestsplit does just that--it finds the best split of the current node.
-# Movedata moves the data in the split node right and left so that the data
-# corresponding to each child node is contiguous.
-# 
-# The buildtree bookkeeping is different from that in Friedman's original CART
-# program: 
-#     nnodes is the total number of nodes to date.
-# 	treemap[k, ] = child node numbers if the kth node has been split.
-# 	               -1 if the node exists but has not yet been split.
-# 		              0 if the node is terminal.
-# 
-# A node is terminal if its size is below a threshold value, or if it is all one
-# class, or if all the x-values are equal. If the current node k is split, then
-# its children are numbered nnodes+1 [left], and nnodes+2 [right], nnodes
-# increases to nnodes+2 and the next node to be split is numbered k+1. When no
-# more nodes can be split, buildtree returns to the main program.
-buildtree <- function(x, asave, a, a.out, forest, insamp, inweight, treenum,
-                      trace) {
-    xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
-    return(.Call("buildtreeC", x@address, xtype, asave@address, a@address,
-                 a.out@address, forest, insamp, inweight, treenum, trace))
-}
-
-
-
-# ------------------------------------------------------------------------------
 # Combine results of tree builds. To be used only as a .combine function in
 # foreach().
 combine.treeresults <- function(forest, newtree) {

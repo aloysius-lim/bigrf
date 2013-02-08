@@ -233,8 +233,11 @@ setMethod("grow", signature(forest="bigcforest"), function(
         # Build tree -----------------------------------------------------------
         
         if (trace >= 2L) message("Tree ", treenum, ": Building tree.")
-        tree <- buildtree(x, asave, a, a.out, forest, insamp, inweight, treenum,
-                          trace)
+        
+        xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
+        tree <- .Call("buildtreeC", x@address, xtype, asave@address, a@address,
+                      a.out@address, forest, insamp, inweight, treenum, trace)
+        
         list(treenum=treenum,
              oldntrees=oldntrees,
              ntrees=ntrees,
