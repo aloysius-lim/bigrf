@@ -224,8 +224,10 @@ setMethod("grow", signature(forest="bigcforest"), function(
                                                           ".desc"),
                                     backingpath=forest@cachepath)
             }
-            moda(asave, a, forest@factorvars, insamp)
-            moda(asave, a.out, forest@factorvars, insamp == 0L)
+            .Call("modaC", asave@address, a@address, forest@factorvars,
+                  as.integer(insamp), PACKAGE="bigrf")
+            .Call("modaC", asave@address, a.out@address, forest@factorvars,
+                  as.integer(insamp == 0L), PACKAGE="bigrf")
         } else {
             if (is.null(forest@cachepath)) {
                 a <- big.matrix(1L, 1L, type="integer")
@@ -282,7 +284,6 @@ setMethod("grow", signature(forest="bigcforest"), function(
     
     
     # Calculate confusion matrix -----------------------------------------------
-    
     pred <- forest@oobpred
     pred[pred == 0L] <- forest@ynclass + 1L
     pred <- factor(pred, levels=seq_len(forest@ynclass + 1),
@@ -296,15 +297,6 @@ setMethod("grow", signature(forest="bigcforest"), function(
     # Print results ------------------------------------------------------------
     cat("\n")
     summary(forest)
-    
-
-    
-    # # -------------------------------------------------------
-    # # SEND FILL TO FILE [ROUGH FILL ONLY]
-    # # 
-    # 	if (isavefill == 1 && missfill == 1) {
-    # 		write[3,*] [fill[m],m=1,ncol(x)]
-    # 	}
     
     return(forest)
 })

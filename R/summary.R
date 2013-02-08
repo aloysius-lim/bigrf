@@ -18,6 +18,7 @@ setMethod("summary", signature(object="bigcforest"), function(object) {
 })
 
 
+
 setMethod("summary", signature(object="bigcprediction"), function(object) {
     cat("Random forest with", object@ntrees, "trees, tested on",
         object@ntest, "examples\n\n")

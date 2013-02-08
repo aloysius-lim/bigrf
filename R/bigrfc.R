@@ -232,12 +232,6 @@ bigrfc <- function(x,
     forest@contvarseq <- integer(length(forest@factorvars))
     forest@contvarseq[!forest@factorvars] <- seq_len(sum(!forest@factorvars))
     
-    # if (supervised) {
-    #   wtx <- yclasswts[y]
-    # } else {
-    #   wtx <- rep.int(1, nexamples)
-    # }
-    
     # Out-of-bag results and error estimates.
     forest@oobtimes <- integer(forest@nexamples)
     forest@oobvotes <- matrix(0, forest@nexamples, forest@ynclass,
