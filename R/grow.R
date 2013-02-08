@@ -5,7 +5,6 @@ setGeneric("grow", function(forest, ...) standardGeneric("grow"))
 setMethod("grow", signature(forest="bigcforest"), function(
     forest,
     x=NULL,
-    y,
     ntrees=500L,
     printerrfreq=10L,
     printclserr=TRUE,
@@ -98,28 +97,6 @@ setMethod("grow", signature(forest="bigcforest"), function(
         }
     }
     
-    # Check y.
-    if (is.integer(y)) {
-        if (min(y) < 1L) {
-            stop("Elements in argument y must not be less than 1. The class ",
-                 "labels coded in y should start with 1.")
-        }
-        y <- factor(y, seq_len(max(y)))
-    } else if (!is.factor(y)) {
-        stop("Argument y must be a factor or integer vector.")
-    }
-    if (length(y) != nrow(x)) {
-        stop("Argument y must have as many elements as there are rows in x.")
-    }
-    if (!identical(forest@ylevels, levels(y)) ||
-            !identical(forest@ynclass, length(levels(y))) ||
-            !identical(forest@ytable, table(y, deparse.level=0))) {
-        stop("Argument y is different than that used for building the random ",
-             "forest.")
-    }
-    ytable <- table(y, deparse.level=0)
-    y <- as.integer(y)
-    
     # Check ntrees.
     if (!is.numeric(ntrees) ||
             abs(ntrees - round(ntrees)) >= .Machine$double.eps ^ 0.5) {
@@ -150,6 +127,8 @@ setMethod("grow", signature(forest="bigcforest"), function(
 
     # Initialize for run -------------------------------------------------------
     
+    y <- forest@y
+    
     # Convert x to big.matrix, as C functions in bigrf only support this.
     if (class(x) != "big.matrix") {
         if (trace >= 1L) message("Converting x into a big.matrix.")
@@ -177,7 +156,7 @@ setMethod("grow", signature(forest="bigcforest"), function(
         makea(x, asave, forest@factorvars, forest@varselect)
     }
     
-    
+
     
     # Begin main loop ----------------------------------------------------------
 
@@ -254,12 +233,11 @@ setMethod("grow", signature(forest="bigcforest"), function(
         # Build tree -----------------------------------------------------------
         
         if (trace >= 2L) message("Tree ", treenum, ": Building tree.")
-        tree <- buildtree(x, y, asave, a, a.out, forest, insamp, inweight,
-                          treenum, trace)
+        tree <- buildtree(x, asave, a, a.out, forest, insamp, inweight, treenum,
+                          trace)
         list(treenum=treenum,
              oldntrees=oldntrees,
              ntrees=ntrees,
-             y=y,
              tree=tree,
              printerrfreq=printerrfreq,
              printclserr=printclserr)

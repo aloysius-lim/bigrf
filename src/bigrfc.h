@@ -17,9 +17,8 @@ SEXP moda(SEXP asaveP, SEXP aP, SEXP factorvarsP, SEXP insampP);
 
 /* Builds a classification tree. */
 template <typename xtype>
-SEXP buildtree(BigMatrix *x, const int *y, BigMatrix *asave, BigMatrix *a,
-    BigMatrix *aOut, SEXP forestP, SEXP insampP, SEXP inweightP, int treenum,
-    int trace);
+SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
+    SEXP forestP, SEXP insampP, SEXP inweightP, int treenum, int trace);
 
 /* Finds the best split at the current node. */
 template <typename xtype>

@@ -8,12 +8,11 @@
   Compute the proximity matrix for a random forest, for the \code{nnearest} most proximate examples to each training example.
 }
 \usage{
-\S4method{proximities}{bigcforest}(forest, y, nnearest=forest@nexamples,
+\S4method{proximities}{bigcforest}(forest, nnearest=forest@nexamples,
     cachepath=tempdir(), trace=0L)
 }
 \arguments{
   \item{forest}{A random forest of class \code{"\linkS4class{bigcforest}"}.}
-  \item{y}{An integer or factor vector of response variables that was used in growing the forest. The data must not have changed, otherwise unexpected modelling results may occur.}
   \item{nnearest}{The number of most proximate examples for which to compute proximity measures for each training example. Setting this to a smaller number will speed up computation of scaling co-ordinates. Default: \code{forest@nexamples}.}
   \item{cachepath}{Path to folder where the proximity matrix can be stored. If \code{NULL}, then the \code{big.matrix}'s will be created in memory with no disk caching, which would be suitable for small data sets. If the user wishes to reuse the cached files, it is suggested that a folder other than \code{tempdir()} is used, as the operating system may automatically delete any cache files in \code{tempdir()}. Default: \code{tempdir()}.}
   \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output. Default: \code{0}.}
@@ -47,6 +46,6 @@ vars <- c(4:22)
 forest <- bigrfc(x, y, ntree=50L, varselect=vars)
 
 # Calculate proximity matrix.
-prox <- proximities(forest, y)
+prox <- proximities(forest)
 }
 \keyword{methods}

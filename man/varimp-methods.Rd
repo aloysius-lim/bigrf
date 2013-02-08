@@ -8,13 +8,12 @@
   Compute variable importance based on out-of-bag estimates. For each tree in the forest, the predictions of the out-of-bag examples are recorded. Then, a variable v is randomly permuted in the out-of-bag examples, and the tree is used to classify the out-of-bag examples again. The difference in votes for the correct class in the original data and the permuted data is used to calculate the variable importance for variable v. This process is then repeated for all variables.
 }
 \usage{
-\S4method{varimp}{bigcforest}(forest, x=NULL, y, impbyexample=FALSE,
+\S4method{varimp}{bigcforest}(forest, x=NULL, impbyexample=FALSE,
     reuse.cache=FALSE, trace=0L)
 }
 \arguments{
   \item{forest}{A random forest of class \code{"\linkS4class{bigcforest}"}.}
   \item{x}{A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. The data must not have changed, otherwise unexpected modelling results may occur. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation. Optional if \code{reuse.cache} is \code{TRUE}.}
-  \item{y}{An integer or factor vector of response variables that was used in growing the forest. The data must not have changed, otherwise unexpected modelling results may occur.}
   \item{impbyexample}{A logical indicating whether to compute the variable importance for each out-of-bag example.}
   \item{reuse.cache}{\code{TRUE} to reuse disk caches of the \code{big.matrix} \code{x} from the initial growing of the random forest, which may significantly reduce initialization time for large data sets. If \code{TRUE}, the user must ensure that the files \file{x} and \file{x.desc} in \code{forest@cachepath} have not been modified or deleted.}
   \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output. Default: \code{0}.}
@@ -57,6 +56,6 @@ vars <- c(4:22)
 forest <- bigrfc(x, y, ntree=50L, varselect=vars)
 
 # Calculate variable importance, including those for each out-of-bag example.
-importance <- varimp(forest, x, y, impbyexample=TRUE)
+importance <- varimp(forest, x, impbyexample=TRUE)
 }
 \keyword{methods}

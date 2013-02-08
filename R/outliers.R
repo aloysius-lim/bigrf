@@ -4,7 +4,6 @@ setGeneric("outliers", function(forest, ...) standardGeneric("outliers"))
 
 setMethod("outliers", signature(forest="bigcforest"), function(
     forest,
-    y,
     trace=0L) {
     
     # Check arguments ----------------------------------------------------------
@@ -26,31 +25,11 @@ setMethod("outliers", signature(forest="bigcforest"), function(
         stop("Argument forest must be a bigcforest created with bigrfc.")
     }
 
-    # Check y.
-    if (is.integer(y)) {
-        if (min(y) < 1L) {
-            stop("Elements in argument y must not be less than 1. The class ",
-                 "labels coded in y should start with 1.")
-        }
-        y <- factor(y, seq_len(max(y)))
-    } else if (!is.factor(y)) {
-        stop("Argument y must be a factor or integer vector.")
-    }
-    if (length(y) != forest@nexamples) {
-        stop("Argument y must have as many elements as there are rows in x.")
-    }
-    if (!identical(forest@ylevels, levels(y)) ||
-            !identical(forest@ynclass, length(levels(y))) ||
-            !identical(forest@ytable, table(y, deparse.level=0))) {
-        stop("Argument y is different than that used for building the random ",
-             "forest.")
-    }
-    y <- as.integer(y)
-
     
     
     # Initialize ---------------------------------------------------------------
     
+    y <- forest@y
     outscore <- numeric(forest@nexamples)
     
     

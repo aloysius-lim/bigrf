@@ -14,6 +14,7 @@
 \section{Slots}{
   \describe{
     \item{\code{.Data}:}{Object of class \code{"list"}. Each element is a \code{"\linkS4class{bigctree}"}, representing a tree in the random classification forest.}
+    \item{\code{y}:}{Object of class \code{"integer"}. Class labels for the training set.}
     \item{\code{nexamples}:}{Object of class \code{"integer"}. Number of examples in the training set (including synthesized examples for unsupervised learning).}
     \item{\code{varselect}:}{Object of class \code{"integer"}. Indices of the columns of \code{x} that were used to train the model.}
     \item{\code{factorvars}:}{Object of class \code{"logical"}. Indicates which variables are factors or categorical (\code{TRUE})), and which are numeric (\code{FALSE}).}

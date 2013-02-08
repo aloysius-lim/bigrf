@@ -207,6 +207,7 @@ bigrfc <- function(x,
     if (trace >= 1L) message("Initializing parameters in bigrfc.")
     
     forest <- new("bigcforest",
+                  y=y,
                   nexamples=as.integer(nrow(x)),
                   varselect=varselect,
                   factorvars=factorvars,
@@ -246,7 +247,7 @@ bigrfc <- function(x,
     
     # Grow forest --------------------------------------------------------------
     
-    forest <- grow(forest, x, y, ntrees, printerrfreq=printerrfreq,
+    forest <- grow(forest, x, ntrees, printerrfreq=printerrfreq,
                    printclserr=printclserr, trace=trace)
     
     return(forest)

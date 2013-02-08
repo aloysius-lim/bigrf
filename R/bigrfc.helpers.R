@@ -93,10 +93,10 @@ makea <- function(x, asave, factorvars, varselect) {
 # its children are numbered nnodes+1 [left], and nnodes+2 [right], nnodes
 # increases to nnodes+2 and the next node to be split is numbered k+1. When no
 # more nodes can be split, buildtree returns to the main program.
-buildtree <- function(x, y, asave, a, a.out, forest, insamp, inweight, treenum,
+buildtree <- function(x, asave, a, a.out, forest, insamp, inweight, treenum,
                       trace) {
     xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
-    return(.Call("buildtreeC", x@address, xtype, y, asave@address, a@address,
+    return(.Call("buildtreeC", x@address, xtype, asave@address, a@address,
                  a.out@address, forest, insamp, inweight, treenum, trace))
 }
 
@@ -106,10 +106,10 @@ buildtree <- function(x, y, asave, a, a.out, forest, insamp, inweight, treenum,
 # Combine results of tree builds. To be used only as a .combine function in
 # foreach().
 combine.treeresults <- function(forest, newtree) {
+    y <- forest@y
     treenum <- forest@ntrees + 1L
     oldntrees <- newtree$oldntrees
     ntrees <- newtree$ntrees
-    y <- newtree$y
     tree <- newtree$tree
     printerrfreq <- newtree$printerrfreq
     printclserr <- newtree$printclserr

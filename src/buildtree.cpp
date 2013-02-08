@@ -9,12 +9,12 @@
 extern "C" {
     
     #define CALL_BUILDTREE(xtype) {                                            \
-        return buildtree<xtype>(x, y, asave, a, aOut, forestP, insampP,        \
+        return buildtree<xtype>(x, asave, a, aOut, forestP, insampP,           \
             inweightP, treenum, trace);                                        \
     }
     
-    SEXP buildtreeC(SEXP xP, SEXP xtypeP, SEXP yP, SEXP asaveP, SEXP aP,
-        SEXP aOutP, SEXP forestP, SEXP insampP, SEXP inweightP, SEXP treenumP,
+    SEXP buildtreeC(SEXP xP, SEXP xtypeP, SEXP asaveP, SEXP aP, SEXP aOutP,
+        SEXP forestP, SEXP insampP, SEXP inweightP, SEXP treenumP,
         SEXP traceP) {
 
         // Initialize function arguments.
@@ -22,8 +22,8 @@ extern "C" {
         BigMatrix *asave = (BigMatrix*)R_ExternalPtrAddr(asaveP);
         BigMatrix *a = (BigMatrix*)R_ExternalPtrAddr(aP);
         BigMatrix *aOut = (BigMatrix*)R_ExternalPtrAddr(aOutP);
-        const int xtype = *INTEGER(xtypeP), *y = INTEGER(yP),
-            treenum = *INTEGER(treenumP), trace = *INTEGER(traceP);
+        const int xtype = *INTEGER(xtypeP), treenum = *INTEGER(treenumP),
+            trace = *INTEGER(traceP);
         
         switch (xtype) {
             case 1:
@@ -70,14 +70,14 @@ extern "C" {
  * more nodes can be split, buildtree returns to the main program.
  */
 template <typename xtype>
-SEXP buildtree(BigMatrix *x, const int *y, BigMatrix *asave, BigMatrix *a,
-    BigMatrix *aOut, SEXP forestP, SEXP insampP, SEXP inweightP, int treenum,
-    int trace) {
+SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
+    SEXP forestP, SEXP insampP, SEXP inweightP, int treenum, int trace) {
         
     // Initialize function arguments.
     MatrixAccessor<xtype> xAcc(*x);
     //MatrixAccessor<int> asaveAcc(*asave);
     MatrixAccessor<int> aAcc(*a);
+    const int *y = INTEGER(GET_SLOT(forestP, install("y")));
     const int nexamples = *INTEGER(GET_SLOT(forestP, install("nexamples")));
     const int *factorvars = INTEGER(GET_SLOT(forestP, install("factorvars")));
     const int *varnlevels = INTEGER(GET_SLOT(forestP, install("varnlevels")));

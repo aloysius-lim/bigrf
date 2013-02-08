@@ -8,6 +8,7 @@ setClassUnion("big.matrix.or.NULL", c("big.matrix", "NULL"))
 
 setClass("bigcforest",
          representation=representation(
+             y="integer",
              nexamples="integer",
              varselect="integer",
              factorvars="logical",

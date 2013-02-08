@@ -5,7 +5,6 @@ setGeneric("varimp", function(forest, ...) standardGeneric("varimp"))
 setMethod("varimp", signature(forest="bigcforest"),  function(
     forest,
     x=NULL,
-    y,
     impbyexample=FALSE,
     reuse.cache=FALSE,
     trace=0L) {
@@ -77,27 +76,6 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
         }
     }
     
-    # Check y.
-    if (is.integer(y)) {
-        if (min(y) < 1L) {
-            stop("Elements in argument y must not be less than 1. The class ",
-                 "labels coded in y should start with 1.")
-        }
-        y <- factor(y, seq_len(max(y)))
-    } else if (!is.factor(y)) {
-        stop("Argument y must be a factor or integer vector.")
-    }
-    if (length(y) != nrow(x)) {
-        stop("Argument y must have as many elements as there are rows in x.")
-    }
-    if (!identical(forest@ylevels, levels(y)) ||
-            !identical(forest@ynclass, length(levels(y))) ||
-            !identical(forest@ytable, table(y, deparse.level=0))) {
-        stop("Argument y is different than that used for building the random ",
-             "forest.")
-    }
-    y <- as.integer(y)
-    
     # Check impbyexample.
     if (!is.logical(impbyexample)) {
         stop ("Argument impbyexample must be a logical.")
@@ -106,6 +84,8 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
     
     
     # Initialize ---------------------------------------------------------------
+    
+    y <- forest@y
     
     # Convert x to big.matrix, as C functions in bigrf only support this.
     if (class(x) != "big.matrix") {

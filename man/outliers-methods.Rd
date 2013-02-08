@@ -8,11 +8,10 @@
   Compute outlier scores for each class of examples used to train a random forest. Outliers are defined as examples whose proximities to other examples in the same class are small.
 }
 \usage{
-\S4method{outliers}{bigcforest}(forest, y, trace=0L)
+\S4method{outliers}{bigcforest}(forest, trace=0L)
 }
 \arguments{
   \item{forest}{A random forest of class \code{"\linkS4class{bigcforest}"}.}
-  \item{y}{An integer or factor vector of response variables that was used in growing the forest. The data must not have changed, otherwise unexpected modelling results may occur.}
   \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output. Default: \code{0}.}
 }
 \value{
@@ -45,13 +44,13 @@ forest <- bigrfc(x, y, ntree=50L, varselect=vars)
 
 # Calculate proximity matrix and scaling co-ordinates, and plot
 # them.
-prox <- proximities(forest, y)
+prox <- proximities(forest)
 scale <- scaling(prox)
 plot(scale, col=as.integer(y) + 2, pch=as.integer(y) + 2)
 
 # Calculate outlier scores, and circle the top 20\% percent of
 # them in red.
-outscores <- outliers(forest, y)
+outscores <- outliers(forest)
 points(scale[outscores > quantile(outscores, probs=0.8), ],
     col=2, pch=1, cex=1.5)
 }

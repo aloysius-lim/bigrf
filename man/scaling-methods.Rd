@@ -44,7 +44,7 @@ vars <- c(4:22)
 forest <- bigrfc(x, y, ntree=50L, varselect=vars)
 
 # Calculate proximity matrix.
-prox <- proximities(forest, y)
+prox <- proximities(forest)
 
 # Calculate scaling co-ordinates.
 scale <- scaling(prox, 3L)
