@@ -3,21 +3,17 @@
 \alias{merge}
 \alias{merge-methods}
 \alias{merge,bigcforest,bigcforest-method}
-\title{Methods for Function \code{merge} in Package \pkg{bigrf}}
-\description{Merges two random forests into one.}
+\title{Merge Two Random Forests}
+\description{
+  Merge two random forests into one. This is useful, for example, for growing random forests in parallel on multiple machines, then combining them into a single forest.
+}
 \usage{
-  \S4method{merge}{bigcforest,bigcforest}(x, y, class.labels)
+\S4method{merge}{bigcforest,bigcforest}(x, y, class.labels)
 }
 \arguments{
-  \item{x}{
-    A random forest of class \code{"\linkS4class{bigcforest}"}.
-  }
-  \item{y}{
-    A random forest of class \code{"\linkS4class{bigcforest}"}, built using the same data sources and forest-building parameters as \code{x}.
-  }
-  \item{class.labels}{
-    The \code{factor} or \code{integer} vector of response variables (class labels). This is called \code{y} in most other functions in this package, but had to be renamed here to avoid clashing with the method signature for \code{merge}.
-  }
+  \item{x}{A random forest of class \code{"\linkS4class{bigcforest}"}.}
+  \item{y}{A random forest of class \code{"\linkS4class{bigcforest}"}, built using the same data sources and forest-building parameters as \code{x}.}
+  \item{class.labels}{The \code{factor} or \code{integer} vector of response variables (class labels). This is called \code{y} in most other functions in this package, but had to be renamed here to avoid clashing with the method signature for \code{merge}.}
 }
 \details{
   These methods copy all the trees from \code{y} into \code{x}, and calculates the error statistics and confusion matrices of the merged forest.
@@ -27,10 +23,13 @@
 }
 \section{Methods}{
   \describe{
-    \item{\code{signature(x = "bigcforest", y = "bigcforest")}}{
-  Merges the classification random forests x and y of class \code{"\linkS4class{bigcforest}"}.
-    }
+    \item{\code{signature(x = "bigcforest", y = "bigcforest")}}{Merges the classification random forests x and y.}
   }
+}
+\references{
+  Breiman, L. (2001). Random forests. \emph{Machine learning}, \bold{45(1)}, 5-32.
+
+  Breiman, L. & Cutler, A. (n.d.). Random Forests. Retrieved from \url{http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm}.
 }
 \examples{
 # Classify cars in the Cars93 data set by type (Compact, Large,
