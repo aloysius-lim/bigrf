@@ -53,6 +53,7 @@
     \item{fastimp}{\code{signature(forest = "bigcforest")}: Compute fast (Gini) variable importance. See \code{\link[bigrf]{fastimp}} for details.}
     \item{interactions}{\code{signature(forest = "bigcforest")}: Compute variable interactions. See \code{\link[bigrf]{interactions}} for details.}
     \item{proximities}{\code{signature(forest = "bigcforest")}: Compute the proximity matrix. See \code{\link[bigrf]{proximities}} for details.}
+    \item{prototypes}{\code{signature(forest = "bigcforest", prox = "bigrfprox")}: Compute class prototypes. See \code{\link[bigrf]{prototypes}} for details.}
     \item{show}{\code{signature(object = "bigcforest")}: Print the random forest.}
     \item{summary}{\code{signature(object = "bigcforest")}: Print summary information on the random forest, including out-of-bag training error estimates and the confusion matrix.}
   }

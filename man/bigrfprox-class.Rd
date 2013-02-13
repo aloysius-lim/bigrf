@@ -23,7 +23,8 @@
 }
 \section{Methods}{
   \describe{
-    \item{scaling}{\code{signature(prox = "bigrfprox")}: Compute metric scaling co-ordinates for training examples in the random forest. See \code{\link[bigrf]{scaling}} for details. }
+    \item{scaling}{\code{signature(prox = "bigrfprox")}: Compute metric scaling co-ordinates for training examples in the random forest. See \code{\link[bigrf]{scaling}} for details.}
+    \item{prototypes}{\code{signature(forest = "bigcforest", prox = "bigrfprox")}: Compute class prototypes. See \code{\link[bigrf]{prototypes}} for details.}
   }
 }
 \keyword{classes}
