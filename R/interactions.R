@@ -30,7 +30,9 @@ setMethod("interactions", signature(forest="bigcforest"), function(forest) {
     hist <- hist / forest@ntrees
     
     # Absolute difference of ranks between pairs of variables.
-    effect <- matrix(numeric(), nvar, nvar)
+    effect <- matrix(numeric(), nvar, nvar,
+                     dimnames=list(Variable1=names(forest@varselect),
+                                   Variable2=names(forest@varselect)))
     for (i in seq_len(nvar)) {
         for (j in i:nvar) {
             effect[i, j] <- sum(abs(var.rank[, i] - var.rank[, j]))

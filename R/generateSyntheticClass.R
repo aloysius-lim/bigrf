@@ -23,7 +23,7 @@ generateSyntheticClass <- function(x, ...) {
     xold <- x
     if (xclass == "big.matrix") {
         x <- big.matrix(2 * xrows, xcols, type=typeof(xold),
-                        dimnames=list(NULL, colnames(x)), ...)
+                        dimnames=list(NULL, dimnames(x)[[2]]), ...)
         
         for (j in seq_len(xcols)) {
             x[orgrows, j] <- xold[orgrows, j]

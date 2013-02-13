@@ -60,9 +60,6 @@ makex <- function(x, backingfile="", cachepath=NULL) {
 # asave[n,m] is the category of the nth example number. asave is a big.matrix
 # passed by reference.
 makea <- function(x, asave, factorvars, varselect) {
-    v5 <- numeric(length(varselect))
-    v95 <- numeric(length(varselect))
-    
     for (var in which(!factorvars)) {
         asave[, var] <- order(x[, varselect[var]])
     }
@@ -179,6 +176,7 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
     # If test set labels were given, compute test error.
     if (!is.null(y)) {
         prediction@testclserr <- integer(prediction@ynclass)
+        names(prediction@testclserr) <- forest@ylevels
         for (c in seq_len(prediction@ynclass)) {
             prediction@testclserr[c] <-
                 sum(y == c & prediction[] != c)

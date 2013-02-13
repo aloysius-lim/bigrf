@@ -8,18 +8,18 @@ setClassUnion("big.matrix.or.NULL", c("big.matrix", "NULL"))
 
 setClass("bigcforest",
          representation=representation(
-             y="integer",
+             y="integer", # Change to factor
              nexamples="integer",
              varselect="integer",
              factorvars="logical",
              varnlevels="integer",
              contvarseq="integer",
-             ylevels="character",
-             ynclass="integer",
-             ytable="table",
+             ylevels="character", # To remove
+             ynclass="integer", # To remove
+             ytable="table", # To remove
              yclasswts="matrix",
              ntrees="integer",
-             maxnodes="integer",
+             maxnodes="integer", # To remove
              nsplitvar="integer",
              maxndsize="integer",
              maxeslevels="integer",

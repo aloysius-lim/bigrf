@@ -7,7 +7,7 @@ setMethod("show", signature(object="bigcforest"), function(object) {
 
 
 setMethod("show", signature(object="bigcprediction"), function(object) {
-    cat("Random forest with", object@ntrees, "trees, tested on",
-        object@ntest, "examples\n")
+    cat("Predictions on ", object@ntest, " examples using random forest with",
+        object@ntrees, ".\n")
     print(object[seq_along(object)])
 })

@@ -109,10 +109,11 @@ setMethod("predict", signature(object="bigcforest"), function(
                       ntrees=forest@ntrees,
                       testytable=ytable,
                       testvotes=matrix(0, ntest, forest@ynclass,
-                                       dimnames=list(NULL, forest@ylevels)),
-                      testclserr=if(is.null(y)) NULL else
+                                       dimnames=list(Example=NULL,
+                                                     Class=forest@ylevels)),
+                      testclserr=if (is.null(y)) NULL else
                           numeric(forest@ynclass),
-                      testerr=if(is.null(y)) NULL else 0,
+                      testerr=if (is.null(y)) NULL else 0,
                       testconfusion=NULL
     )
     rm(ntest, ytable)
@@ -125,19 +126,19 @@ setMethod("predict", signature(object="bigcforest"), function(
     prediction <- foreach(t=seq_len(forest@ntrees),
                           .combine=combine.treepredictresults, .init=prediction,
                           .inorder=FALSE, .verbose=FALSE) %dopar% {
-                              if (trace >= 1L) message("Running tree ", t, " on test examples.")
-                              tree <- forest[[t]]
-                              
-                              treepredict.result <- .Call("treepredictC", x@address, xtype,
-                                                          prediction@ntest, forest, tree);
-                              treepredict.result$t <- t
-                              treepredict.result$y <- y
-                              treepredict.result$forest <- forest
-                              treepredict.result$tree <- tree
-                              treepredict.result$printerrfreq <- printerrfreq
-                              treepredict.result$printclserr <- printclserr
-                              treepredict.result
-                          }
+        if (trace >= 1L) message("Running tree ", t, " on test examples.")
+        tree <- forest[[t]]
+        
+        treepredict.result <- .Call("treepredictC", x@address, xtype,
+                                  prediction@ntest, forest, tree);
+        treepredict.result$t <- t
+        treepredict.result$y <- y
+        treepredict.result$forest <- forest
+        treepredict.result$tree <- tree
+        treepredict.result$printerrfreq <- printerrfreq
+        treepredict.result$printclserr <- printclserr
+        treepredict.result
+    }
     cat("\n")
     
     # Calculate confusion matrix -----------------------------------------------

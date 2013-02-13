@@ -99,9 +99,11 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
     
     importance <- numeric(nvar)
     importance.sq <- numeric(nvar)
+    names(importance) <- names(forest@varselect)
     if (impbyexample) {
         importance.ex.total <- numeric(forest@nexamples)
-        importance.ex <- matrix(0, forest@nexamples, nvar)
+        importance.ex <- matrix(0, forest@nexamples, nvar,
+                                dimnames=list(NULL, names(forest@varselect)))
     } else {
         importance.ex <- NULL
     }

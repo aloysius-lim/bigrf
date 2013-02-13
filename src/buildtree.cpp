@@ -371,6 +371,17 @@ SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
     int* treemapDim = INTEGER(treemapDimP);
     treemapDim[0] = *nnodes;
     treemapDim[1] = 2;
+    SEXP treemapDimnamesP, treemapDimnamesNamesP;
+    PROTECT(treemapDimnamesP = NEW_LIST(2));
+    PROTECT(treemapDimnamesNamesP = NEW_CHARACTER(2));
+    SET_STRING_ELT(treemapDimnamesNamesP, 0, mkChar("Tree"));
+    SET_STRING_ELT(treemapDimnamesNamesP, 1, mkChar("Child"));
+    SET_NAMES(treemapDimnamesP, treemapDimnamesNamesP);
+    SET_VECTOR_ELT(treemapDimnamesP, 1, NEW_CHARACTER(2));
+    SEXP treemapDim2NamesP = VECTOR_ELT(treemapDimnamesP, 1);
+    SET_STRING_ELT(treemapDim2NamesP, 0, mkChar("Left"));
+    SET_STRING_ELT(treemapDim2NamesP, 1, mkChar("Right"));
+    SET_DIMNAMES(GET_SLOT(treeP, treemapS), treemapDimnamesP);
     SETLENGTH(GET_SLOT(treeP, nodeclassS), *nnodes);
     SETLENGTH(GET_SLOT(treeP, nodewtS), *nnodes);
     SETLENGTH(GET_SLOT(treeP, bestvarS), *nnodes);
@@ -379,7 +390,7 @@ SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
     SETLENGTH(GET_SLOT(treeP, termincountS), *nnodes);
     
     // Return.
-    UNPROTECT(1);
+    UNPROTECT(3);
     return treeP;
 }
 

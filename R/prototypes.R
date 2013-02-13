@@ -123,20 +123,26 @@ setMethod("prototypes", signature(forest="bigcforest", prox="bigrfprox"),
     
     # Output variables.
     nprotfound <- integer(forest@ynclass)
+    names(nprotfound) <- forest@ylevels
+    
     clustersize <- matrix(integer(), forest@ynclass, nprot,
-                          dimnames=list(class=NULL, prototype=NULL))
-    dimnames=list(class=NULL,
-                  prototype=NULL,
-                  variable=NULL,
-                  value=c("25th percentile", "median", "75th percentile"))
+                          dimnames=list(Class=forest@ylevels, Prototype=NULL))
+    
+    dimnames=list(Class=forest@ylevels,
+                  Prototype=NULL,
+                  Variable=names(forest@varselect),
+                  Value=c("1st quartile", "median", "2nd quartile"))
     prot <- array(numeric(), dim=c(forest@ynclass, nprot, nvar, 3L), dimnames)
+    
     prot.std <- array(numeric(), dim=c(forest@ynclass, nprot, nvar, 3L),
                       dimnames)
+    
     levelsfreq <- list()
     length(levelsfreq) <- nvar
-    dimnames=list(class=NULL,
-                  prototype=NULL,
-                  levels=NULL)
+    names(levelsfreq) <- names(forest@varselect)
+    dimnames=list(Class=forest@ylevels,
+                  Prototype=NULL,
+                  Levels=NULL)
     for (i in which(forest@factorvars)) {
         levelsfreq[[i]] <- array(0L,
                                  c(forest@ynclass, nprot, forest@varnlevels[i]),

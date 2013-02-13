@@ -45,7 +45,8 @@ setMethod("scaling", signature(prox="bigrfprox"),
     
     nexamples <- nrow(prox)
     nnearest <- ncol(prox)
-    scale <- matrix(numeric(), nexamples, nscale)
+    scale <- matrix(numeric(), nexamples, nscale,
+                    dimnames=list(Example=NULL, CoordNum=NULL))
     ev <- matrix(numeric(), nexamples, nscale)
     bl <- numeric(nscale)
     dl <- numeric(nscale)

@@ -79,6 +79,7 @@ bigrfc <- function(x,
             stop("Argument varselect cannot contain values less than 1.")
         }
     }
+    names(varselect) <- dimnames(x)[[2]][varselect]
 
     # Check varnlevels, and set factorvars, a logical vector indicating which
     # variables of x are factors.
@@ -111,6 +112,8 @@ bigrfc <- function(x,
         }
         factorvars <- varnlevels > 0L
     }
+    names(factorvars) <- names(varselect)
+    names(varnlevels) <- names(varselect)
     
     # Check nsplitvar.
     if (!is.numeric(nsplitvar) ||
@@ -228,20 +231,23 @@ bigrfc <- function(x,
     rm(factorvars, varnlevels, varselect, ynclass, ytable, yclasswts, nsplitvar,
        maxndsize, maxeslevels, nrandsplit, cachepath)
     
-    # Sequence number of categorical variables. Used to index columns of a and
+    # Sequence number of continuous variables. Used to index columns of a and
     # a.out later.
     forest@contvarseq <- integer(length(forest@factorvars))
     forest@contvarseq[!forest@factorvars] <- seq_len(sum(!forest@factorvars))
+    names(forest@contvarseq) <- names(forest@varselect)
     
     # Out-of-bag results and error estimates.
     forest@oobtimes <- integer(forest@nexamples)
     forest@oobvotes <- matrix(0, forest@nexamples, forest@ynclass,
-                              dimnames=list(NULL, forest@ylevels))
+                              dimnames=list(Example=NULL, Class=forest@ylevels))
     forest@oobpred <- integer(forest@nexamples)
     forest@trainerr <- numeric()
     forest@trainclserr <- matrix(0, 0, forest@ynclass,
-                                 dimnames=list(NULL, forest@ylevels))
+                                 dimnames=list(NTrees=NULL,
+                                               Class=forest@ylevels))
     forest@varginidec <- numeric(length(forest@varselect))
+    names(forest@varginidec) <- names(forest@varselect)
     
     
     
