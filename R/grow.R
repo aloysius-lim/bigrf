@@ -138,7 +138,7 @@ setMethod("grow", signature(forest="bigcforest"), function(
     oldntrees <- forest@ntrees
     length(forest@trainerr) <- oldntrees + ntrees
     forest@trainclserr <- rbind(forest@trainclserr,
-                                matrix(0, ntrees, forest@ynclass))
+                                matrix(0, ntrees, length(levels(forest@y))))
     
     # Set up asave big.matrix.
     if (!reuse.cache) {
@@ -177,7 +177,7 @@ setMethod("grow", signature(forest="bigcforest"), function(
         t <- table(k)
         insamp[as.integer(names(t))] <- as.integer(t)
         inweight[as.integer(names(t))] <-
-          as.integer(t) * forest@yclasswts[y[as.integer(names(t))]]
+          as.integer(t) * forest@yclasswts[as.integer(y[as.integer(names(t))])]
         rm(k, t)
         
         # Set up a and a.out big.matrix's for caching --------------------------
@@ -252,7 +252,7 @@ setMethod("grow", signature(forest="bigcforest"), function(
     
     # if (trace >= 1L) message("Normalizing votes.")
     # w <- which(forest@oobtimes > 0)
-    # for (c in seq_len(forest@ynclass)) {
+    # for (c in seq_along(levels(forest@y))) {
     #   forest@oobvotes[w, c] <- forest@oobvotes[w, c] / forest@oobtimes[w]
     #   # if (ntest > 0L) {
     #   #   for (n in seq_len(ntest0)) {
@@ -266,10 +266,9 @@ setMethod("grow", signature(forest="bigcforest"), function(
     
     # Calculate confusion matrix -----------------------------------------------
     pred <- forest@oobpred
-    pred[pred == 0L] <- forest@ynclass + 1L
-    pred <- factor(pred, levels=seq_len(forest@ynclass + 1),
-                   labels=c(forest@ylevels, "Never out-of-bag"))
-    y <- factor(y, levels=seq_len(forest@ynclass), labels=forest@ylevels)
+    pred[pred == 0L] <- length(levels(forest@y)) + 1L
+    pred <- factor(pred, levels=seq_len(length(levels(forest@y)) + 1),
+                   labels=c(levels(forest@y), "Never out-of-bag"))
     forest@trainconfusion <- table(y, pred, dnn=c("Actual", "Predicted"))
     rm(pred)
     

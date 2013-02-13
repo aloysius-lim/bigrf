@@ -30,7 +30,8 @@ setMethod("merge", signature(x="bigcforest", y="bigcforest"), function(
     
     # Error estimates
     length(f1@trainerr) <- f1@ntrees
-    f1@trainclserr <- rbind(f1@trainclserr, matrix(0, f2@ntrees, f1@ynclass))
+    f1@trainclserr <- rbind(f1@trainclserr, matrix(0, f2@ntrees,
+                                                   length(levels(f1@y))))
     
     for (t in (oldxntrees + 1):f1@ntrees) {
         tree <- f1[[t]]
@@ -39,7 +40,7 @@ setMethod("merge", signature(x="bigcforest", y="bigcforest"), function(
         w <- tree@insamp == 0L
         f1@oobtimes[w] <- f1@oobtimes[w] + 1L
         
-        for (c in seq_len(f1@ynclass)) {
+        for (c in seq_along(levels(f1@y))) {
             # Out-of-bag examples with votes for this class.
             w2 <- w & tree@trainpredclass == c
             f1@oobvotes[w2, c] <- f1@oobvotes[w2, c] +
@@ -48,8 +49,8 @@ setMethod("merge", signature(x="bigcforest", y="bigcforest"), function(
         
         f1@oobpred[f1@oobtimes > 0L] <- max.col(f1@oobvotes[f1@oobtimes > 0L, ])
         
-        for (c in seq_len(f1@ynclass)) {
-            f1@trainclserr[t, c] <- sum(y == c & f1@oobpred != c)
+        for (c in seq_along(levels(f1@y))) {
+            f1@trainclserr[t, c] <- sum(as.integer(y) == c & f1@oobpred != c)
         }
         
         f1@trainerr[t] <- sum(f1@trainclserr[t, ]) / f1@nexamples
@@ -62,11 +63,9 @@ setMethod("merge", signature(x="bigcforest", y="bigcforest"), function(
     # Calculate confusion matrix
     
     pred <- f1@oobpred
-    pred[pred == 0L] <- f1@ynclass + 1L
-    class(pred) <- "factor"
-    levels(pred) <- c(f1@ylevels, "Never out-of-bag")
-    class(y) <- "factor"
-    levels(y) <- f1@ylevels
+    pred[pred == 0L] <- length(levels(f1@y)) + 1L
+    pred <- factor(pred, levels=seq_len(length(levels(f1@y)) + 1),
+                   labels=c(levels(f1@y), "Never out-of-bag"))
     f1@trainconfusion <- table(y, pred, dnn=c("Actual", "Predicted"))
     
     return(f1)

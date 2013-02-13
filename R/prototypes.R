@@ -111,6 +111,7 @@ setMethod("prototypes", signature(forest="bigcforest", prox="bigrfprox"),
     # Parameters
     nvar <- length(forest@varselect)
     nnearest <- ncol(prox)
+    ynclass <- length(levels(forest@y))
     
     # Quantiles of numeric variables. First row represents 5% quantile, second
     # row represents 95% quantile.
@@ -122,30 +123,29 @@ setMethod("prototypes", signature(forest="bigcforest", prox="bigrfprox"),
                             type=8))
     
     # Output variables.
-    nprotfound <- integer(forest@ynclass)
-    names(nprotfound) <- forest@ylevels
+    nprotfound <- integer(ynclass)
+    names(nprotfound) <- levels(forest@y)
     
-    clustersize <- matrix(integer(), forest@ynclass, nprot,
-                          dimnames=list(Class=forest@ylevels, Prototype=NULL))
+    clustersize <- matrix(integer(), ynclass, nprot,
+                          dimnames=list(Class=levels(forest@y), Prototype=NULL))
     
-    dimnames=list(Class=forest@ylevels,
+    dimnames=list(Class=levels(forest@y),
                   Prototype=NULL,
                   Variable=names(forest@varselect),
                   Value=c("1st quartile", "median", "2nd quartile"))
-    prot <- array(numeric(), dim=c(forest@ynclass, nprot, nvar, 3L), dimnames)
+    prot <- array(numeric(), dim=c(ynclass, nprot, nvar, 3L), dimnames)
     
-    prot.std <- array(numeric(), dim=c(forest@ynclass, nprot, nvar, 3L),
-                      dimnames)
+    prot.std <- array(numeric(), dim=c(ynclass, nprot, nvar, 3L), dimnames)
     
     levelsfreq <- list()
     length(levelsfreq) <- nvar
     names(levelsfreq) <- names(forest@varselect)
-    dimnames=list(Class=forest@ylevels,
+    dimnames=list(Class=levels(forest@y),
                   Prototype=NULL,
                   Levels=NULL)
     for (i in which(forest@factorvars)) {
         levelsfreq[[i]] <- array(0L,
-                                 c(forest@ynclass, nprot, forest@varnlevels[i]),
+                                 c(ynclass, nprot, forest@varnlevels[i]),
                                  dimnames)
     }
     
@@ -155,7 +155,7 @@ setMethod("prototypes", signature(forest="bigcforest", prox="bigrfprox"),
     
     if (trace >= 1L) message("Computing prototypes.")
     
-    for (c in seq_len(forest@ynclass)) {
+    for (c in seq_len(ynclass)) {
         
         # Compute nprot prototypes for this class.
         seen <- logical(forest@nexamples)

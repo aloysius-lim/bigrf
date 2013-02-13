@@ -93,7 +93,7 @@ combine.treeresults <- function(forest, newtree) {
     
     # Get out-of-bag estimates -------------------------------------------------
     
-    for (c in seq_len(forest@ynclass)) {
+    for (c in seq_along(levels(y))) {
         # Out-of-bag examples with votes for this class.
         w <- which(tree@trainpredclass == c & tree@insamp == 0L)
         forest@oobvotes[w, c] <- forest@oobvotes[w, c] +
@@ -106,8 +106,9 @@ combine.treeresults <- function(forest, newtree) {
     forest@oobpred[forest@oobtimes > 0L] <-
         max.col(forest@oobvotes[forest@oobtimes > 0L, ])
     
-    for (c in seq_len(forest@ynclass)) {
-        forest@trainclserr[treenum, c] <- sum(y == c & forest@oobpred != c)
+    for (c in seq_along(levels(y))) {
+        forest@trainclserr[treenum, c] <- sum(as.integer(y) == c &
+                                                  forest@oobpred != c)
     }
     
     forest@trainerr[treenum] <- sum(forest@trainclserr[treenum, ]) /
@@ -142,7 +143,7 @@ combine.treeresults <- function(forest, newtree) {
         if (printclserr) {
             cat("",
                 format(100 * forest@trainclserr[treenum, ], justify="right",
-                       width=max(nchar(forest@ylevels), 5), digits=3, nsmall=2),
+                       width=max(nchar(levels(y)), 5), digits=3, nsmall=2),
                 sep="  ")
         }
         cat("\n")
@@ -165,7 +166,7 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
     printclserr <- treepredict.result$printclserr
     
     # Compute votes.
-    for (c in seq_len(prediction@ynclass)) {
+    for (c in seq_along(levels(forest@y))) {
         w <- which(treepredict.result$testpredclass == c)
         prediction@testvotes[w, c] <- prediction@testvotes[w, c] +
             tree@nodewt[treepredict.result$testprednode[w]]
@@ -175,11 +176,11 @@ combine.treepredictresults <- function(prediction, treepredict.result) {
     
     # If test set labels were given, compute test error.
     if (!is.null(y)) {
-        prediction@testclserr <- integer(prediction@ynclass)
-        names(prediction@testclserr) <- forest@ylevels
-        for (c in seq_len(prediction@ynclass)) {
+        prediction@testclserr <- integer(length(levels(forest@y)))
+        names(prediction@testclserr) <- levels(forest@y)
+        for (c in seq_along(levels(forest@y))) {
             prediction@testclserr[c] <-
-                sum(y == c & prediction[] != c)
+                sum(as.integer(y) == c & prediction[] != c)
         }
         prediction@testerr <- sum(prediction@testclserr) / prediction@ntest
         prediction@testclserr <-

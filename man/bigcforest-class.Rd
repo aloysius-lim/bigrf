@@ -14,14 +14,12 @@
 \section{Slots}{
   \describe{
     \item{\code{.Data}:}{Object of class \code{"list"}. Each element is a \code{"\linkS4class{bigctree}"}, representing a tree in the random classification forest.}
-    \item{\code{y}:}{Object of class \code{"integer"}. Class labels for the training set.}
     \item{\code{nexamples}:}{Object of class \code{"integer"}. Number of examples in the training set (including synthesized examples for unsupervised learning).}
     \item{\code{varselect}:}{Object of class \code{"integer"}. Indices of the columns of \code{x} that were used to train the model.}
     \item{\code{factorvars}:}{Object of class \code{"logical"}. Indicates which variables are factors or categorical (\code{TRUE})), and which are numeric (\code{FALSE}).}
     \item{\code{varnlevels}:}{Object of class \code{"integer"}. Number of levels in each categorical variable, or \code{0} for numeric variables.}
     \item{\code{contvarseq}:}{Object of class \code{"integer"}. Maps the continuous variables in \code{varselect} to the columns in \code{big.matrix} \code{a}. Meant for internal use by \code{bigrfc} or \code{grow} when growing trees.}
-    \item{\code{ylevels}:}{Object of class \code{"character"}. Class labels.}
-    \item{\code{ynclass}:}{Object of class \code{"integer"}. Number of classes.}
+    \item{\code{y}:}{Object of class \code{"factor"}. Class labels for the training set.}
     \item{\code{ytable}:}{Object of class \code{"table"}. Counts of training examples in each class.}
     \item{\code{yclasswts}:}{Object of class \code{"matrix"}. One-dimensional matrix of scaled weights for each class.}
     \item{\code{ntrees}:}{Object of class \code{"integer"}. Number of trees in the forest.}

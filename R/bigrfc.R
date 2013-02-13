@@ -33,8 +33,7 @@ bigrfc <- function(x,
         stop("Argument x must be a big.matrix, matrix or data.frame.")
     }
     
-    # Check y, and set ynclass, the number of classes in the response variable.
-    # Also, if y is a factor vector, set ylevels, the original factor labels.
+    # Check y.
     if (is.integer(y)) {
         if (min(y) < 1L) {
             stop("Elements in argument y must not be less than 1. The class ",
@@ -47,8 +46,6 @@ bigrfc <- function(x,
     if (length(y) != nrow(x)) {
         stop("Argument y must have as many elements as there are rows in x.")
     }
-    ylevels <- levels(y)
-    ynclass <- length(ylevels)
     ytable <- table(y, deparse.level=0)
     
     # Check ntrees.
@@ -163,12 +160,12 @@ bigrfc <- function(x,
     
     # Check yclasswts.
     if (is.null(yclasswts)) {
-        yclasswts <- rep.int(1L, ynclass)
+        yclasswts <- rep.int(1L, length(levels(y)))
     } else {
         if (!is.numeric(yclasswts)) {
             stop("Argument yclasswts must be a numeric vector.")
         }
-        if (length(yclasswts) != ynclass) {
+        if (length(yclasswts) != length(levels(y))) {
             stop("Argument yclasswts must have the same number of ",
                  "elements as there are levels in y.")
         }
@@ -210,13 +207,11 @@ bigrfc <- function(x,
     if (trace >= 1L) message("Initializing parameters in bigrfc.")
     
     forest <- new("bigcforest",
-                  y=y,
                   nexamples=as.integer(nrow(x)),
                   varselect=varselect,
                   factorvars=factorvars,
                   varnlevels=varnlevels,
-                  ylevels=ylevels,
-                  ynclass=ynclass,
+                  y=y,
                   ytable=ytable,
                   yclasswts=yclasswts,
                   ntrees=0L,
@@ -226,7 +221,7 @@ bigrfc <- function(x,
                   nrandsplit=nrandsplit,
                   trainconfusion=table(0),
                   cachepath=cachepath)
-    rm(factorvars, varnlevels, varselect, ynclass, ytable, yclasswts, nsplitvar,
+    rm(factorvars, varnlevels, varselect, ytable, yclasswts, nsplitvar,
        maxndsize, maxeslevels, nrandsplit, cachepath)
     
     # Sequence number of continuous variables. Used to index columns of a and
@@ -237,13 +232,14 @@ bigrfc <- function(x,
     
     # Out-of-bag results and error estimates.
     forest@oobtimes <- integer(forest@nexamples)
-    forest@oobvotes <- matrix(0, forest@nexamples, forest@ynclass,
-                              dimnames=list(Example=NULL, Class=forest@ylevels))
+    forest@oobvotes <- matrix(0, forest@nexamples, length(levels(y)),
+                              dimnames=list(Example=NULL,
+                              Class=levels(forest@y)))
     forest@oobpred <- integer(forest@nexamples)
     forest@trainerr <- numeric()
-    forest@trainclserr <- matrix(0, 0, forest@ynclass,
+    forest@trainclserr <- matrix(0, 0, length(levels(y)),
                                  dimnames=list(NTrees=NULL,
-                                               Class=forest@ylevels))
+                                               Class=levels(forest@y)))
     forest@varginidec <- numeric(length(forest@varselect))
     names(forest@varginidec) <- names(forest@varselect)
     

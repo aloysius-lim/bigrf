@@ -77,14 +77,14 @@ SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
     MatrixAccessor<xtype> xAcc(*x);
     //MatrixAccessor<int> asaveAcc(*asave);
     MatrixAccessor<int> aAcc(*a);
-    const int *y = INTEGER(GET_SLOT(forestP, install("y")));
     const int nexamples = *INTEGER(GET_SLOT(forestP, install("nexamples")));
     const int *factorvars = INTEGER(GET_SLOT(forestP, install("factorvars")));
     const int *varnlevels = INTEGER(GET_SLOT(forestP, install("varnlevels")));
     const int *varselect = INTEGER(GET_SLOT(forestP, install("varselect")));
     const int nvar = LENGTH(GET_SLOT(forestP, install("varselect")));
     const int *contvarseq = INTEGER(GET_SLOT(forestP, install("contvarseq")));
-    const int ynclass = *INTEGER(GET_SLOT(forestP, install("ynclass")));
+    const int *y = INTEGER(GET_SLOT(forestP, install("y")));
+    const int ynclass = LENGTH(GET_LEVELS(GET_SLOT(forestP, install("y"))));
     const double *yclasswts =
         REAL(GET_SLOT(forestP, install("yclasswts")));
     const int nsplitvar = *INTEGER(GET_SLOT(forestP, install("nsplitvar")));

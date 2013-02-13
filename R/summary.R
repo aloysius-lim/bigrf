@@ -9,7 +9,7 @@ setMethod("summary", signature(object="bigcforest"), function(object) {
     cat("Error rates:\n")
     errors <- c(object@trainerr[object@ntrees],
                 object@trainclserr[object@ntrees, ]) * 100
-    names(errors) <- c("Overall", object@ylevels)
+    names(errors) <- c("Overall", levels(object@y))
     print(errors)
     cat("\n")
     

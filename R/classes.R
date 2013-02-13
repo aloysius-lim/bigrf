@@ -8,15 +8,13 @@ setClassUnion("big.matrix.or.NULL", c("big.matrix", "NULL"))
 
 setClass("bigcforest",
          representation=representation(
-             y="integer", # Change to factor
              nexamples="integer",
              varselect="integer",
              factorvars="logical",
              varnlevels="integer",
              contvarseq="integer",
-             ylevels="character", # To remove
-             ynclass="integer", # To remove
-             ytable="table", # To remove
+             y="factor",
+             ytable="table",
              yclasswts="matrix",
              ntrees="integer",
              nsplitvar="integer",
@@ -55,7 +53,6 @@ setClass("bigcprediction",
          representation=representation(
              ntest="integer",
              testlabelled="logical",
-             ynclass="integer",
              ntrees="integer",
              testytable="table.or.NULL",
              testvotes="matrix",

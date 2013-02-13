@@ -61,8 +61,8 @@ setMethod("outliers", signature(forest="bigcforest"), function(
     # Compute outlier scores ---------------------------------------------------
     if (trace) message("Computing outlier scores.")
     
-    for (c in seq_len(forest@ynclass)) {
-        w <- which(y == c)
+    for (c in seq_along(levels(forest@y))) {
+        w <- which(as.integer(y) == c)
         classout <- outscore[w]
         med <- median(classout)
         dev <- sum(abs(classout - med)) / length(w)

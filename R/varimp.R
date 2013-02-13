@@ -85,7 +85,7 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
     
     # Initialize ---------------------------------------------------------------
     
-    y <- forest@y
+    y.int <- as.integer(forest@y)
     
     # Convert x to big.matrix, as C functions in bigrf only support this.
     if (class(x) != "big.matrix") {
@@ -114,7 +114,7 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
     
     for (tree in forest) {
         # Count correct oob classifications.
-        w <- which(tree@insamp == 0L & tree@trainpredclass == y)
+        w <- which(tree@insamp == 0L & tree@trainpredclass == y.int)
         correct <- sum(tree@nodewt[tree@trainprednode[w]])
         nout <- sum(tree@insamp == 0L)
         whichout <- which(tree@insamp == 0L)
@@ -122,7 +122,7 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
         
         # Variable importance for each example.
         if (impbyexample) {
-            w <- which(tree@trainpredclass[whichout] == y[whichout])
+            w <- which(tree@trainpredclass[whichout] == y.int[whichout])
             w <- whichout[w]
             importance.ex.total[w] <- importance.ex.total[w] +
                 tree@nodewt[tree@trainprednode[w]] / nout
@@ -139,12 +139,12 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
                                        nout, whichout, whichpermout, var,
                                        forest, tree);
             
-            w <- which(oobpredict.result$oobpredclass == y[whichout])
+            w <- which(oobpredict.result$oobpredclass == y.int[whichout])
             impcorrect <- sum(tree@nodewt[oobpredict.result$oobprednode[w]])
             rm(w)
             
             if (impbyexample) {
-                w <- which(oobpredict.result$oobpredclass == y[whichout])
+                w <- which(oobpredict.result$oobpredclass == y.int[whichout])
                 importance.ex[whichout[w], var] <-
                     importance.ex[whichout[w], var] +
                     tree@nodewt[oobpredict.result$oobprednode[w]] / nout
@@ -156,7 +156,7 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
                 ((correct - impcorrect) / nout) ^ 2
         }
         if (impbyexample) {
-            w <- which(tree@trainpredclass[whichout] == y[whichout])
+            w <- which(tree@trainpredclass[whichout] == y.int[whichout])
             w <- whichout[w]
             weights <- tree@nodewt[tree@trainprednode[w]] / nout
             for (var in seq_len(nvar)[-tbestvars]) {
