@@ -171,6 +171,7 @@ bigrfc <- function(x,
         }
     }
     yclasswts <- scale(yclasswts, center=FALSE)
+    dimnames(yclasswts) <- list(Class=levels(y), NULL)
     
     # Check printerrfreq.
     if (!is.numeric(printerrfreq) ||

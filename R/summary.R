@@ -2,8 +2,13 @@ setMethod("summary", signature(object="bigcforest"), function(object) {
     cat("Random forest with", object@ntrees, "trees, trained on",
         object@nexamples, "examples with", length(object@varselect),
         "variables.\n\n")
+    
     cat("Training set labels:\n")
     print(object@ytable)
+    cat("\n")
+    
+    cat("Training class weights:\n")
+    print(object@yclasswts)
     cat("\n")
     
     cat("Error rates:\n")
@@ -20,8 +25,9 @@ setMethod("summary", signature(object="bigcforest"), function(object) {
 
 
 setMethod("summary", signature(object="bigcprediction"), function(object) {
-    cat("Random forest with", object@ntrees, "trees, tested on",
-        object@ntest, "examples\n\n")
+    cat("Predictions on", object@ntest, "examples using random forest with",
+        object@ntrees, "trees.\n\n")
+    
     if (object@testlabelled) {
         cat("Test set labels:\n")
         print(object@testytable)
@@ -31,5 +37,7 @@ setMethod("summary", signature(object="bigcprediction"), function(object) {
         
         cat("Test set confusion matrix (OOB):\n")
         print(object@testconfusion)
+    } else {
+        cat("Test set was not labelled.\n")
     }
 })
