@@ -220,8 +220,6 @@ bigrfc <- function(x,
                   ytable=ytable,
                   yclasswts=yclasswts,
                   ntrees=0L,
-                  # Theoretically, 2*nexamples - 1 should be enough
-                  maxnodes=as.integer(2L * nrow(x) + 1L),
                   nsplitvar=nsplitvar,
                   maxndsize=maxndsize,
                   maxeslevels=maxeslevels,

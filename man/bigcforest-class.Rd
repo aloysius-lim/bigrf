@@ -25,7 +25,6 @@
     \item{\code{ytable}:}{Object of class \code{"table"}. Counts of training examples in each class.}
     \item{\code{yclasswts}:}{Object of class \code{"matrix"}. One-dimensional matrix of scaled weights for each class.}
     \item{\code{ntrees}:}{Object of class \code{"integer"}. Number of trees in the forest.}
-    \item{\code{maxnodes}:}{Object of class \code{"integer"}. Maximum number of nodes needed to grow trees fully. The actual number of nodes in each tree will be smaller than or equal to this.}
     \item{\code{nsplitvar}:}{Object of class \code{"integer"}. Number of variables to split on at each node.}
     \item{\code{maxndsize}:}{Object of class \code{"integer"}. Maximum number of examples in each node when growing the trees.}
     \item{\code{maxeslevels}:}{Object of class \code{"integer"}. Maximum number of levels for categorical variables for which exhaustive search of possible splits will be performed.}

@@ -87,11 +87,13 @@ SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
     const int ynclass = *INTEGER(GET_SLOT(forestP, install("ynclass")));
     const double *yclasswts =
         REAL(GET_SLOT(forestP, install("yclasswts")));
-    const int maxnodes = *INTEGER(GET_SLOT(forestP, install("maxnodes")));
     const int nsplitvar = *INTEGER(GET_SLOT(forestP, install("nsplitvar")));
     const int maxndsize = *INTEGER(GET_SLOT(forestP, install("maxndsize")));
     const int maxeslevels = *INTEGER(GET_SLOT(forestP, install("maxeslevels")));
     const int nrandsplit = *INTEGER(GET_SLOT(forestP, install("nrandsplit")));
+    
+    // Theoretically, 2*nexamples - 1 should be enough
+    const int maxnodes = 2 * nexamples + 1;
     
     // Initialize tree object.
     SEXP treeP;

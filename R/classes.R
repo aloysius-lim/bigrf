@@ -19,7 +19,6 @@ setClass("bigcforest",
              ytable="table", # To remove
              yclasswts="matrix",
              ntrees="integer",
-             maxnodes="integer", # To remove
              nsplitvar="integer",
              maxndsize="integer",
              maxeslevels="integer",
