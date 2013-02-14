@@ -15,9 +15,9 @@
 /* Prepares the a matrix based on random sample of rows for modelling. */
 SEXP moda(SEXP asaveP, SEXP aP, SEXP insampP);
 
-/* Builds a classification tree. */
+/* Grows a classification tree. */
 template <typename xtype>
-SEXP buildtree(BigMatrix *x, BigMatrix *a, BigMatrix *aOut, SEXP forestP,
+SEXP growtree(BigMatrix *x, BigMatrix *a, BigMatrix *aOut, SEXP forestP,
     SEXP insampP, SEXP inweightP, int treenum, int trace);
 
 /* Finds the best split at the current node. */

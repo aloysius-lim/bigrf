@@ -18,7 +18,7 @@ Description: This is an implementation of Leo Breiman's and Adele Cutler's
   for performance and for handling of data sets that are too large to be
   processed in memory. Forests can be built in parallel at two levels. First,
   trees can be grown in parallel on a single machine using foreach. Second,
-  multiple forests can be grown in parallel on multiple machines, then merged
+  multiple forests can be built in parallel on multiple machines, then merged
   into one. For large data sets, disk-based big.matrix's may be used for storing
   data and intermediate computations, to prevent excessive virtual memory
   swapping by the operating system. Currently, only classification forests with a

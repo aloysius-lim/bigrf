@@ -86,7 +86,7 @@ makea <- function(forest, x) {
 
 
 # ------------------------------------------------------------------------------
-# Combine results of tree builds. To be used only as a .combine function in
+# Combine results of tree-growing. To be used only as a .combine function in
 # foreach().
 combine.treeresults <- function(forest, newtree) {
     y <- forest@y
@@ -168,7 +168,7 @@ combine.treeresults <- function(forest, newtree) {
 
 
 # ------------------------------------------------------------------------------
-# Combine results of tree builds. To be used only as a .combine function in
+# Combine results of tree predictions. To be used only as a .combine function in
 # foreach().
 combine.treepredictresults <- function(prediction, treepredict.result) {
     y <- treepredict.result$y

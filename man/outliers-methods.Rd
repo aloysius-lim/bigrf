@@ -39,7 +39,7 @@ y <- Cars93$Type
 # Select variables with which to train model.
 vars <- c(4:22)
 
-# Run model, build 50 trees.
+# Run model, grow 50 trees.
 forest <- bigrfc(x, y, ntree=50L, varselect=vars)
 
 # Calculate proximity matrix and scaling co-ordinates, and plot

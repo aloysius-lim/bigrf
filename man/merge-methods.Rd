@@ -5,7 +5,7 @@
 \alias{merge,bigcforest,bigcforest-method}
 \title{Merge Two Random Forests}
 \description{
-  Merge two random forests into one. This is useful, for example, for growing random forests in parallel on multiple machines, then combining them into a single forest.
+  Merge two random forests into one. This is useful, for example, for building random forests in parallel on multiple machines, then combining them into a single forest.
 }
 \usage{
 \S4method{merge}{bigcforest,bigcforest}(x, y)
@@ -42,7 +42,7 @@ y <- Cars93$Type
 # Select variables with which to train model.
 vars <- c(4:22)
 
-# Run model, build 50 trees.
+# Run model, grow 50 trees.
 forest <- bigrfc(x, y, ntree=50L, varselect=vars)
 
 # Build a second forest.

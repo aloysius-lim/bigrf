@@ -34,7 +34,7 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
     }
     if (reuse.cache) {
         if (is.null(forest@cachepath)) {
-            stop("Cache was not used to grow this random forest. Cannot reuse ",
+            stop("Cache was not used to build this random forest. Cannot reuse ",
                  "cache.")
         }
         if (!file.exists(forest@cachepath)) {
@@ -56,7 +56,7 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
             x <- attach.resource("x.desc", path=forest@cachepath)
             if (nrow(x) != forest@nexamples) {
                 stop("Big.matrix x in the cache path does not have the same ",
-                     "number of rows as the training data used to grow this ",
+                     "number of rows as the training data used to build this ",
                      "random forest. Cannot reuse cache.")
             }
         }
@@ -72,7 +72,7 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
         }
         if (nrow(x) != forest@nexamples) {
             stop("Number of rows in argument x does not match number of rows ",
-                 "in the training data used to grow this forest.")
+                 "in the training data used to build this forest.")
         }
     }
     

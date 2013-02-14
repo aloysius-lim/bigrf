@@ -8,12 +8,12 @@
  */
 extern "C" {
     
-    #define CALL_BUILDTREE(xtype) {                                            \
-        return buildtree<xtype>(x, a, aOut, forestP, insampP, inweightP,       \
+    #define CALL_GROWTREE(xtype) {                                            \
+        return growtree<xtype>(x, a, aOut, forestP, insampP, inweightP,        \
             treenum, trace);                                                   \
     }
     
-    SEXP buildtreeC(SEXP xP, SEXP xtypeP, SEXP aP, SEXP aOutP, SEXP forestP,
+    SEXP growtreeC(SEXP xP, SEXP xtypeP, SEXP aP, SEXP aOutP, SEXP forestP,
         SEXP insampP, SEXP inweightP, SEXP treenumP, SEXP traceP) {
 
         // Initialize function arguments.
@@ -25,16 +25,16 @@ extern "C" {
         
         switch (xtype) {
             case 1:
-                CALL_BUILDTREE(char);
+                CALL_GROWTREE(char);
                 break;
             case 2:
-                CALL_BUILDTREE(short);
+                CALL_GROWTREE(short);
                 break;
             case 4:
-                CALL_BUILDTREE(int);
+                CALL_GROWTREE(int);
                 break;
             case 8:
-                CALL_BUILDTREE(double);
+                CALL_GROWTREE(double);
                 break;
             default:
                 return R_NilValue;
@@ -49,12 +49,12 @@ extern "C" {
  * C++ functions.
  */
 
-/* Buildtree consists of repeated calls to findbestsplit and movedata.
+/* Growtree consists of repeated calls to findbestsplit and movedata.
  * Findbestsplit does just that--it finds the best split of the current node.
  * Movedata moves the data in the split node right and left so that the data
  * corresponding to each child node is contiguous.
  *
- * The buildtree bookkeeping is different from that in Friedman's original CART
+ * The growtree bookkeeping is different from that in Friedman's original CART
  * program: 
  *     nnodes is the total number of nodes to date.
  *     treemap[k, ] = child node numbers if the kth node has been split.
@@ -65,10 +65,10 @@ extern "C" {
  * one class, or if all the x-values are equal. If the current node k is split,
  * then its children are numbered nnodes+1 [left], and nnodes+2 [right], nnodes
  * increases to nnodes+2 and the next node to be split is numbered k+1. When no
- * more nodes can be split, buildtree returns to the main program.
+ * more nodes can be split, growtree returns to the main program.
  */
 template <typename xtype>
-SEXP buildtree(BigMatrix *x, BigMatrix *a, BigMatrix *aOut, SEXP forestP,
+SEXP growtree(BigMatrix *x, BigMatrix *a, BigMatrix *aOut, SEXP forestP,
     SEXP insampP, SEXP inweightP, int treenum, int trace) {
         
     // Initialize function arguments.

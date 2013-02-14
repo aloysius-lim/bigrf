@@ -36,12 +36,8 @@ setMethod("grow", signature(forest="bigcforest"), function(
     }
     if (reuse.cache) {
         if (is.null(forest@cachepath)) {
-            stop("Cache was not used to grow this random forest. Cannot reuse ",
-                 "cache.")
-        }
-        if (is.null(forest@cachepath)) {
-            stop("Cache was not used to grow this random forest. Cannot reuse ",
-                 "cache.")
+            stop("Cache was not used to build this random forest. Cannot ",
+                 "reuse cache.")
         }
         if (!file.exists(forest@cachepath)) {
             stop('Cache path "', forest@cachepath,
@@ -84,7 +80,7 @@ setMethod("grow", signature(forest="bigcforest"), function(
             x <- attach.resource("x.desc", path=forest@cachepath)
             if (nrow(x) != forest@nexamples) {
                 stop("Big.matrix x in the cache path does not have the same ",
-                     "number of rows as the training data used to grow this ",
+                     "number of rows as the training data used to build this ",
                      "random forest. Cannot reuse cache.")
             }
         }
@@ -100,7 +96,7 @@ setMethod("grow", signature(forest="bigcforest"), function(
         }
         if (nrow(x) != forest@nexamples) {
             stop("Number of rows in argument x does not match number of rows ",
-                 "in the training data used to grow this forest.")
+                 "in the training data used to build this forest.")
         }
     }
     
@@ -165,7 +161,7 @@ setMethod("grow", signature(forest="bigcforest"), function(
     forest <- foreach(treenum=(forest@ntrees + 1):(forest@ntrees + ntrees),
                       .combine=combine.treeresults, .init=forest,
                       .inorder=FALSE, .verbose=FALSE) %dopar% {
-        if (trace >= 1L) message("Building tree ", treenum, " of ",
+        if (trace >= 1L) message("Growing tree ", treenum, " of ",
                                  oldntrees + ntrees, ".")
         
         # Take a bootstrap sample ----------------------------------------------
@@ -219,12 +215,12 @@ setMethod("grow", signature(forest="bigcforest"), function(
             a.out <- big.matrix(1L, 1L, type="integer")
         }
         
-        # Build tree -----------------------------------------------------------
+        # Grow tree ------------------------------------------------------------
         
-        if (trace >= 2L) message("Tree ", treenum, ": Building tree.")
+        if (trace >= 2L) message("Tree ", treenum, ": Growing tree.")
         
         xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
-        tree <- .Call("buildtreeC", x@address, xtype, a@address, a.out@address,
+        tree <- .Call("growtreeC", x@address, xtype, a@address, a.out@address,
                       forest, insamp, inweight, treenum, trace)
         
         list(treenum=treenum,

@@ -2,7 +2,7 @@
 \alias{bigrfc}
 \title{Build a Classification Random Forest Model}
 \description{
-  Build a classification random forest model using Leo Breiman and Adele Cutler's algorithm, with enhancements for large data sets. This implementation uses the \pkg{\link[bigmemory:bigmemory-package]{bigmemory}} package for disk-based caching during tree building, and the \pkg{\link[foreach:foreach-package]{foreach}} package to parallelize the tree building process.
+  Build a classification random forest model using Leo Breiman and Adele Cutler's algorithm, with enhancements for large data sets. This implementation uses the \pkg{\link[bigmemory:bigmemory-package]{bigmemory}} package for disk-based caching during growing of trees, and the \pkg{\link[foreach:foreach-package]{foreach}} package to parallelize the tree-growing process.
 }
 \usage{
 bigrfc(x, y, ntrees = 50L, varselect = NULL, varnlevels = NULL,
@@ -25,7 +25,7 @@ bigrfc(x, y, ntrees = 50L, varselect = NULL, varnlevels = NULL,
   \item{printerrfreq}{An integer, specifying how often error estimates should be printed to the screen. Default: error estimates will be printed every 10 trees.}
   \item{printclserr}{\code{TRUE} for error estimates for individual classes to be printed, in addition to the overall error estimates. Default: \code{TRUE}.}
   \item{cachepath}{Path to folder where data caches used in building the forest can be stored. If \code{NULL}, then the \code{big.matrix}'s will be created in memory with no disk caching, which would be suitable for small data sets. If caching is used, some of the cached files can be reused in other methods like \code{\link[bigrf]{varimp}}, shortening method initialization time. If the user wishes to reuse the cached files in this manner, it is suggested that a folder other than \code{tempdir()} is used, as the operating system may automatically delete any cache files in \code{tempdir()}. Default: \code{tempdir()}.}
-  \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output on tree building. \code{2} to print more verbose output on processing of individual nodes. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.}
+  \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output on growing of trees. \code{2} to print more verbose output on processing of individual nodes. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-growing iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.}
 }
 \value{
   An object of class \code{"\linkS4class{bigcforest}"} containing the specified number of trees, which are objects of class \code{"\linkS4class{bigctree}"}.
@@ -51,7 +51,7 @@ y <- Cars93$Type
 # Select variables with which to train model.
 vars <- c(4:22)
 
-# Run model, build 50 trees.
+# Run model, grow 50 trees.
 forest <- bigrfc(x, y, ntree=50L, varselect=vars)
 }
 \keyword{models}

@@ -16,7 +16,7 @@
   \item{prox}{A proximity matrix of class \code{"\linkS4class{bigrfprox}"}.}
   \item{nprot}{The number of prototypes to compute for each class. Default: \code{1}.}
   \item{x}{A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. The data must not have changed, otherwise unexpected modelling results may occur. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation. Optional if \code{reuse.cache} is \code{TRUE}.}
-  \item{reuse.cache}{\code{TRUE} to reuse disk caches of the \code{big.matrix} \code{x} from the initial growing of the random forest, which may significantly reduce initialization time for large data sets. If \code{TRUE}, the user must ensure that the files \file{x} and \file{x.desc} in \code{forest@cachepath} have not been modified or deleted.}
+  \item{reuse.cache}{\code{TRUE} to reuse disk caches of the \code{big.matrix} \code{x} from the initial building of the random forest, which may significantly reduce initialization time for large data sets. If \code{TRUE}, the user must ensure that the files \file{x} and \file{x.desc} in \code{forest@cachepath} have not been modified or deleted.}
   \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output. Default: \code{0}.}
 }
 \details{
@@ -54,7 +54,7 @@ y <- Cars93$Type
 # Select variables with which to train model.
 vars <- c(4:22)
 
-# Run model, build 50 trees.
+# Run model, grow 50 trees.
 forest <- bigrfc(x, y, ntree=50L, varselect=vars)
 
 # Calculate proximity matrix.

@@ -7,7 +7,7 @@
   Class representing a tree in a classification random forest.
 }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form \code{new("bigctree", ...)}, but most often are generated when growing a \code{\linkS4class{bigcforest}} using \code{\link[bigrf]{bigrfc}}.
+  Objects can be created by calls of the form \code{new("bigctree", ...)}, but most often are generated when building a \code{\linkS4class{bigcforest}} using \code{\link[bigrf]{bigrfc}}.
 }
 \section{Slots}{
   \describe{

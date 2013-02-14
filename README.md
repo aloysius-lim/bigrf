@@ -1,7 +1,7 @@
 bigrf
 =====
 
-This is an R implementation of Leo Breiman's and Adele Cutler's Random Forest algorithms for classification and regression, with optimizations for performance and for handling of data sets that are too large to be processed in memory. Forests can be built in parallel at two levels. First, trees can be grown in parallel on a single machine using [`foreach`](http://cran.r-project.org/web/packages/foreach/). Second, multiple forests can be grown in parallel on multiple machines, then merged into one. For large data sets, disk-based [`big.matrix`](http://cran.r-project.org/web/packages/bigmemory/)'s may be used for storing data and intermediate computations, to prevent excessive virtual memory swapping by the operating system. Currently, only classification forests with a subset of the functionality in Breiman and Cutler's original code are implemented. More functionality and regression trees will be added in the future.
+This is an R implementation of Leo Breiman's and Adele Cutler's Random Forest algorithms for classification and regression, with optimizations for performance and for handling of data sets that are too large to be processed in memory. Forests can be built in parallel at two levels. First, trees can be grown in parallel on a single machine using [`foreach`](http://cran.r-project.org/web/packages/foreach/). Second, multiple forests can be built in parallel on multiple machines, then merged into one. For large data sets, disk-based [`big.matrix`](http://cran.r-project.org/web/packages/bigmemory/)'s may be used for storing data and intermediate computations, to prevent excessive virtual memory swapping by the operating system. Currently, only classification forests with a subset of the functionality in Breiman and Cutler's original code are implemented. More functionality and regression trees will be added in the future.
 
 Capabilities and Usage
 ----------------------
@@ -18,7 +18,7 @@ For better performance, trees may be grown in parallel by registering an appropr
 
 Multiple random forests can also be built in parallel on multiple machines (using the same training data and parameters), then merged into one forest using `merge`.
 
-For large data sets, the training data, intermediate computations and some outputs (e.g. proximity matrices) may be cached on disk using [`"big.matrix"`](http://cran.r-project.org/web/packages/bigmemory/) objects. This enables random forests to be grown on fairly large data sets without hitting RAM limits, which will cause excessive virtual memory swapping by the operating system.
+For large data sets, the training data, intermediate computations and some outputs (e.g. proximity matrices) may be cached on disk using [`"big.matrix"`](http://cran.r-project.org/web/packages/bigmemory/) objects. This enables random forests to be built on fairly large data sets without hitting RAM limits, which will cause excessive virtual memory swapping by the operating system.
 
 Disk caching may be turned off for optimal performance on smaller data sets by setting function / method argument `cachepath` to `NULL`, causing the `big.matrix`'s to be created in memory.
 
@@ -67,7 +67,7 @@ Usage Examples
     # Run model, grow 50 trees on the first 60 examples.
     forest1 <- bigrfc(x[1:60, ], y[1:60], ntree=50L, varselect=vars)
     
-    # Grow a second forest.
+    # Build a second forest.
     forest2 <- bigrfc(x[1:60, ], y[1:60], ntree=50L, varselect=vars)
     
     # Merge the 2 forests.

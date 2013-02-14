@@ -251,7 +251,7 @@ bigrfc <- function(x,
     
     
     
-    # Grow forest --------------------------------------------------------------
+    # Build forest -------------------------------------------------------------
     
     if (ntrees > 0L) {
         forest <- grow(forest, x, ntrees, printerrfreq=printerrfreq,
