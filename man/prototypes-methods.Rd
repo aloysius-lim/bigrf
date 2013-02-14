@@ -66,7 +66,7 @@ prot <- prototypes(forest, prox, x=x)
 # Plot first prototypes, using one colour for each class.
 plot(seq_along(vars), prot$prot.std[1, 1, , 2], type="l", col=1,
      ylim=c(min(prot$prot.std[, 1, , 2]), max(prot$prot.std[, 1, , 2])))
-for (i in 2:nlevels(y)) {
+for (i in 2:length(levels(y))) {
     lines(seq_along(vars), prot$prot.std[i, 1, , 2], type="l", col=i)
 }
 
