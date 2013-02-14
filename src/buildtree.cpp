@@ -9,17 +9,15 @@
 extern "C" {
     
     #define CALL_BUILDTREE(xtype) {                                            \
-        return buildtree<xtype>(x, asave, a, aOut, forestP, insampP,           \
-            inweightP, treenum, trace);                                        \
+        return buildtree<xtype>(x, a, aOut, forestP, insampP, inweightP,       \
+            treenum, trace);                                                   \
     }
     
-    SEXP buildtreeC(SEXP xP, SEXP xtypeP, SEXP asaveP, SEXP aP, SEXP aOutP,
-        SEXP forestP, SEXP insampP, SEXP inweightP, SEXP treenumP,
-        SEXP traceP) {
+    SEXP buildtreeC(SEXP xP, SEXP xtypeP, SEXP aP, SEXP aOutP, SEXP forestP,
+        SEXP insampP, SEXP inweightP, SEXP treenumP, SEXP traceP) {
 
         // Initialize function arguments.
         BigMatrix *x = (BigMatrix*)R_ExternalPtrAddr(xP);
-        BigMatrix *asave = (BigMatrix*)R_ExternalPtrAddr(asaveP);
         BigMatrix *a = (BigMatrix*)R_ExternalPtrAddr(aP);
         BigMatrix *aOut = (BigMatrix*)R_ExternalPtrAddr(aOutP);
         const int xtype = *INTEGER(xtypeP), treenum = *INTEGER(treenumP),
@@ -70,12 +68,11 @@ extern "C" {
  * more nodes can be split, buildtree returns to the main program.
  */
 template <typename xtype>
-SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
-    SEXP forestP, SEXP insampP, SEXP inweightP, int treenum, int trace) {
+SEXP buildtree(BigMatrix *x, BigMatrix *a, BigMatrix *aOut, SEXP forestP,
+    SEXP insampP, SEXP inweightP, int treenum, int trace) {
         
     // Initialize function arguments.
     MatrixAccessor<xtype> xAcc(*x);
-    //MatrixAccessor<int> asaveAcc(*asave);
     MatrixAccessor<int> aAcc(*a);
     const int nexamples = *INTEGER(GET_SLOT(forestP, install("nexamples")));
     const int *factorvars = INTEGER(GET_SLOT(forestP, install("factorvars")));
@@ -218,11 +215,11 @@ SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
         
         // If this node has not been split, find the best split.
         if (treemap1[nd] == -1) {
-            int stat = findbestsplit<xtype>(x, y, asave, a, factorvars,
-                varnlevels, maxnlevels, nvar, varselect, contvarseq, ynclass,
-                nsplitvar, maxeslevels, nrandsplit, ncase, inweight,
-                ndstart[nd], ndend[nd], ndclasspop, &splitBestvar,
-                &splitDecgini, &splitNumsplit, splitCatsplit);
+            int stat = findbestsplit<xtype>(x, y, a, factorvars, varnlevels,
+                maxnlevels, nvar, varselect, contvarseq, ynclass, nsplitvar,
+                maxeslevels, nrandsplit, ncase, inweight, ndstart[nd],
+                ndend[nd], ndclasspop, &splitBestvar, &splitDecgini,
+                &splitNumsplit, splitCatsplit);
             if (stat) {
                 treemap1[nd] = 0;
                 treemap2[nd] = 0;
@@ -280,11 +277,11 @@ SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
         }
         
         // Move data in a and ncase to reflect split.
-        movedata(asave, a, nexamples, factorvars, contvarseq, ndstart[nd],
-            &ndendl, ndend[nd], ncase, splitBestvar, splitNumsplit,
+        movedata<xtype>(x, a, nexamples, factorvars, varselect, contvarseq,
+            ndstart[nd], &ndendl, ndend[nd], ncase, splitBestvar, splitNumsplit,
             splitCatsplit);
         if (ndendOut[nd] - ndstartOut[nd] + 1 > 0) {
-            movedataOut<xtype>(x, asave, aOut, nexamples, factorvars, varselect,
+            movedataOut<xtype>(x, aOut, nexamples, factorvars, varselect,
                 contvarseq, ndstartOut[nd], &ndendlOut, ndendOut[nd], ncaseOut,
                 splitBestvar, bestnumsplit[nd], splitCatsplit);
         }
@@ -405,16 +402,15 @@ SEXP buildtree(BigMatrix *x, BigMatrix *asave, BigMatrix *a, BigMatrix *aOut,
    bestvar is categorical, then nsplit is the coding into an integer of the
    categories going left. */
 template <typename xtype>
-int findbestsplit(BigMatrix *x, const int *y, BigMatrix *asave,
-    BigMatrix *a, const int *factorvars, const int *varnlevels, int maxnlevels,
-    int nvar, const int *varselect, const int *contvarseq, int ynclass,
-    int nsplitvar, int maxeslevels, int nrandsplit, const int *ncase,
-    const double *inweight, int ndstart, int ndend, const double *ndclasspop,
-    int *bestvar, double *decsplit, int *nbest, int *ncatsplit) {
+int findbestsplit(BigMatrix *x, const int *y, BigMatrix *a,
+    const int *factorvars, const int *varnlevels, int maxnlevels, int nvar,
+    const int *varselect, const int *contvarseq, int ynclass, int nsplitvar,
+    int maxeslevels, int nrandsplit, const int *ncase, const double *inweight,
+    int ndstart, int ndend, const double *ndclasspop, int *bestvar,
+    double *decsplit, int *nbest, int *ncatsplit) {
     
     // Initialize function arguments.
     MatrixAccessor<xtype> xAcc(*x);
-    MatrixAccessor<int> asaveAcc(*asave);
     MatrixAccessor<int> aAcc(*a);
     
     // Set up working variables.
@@ -496,7 +492,8 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *asave,
         } else {
             // Categorical variable.
             // Compute the decrease in impurity given by categorical splits.
-            int *asaveCol = asaveAcc[var];
+            int varX = varselect[var] - 1;
+            xtype *xCol = xAcc[varX];
 
             // Initialize.
     		int lcat = varnlevels[var];
@@ -510,7 +507,7 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *asave,
             // level.
             for (int i = ndstart; i <= ndend; i++) {
     			int n = ncase[i];
-                int nl = asaveCol[n] - 1;
+                int nl = xCol[n] - 1;
                 tclasscat[y[n] - 1][nl] += inweight[n];
             }
             
@@ -596,16 +593,17 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *asave,
 
 /* Moves the data in the current node to the left and right children, according
    to the best split on the current node. Modifies a, ndendl and ncase. */
-void movedata(BigMatrix *asave, BigMatrix *a, int nexamples,
-    const int *factorvars, const int *contvarseq, int ndstart, int *ndendl,
+template <typename xtype>
+void movedata(BigMatrix *x, BigMatrix *a, int nexamples, const int *factorvars,
+    const int *varselect, const int *contvarseq, int ndstart, int *ndendl,
     int ndend, int *ncase, int bestvar, int nbest, const int *bestcatsplit) {
 
     // Initialize function arguments.
-    MatrixAccessor<int> asaveAcc(*asave);
+    MatrixAccessor<xtype> xAcc(*x);
     MatrixAccessor<int> aAcc(*a);
-        
+    
     // Set up working variables.
-    int bestvarA = contvarseq[bestvar] - 1, nCols = asave->ncol();
+    int bestvarX = varselect[bestvar] - 1, bestvarA = contvarseq[bestvar] - 1;
     
     // compute idmove = indicator of example nos. going left
     int *idmove = (int*) R_alloc(nexamples, sizeof(int));
@@ -619,11 +617,11 @@ void movedata(BigMatrix *asave, BigMatrix *a, int nexamples,
         }
         *ndendl = nbest;
     } else {
-        int *asaveCol = asaveAcc[bestvar];
+        xtype *xCol = xAcc[bestvarX];
         *ndendl = ndstart - 1;
         for (int j = ndstart; j <= ndend; j++) {
             int nc = ncase[j];
-            if (bestcatsplit[asaveCol[nc] - 1] == 1) {
+            if (bestcatsplit[(int)xCol[nc] - 1] == 1) {
                 idmove[nc] = 1;
                 (*ndendl)++;
             } else {
@@ -632,8 +630,8 @@ void movedata(BigMatrix *asave, BigMatrix *a, int nexamples,
         }
     }
     
-    movedataWorker(aAcc, factorvars, contvarseq, ndstart, ndend, idmove, ncase,
-        bestvar, bestvarA, nCols);
+    movedataWorker(a, factorvars, contvarseq, ndstart, ndend, idmove, ncase,
+        bestvar, bestvarA);
 }
 
 
@@ -641,19 +639,17 @@ void movedata(BigMatrix *asave, BigMatrix *a, int nexamples,
 /* Similar to movedata, except for out-of-bag samples. Modifies a, ndendl and
    ncase. */
 template <typename xtype>
-void movedataOut(BigMatrix *x, BigMatrix *asave, BigMatrix *a, int nexamples,
+void movedataOut(BigMatrix *x, BigMatrix *a, int nexamples,
     const int *factorvars, const int *varselect, const int *contvarseq,
     int ndstart, int *ndendl, int ndend, int *ncase, int bestvar,
     double bestnumsplit, const int *bestcatsplit) {
     
     // Initialize function arguments.
     MatrixAccessor<xtype> xAcc(*x);
-    MatrixAccessor<int> asaveAcc(*asave);
     MatrixAccessor<int> aAcc(*a);
             
     // Set up working variables.
-    int bestvarX = varselect[bestvar] - 1, bestvarA = contvarseq[bestvar] - 1,
-        nCols = asave->ncol();
+    int bestvarX = varselect[bestvar] - 1, bestvarA = contvarseq[bestvar] - 1;
     
     // compute idmove = indicator of example nos. going left
     int *idmove = (int*) R_alloc(nexamples, sizeof(int));
@@ -671,11 +667,11 @@ void movedataOut(BigMatrix *x, BigMatrix *asave, BigMatrix *a, int nexamples,
             }
         }
     } else {
-        int *asaveCol = asaveAcc[bestvar];
+        xtype *xCol = xAcc[bestvarX];
         *ndendl = ndstart - 1;
         for (int j = ndstart; j <= ndend; j++) {
             int nc = ncase[j];
-            if (bestcatsplit[asaveCol[nc] - 1] == 1) {
+            if (bestcatsplit[(int)xCol[nc] - 1] == 1) {
                 idmove[nc] = 1;
                 (*ndendl)++;
             } else {
@@ -686,38 +682,39 @@ void movedataOut(BigMatrix *x, BigMatrix *asave, BigMatrix *a, int nexamples,
     
     if (!(*ndendl < ndstart || *ndendl == ndend)) {
         // At least one example is split from the rest of the group.
-        movedataWorker(aAcc, factorvars, contvarseq, ndstart, ndend, idmove,
-            ncase, bestvar, bestvarA, nCols);
+        movedataWorker(a, factorvars, contvarseq, ndstart, ndend, idmove, ncase,
+            bestvar, bestvarA);
     }
 }
 
 
 
 /* Worker function for movedata and movedataOut that does the actual moving. */
-void movedataWorker(MatrixAccessor<int> aAcc, const int *factorvars,
-    const int *contvarseq, int ndstart, int ndend, const int *idmove,
-    int *ncase, int bestvar, int bestvarA, int nCols) {
+void movedataWorker(BigMatrix *a, const int *factorvars, const int *contvarseq,
+    int ndstart, int ndend, const int *idmove, int *ncase, int bestvar,
+    int bestvarA) {
+    
+    // Initialize function arguments.
+    MatrixAccessor<int> aAcc(*a);
     
     // shift example nos. right and left for numerical variables.
     int *tmp = (int*) R_alloc(ndend - ndstart + 1, sizeof(int));
-    for (int i = 0; i < nCols; i++) {
-        if (!factorvars[i]) {
-            int *aCol = aAcc[contvarseq[i] - 1];
-            int k = 0;
-            for (int j = ndstart; j <= ndend; j++) {
-                if (idmove[aCol[j] - 1] == 1) {
-                    tmp[k++] = aCol[j];
-                }
+    for (int i = 0; i < a->ncol(); i++) {
+        int *aCol = aAcc[i];
+        int k = 0;
+        for (int j = ndstart; j <= ndend; j++) {
+            if (idmove[aCol[j] - 1] == 1) {
+                tmp[k++] = aCol[j];
             }
-            for (int j = ndstart; j <= ndend; j++) {
-                if (idmove[aCol[j] - 1] == 0) {
-                    tmp[k++] = aCol[j];
-                }
+        }
+        for (int j = ndstart; j <= ndend; j++) {
+            if (idmove[aCol[j] - 1] == 0) {
+                tmp[k++] = aCol[j];
             }
-            k = 0;
-            for (int j = ndstart; j <= ndend; j++) {
-                aCol[j] = tmp[k++];
-            }
+        }
+        k = 0;
+        for (int j = ndstart; j <= ndend; j++) {
+            aCol[j] = tmp[k++];
         }
     }
     

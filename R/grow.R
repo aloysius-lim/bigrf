@@ -47,20 +47,27 @@ setMethod("grow", signature(forest="bigcforest"), function(
             stop('Cache path "', forest@cachepath,
                  '" does not exist. Cannot reuse cache.')
         }
-        if (!file.exists(paste0(forest@cachepath, "/", "asave"))) {
-            stop('File "', paste0(forest@cachepath, "/", "asave"),
-                 '" does not exist. Cannot reuse cache.')
-        }
-        if (!file.exists(paste0(forest@cachepath, "/", "asave.desc"))) {
-            stop('File "', paste0(forest@cachepath, "/", "asave.desc"),
-                 '" does not exist. Cannot reuse cache.')
-        }
-        asave <- attach.resource("asave.desc", path=forest@cachepath)
-        if (nrow(asave) != forest@nexamples ||
-                ncol(asave) != length(forest@varselect)) {
-            stop("Big.matrix asave in the cache path does not have the same ",
-                 "dimensions as the training data used to grow this random ",
-                 "forest. Cannot reuse cache.")
+        
+        if (any(!forest@factorvars)) {
+            # There are numeric variables. Check big.matrix asave.
+            if (!file.exists(paste0(forest@cachepath, "/", "asave"))) {
+                stop('File "', paste0(forest@cachepath, "/", "asave"),
+                     '" does not exist. Cannot reuse cache.')
+            }
+            if (!file.exists(paste0(forest@cachepath, "/", "asave.desc"))) {
+                stop('File "', paste0(forest@cachepath, "/", "asave.desc"),
+                     '" does not exist. Cannot reuse cache.')
+            }
+            asave <- attach.resource("asave.desc", path=forest@cachepath)
+            if (nrow(asave) != forest@nexamples ||
+                    ncol(asave) != sum(!forest@factorvars)) {
+                stop("Dimensions of big.matrix asave do not match the number ",
+                     "of rows of training data and the number of numeric ",
+                     "variables. Cannot reuse cache.")
+            }
+        } else {
+            # No numeric variables. Set up dummy big.matrix.
+            asave <- big.matrix(1L, 1L, type="integer")
         }
         
         if (is.null(x)) {
@@ -142,18 +149,13 @@ setMethod("grow", signature(forest="bigcforest"), function(
     
     # Set up asave big.matrix.
     if (!reuse.cache) {
-        if (trace >= 1L) message("Setting up asave big.matrix.")
-        if (is.null(forest@cachepath)) {
-            asave <- big.matrix(forest@nexamples, length(forest@varselect),
-                                type="integer")
+        if (any(!forest@factorvars)) {
+            if (trace >= 1L) message("Setting up asave big.matrix.")
+            asave <- makea(forest, x)
         } else {
-            asave <- big.matrix(forest@nexamples, length(forest@varselect),
-                                type="integer",
-                                backingfile="asave",
-                                descriptorfile="asave.desc",
-                                backingpath=forest@cachepath)
+            # No numeric variables. Set up dummy big.matrix.
+            asave <- big.matrix(1L, 1L, type="integer")
         }
-        makea(x, asave, forest@factorvars, forest@varselect)
     }
     
 
@@ -202,32 +204,19 @@ setMethod("grow", signature(forest="bigcforest"), function(
                                     descriptorfile=paste0("a.out-", treenum,
                                                           ".desc"),
                                     backingpath=forest@cachepath)
+                cachefiles <- paste0(forest@cachepath, "/",
+                                     c("a-", "a-", "a.out-", "a.out-"), treenum,
+                                     c("", ".desc", "", ".desc"))
+                on.exit(file.remove(cachefiles))
             }
-            .Call("modaC", asave@address, a@address, forest@factorvars,
-                  as.integer(insamp), PACKAGE="bigrf")
-            .Call("modaC", asave@address, a.out@address, forest@factorvars,
+            .Call("modaC", asave@address, a@address, as.integer(insamp),
+                  PACKAGE="bigrf")
+            .Call("modaC", asave@address, a.out@address,
                   as.integer(insamp == 0L), PACKAGE="bigrf")
         } else {
-            if (is.null(forest@cachepath)) {
-                a <- big.matrix(1L, 1L, type="integer")
-                a.out <- big.matrix(1L, 1L, type="integer")
-            } else {
-                a <- big.matrix(1L, 1L, type="integer",
-                                backingfile=paste0("a-", treenum),
-                                descriptorfile=paste0("a-", treenum, ".desc"),
-                                backingpath=forest@cachepath)
-                a.out <- big.matrix(1L, 1L, type="integer",
-                                    backingfile=paste0("a.out-", treenum),
-                                    descriptorfile=paste0("a.out-", treenum,
-                                                          ".desc"),
-                                    backingpath=forest@cachepath)
-            }
-        }
-        if (!is.null(forest@cachepath)) {
-            cachefiles <- paste0(forest@cachepath, "/",
-                                 c("a-", "a-", "a.out-", "a.out-"), treenum,
-                                 c("", ".desc", "", ".desc"))
-            on.exit(file.remove(cachefiles))
+            # No numeric variables. Set up dummy big.matrix's.
+            a <- big.matrix(1L, 1L, type="integer")
+            a.out <- big.matrix(1L, 1L, type="integer")
         }
         
         # Build tree -----------------------------------------------------------
@@ -235,8 +224,8 @@ setMethod("grow", signature(forest="bigcforest"), function(
         if (trace >= 2L) message("Tree ", treenum, ": Building tree.")
         
         xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
-        tree <- .Call("buildtreeC", x@address, xtype, asave@address, a@address,
-                      a.out@address, forest, insamp, inweight, treenum, trace)
+        tree <- .Call("buildtreeC", x@address, xtype, a@address, a.out@address,
+                      forest, insamp, inweight, treenum, trace)
         
         list(treenum=treenum,
              oldntrees=oldntrees,

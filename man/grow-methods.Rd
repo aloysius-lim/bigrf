@@ -17,7 +17,7 @@
   \item{ntrees}{The number of additional trees to grow in the forest.}
   \item{printerrfreq}{An integer, specifying how often error estimates should be printed to the screen. Default: error estimates will be printed every 10 trees.}
   \item{printclserr}{\code{TRUE} for error estimates for individual classes to be printed, in addition to the overall error estimates. Default: \code{TRUE}.}
-  \item{reuse.cache}{\code{TRUE} to reuse disk caches of the \code{big.matrix}'s \code{x} and \code{asave} from the initial growing of the random forest, which may significantly reduce initialization time for large data sets. If \code{TRUE}, the user must ensure that the files \file{x}, \file{x.desc}, \file{asave} and \file{asave.desc} in \code{forest@cachepath} have not been modified or deleted.}
+  \item{reuse.cache}{\code{TRUE} to reuse disk caches of the \code{big.matrix}'s \code{x} and \code{asave} from the initial growing of the random forest, which may significantly reduce initialization time for large data sets. If \code{TRUE}, the user must ensure that the files \file{x} and \file{x.desc} in \code{forest@cachepath} have not been modified or deleted. Files \file{asave} and \file{asave.desc} must also be present if there are any numeric variables.}
   \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output on tree building. \code{2} to print more verbose output on processing of individual nodes. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles the output of the tree-building iterations, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.}
 }
 \value{

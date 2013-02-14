@@ -58,21 +58,29 @@ makex <- function(x, backingfile="", cachepath=NULL) {
 
 
 # ------------------------------------------------------------------------------
-# makea constructs the nexamples x nvarx integer matrix a. For each numerical 
-# variable with values x[n,m],n=1,...,nexamples, the x-values are sorted from 
-# lowest to highest. Denote these by xs[n,m]. Then asave[n,m] is the example
-# number in which xs[n,m] occurs. If the mth variable is categorical, then
-# asave[n,m] is the category of the nth example number. asave is a big.matrix
-# passed by reference.
-makea <- function(x, asave, factorvars, varselect) {
-    for (var in which(!factorvars)) {
-        asave[, var] <- order(x[, varselect[var]])
-    }
-    for (var in which(factorvars)) {
-        asave[, var] <- as.integer(x[, varselect[var]])
+# makea constructs the big.matrix asave with each column corresponding to a
+# numerical variable in x. Each column stores the index number of the training
+# examples, sorted in increasing order of the corresponding numerical variable.
+# makea <- function(x, asave, factorvars, varselect) {
+makea <- function(forest, x) {
+    
+    if (is.null(forest@cachepath)) {
+        asave <- big.matrix(forest@nexamples, sum(!forest@factorvars),
+                            type="integer")
+    } else {
+        asave <- big.matrix(forest@nexamples, sum(!forest@factorvars),
+                            type="integer",
+                            backingfile="asave",
+                            descriptorfile="asave.desc",
+                            backingpath=forest@cachepath)
     }
     
-    return()
+    w <- which(!forest@factorvars)
+    for (i in seq_along(w)) {
+        asave[, i] <- order(x[, forest@varselect[w[i]]])
+    }
+    
+    return(asave)
 }
 
 
