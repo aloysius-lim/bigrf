@@ -96,7 +96,7 @@ Usage Examples
     # Plot the 1st vs 2nd scaling co-ordinates.
     plot(scale, col=as.integer(y) + 2, pch=as.integer(y) + 2)
 
-    # Calculate outlier scores, and circle the top 20\% percent of them in red.
+    # Calculate outlier scores, and circle the top 20% percent of them in red.
     outscores <- outliers(forest)
     points(scale[outscores > quantile(outscores, probs=0.8), ], col=2, pch=1,
            cex=1.5)
