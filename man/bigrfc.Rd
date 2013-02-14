@@ -5,7 +5,7 @@
   Build a classification random forest model using Leo Breiman and Adele Cutler's algorithm, with enhancements for large data sets. This implementation uses the \pkg{\link[bigmemory:bigmemory-package]{bigmemory}} package for disk-based caching during tree building, and the \pkg{\link[foreach:foreach-package]{foreach}} package to parallelize the tree building process.
 }
 \usage{
-bigrfc(x, y, ntrees = 500L, varselect = NULL, varnlevels = NULL,
+bigrfc(x, y, ntrees = 50L, varselect = NULL, varnlevels = NULL,
     nsplitvar = round(sqrt(ifelse(is.null(varselect), ncol(x),
     length(varselect)))), maxeslevels = 11L, nrandsplit = 1023L,
     maxndsize = 1L, yclasswts = NULL, printerrfreq = 10L,
@@ -14,7 +14,7 @@ bigrfc(x, y, ntrees = 500L, varselect = NULL, varnlevels = NULL,
 \arguments{
   \item{x}{A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation.}
   \item{y}{An integer or factor vector of response variables.}
-  \item{ntrees}{The number of trees to be grown in the forest.}
+  \item{ntrees}{The number of trees to be grown in the forest, or 0 to build an empty forest to which trees can be added using \code{grow}. Default: 50.}
   \item{varselect}{An integer vector specifying which columns in \code{x} to use. If not specified, all variables will be used.}
   \item{varnlevels}{An integer vector with elements specifying the number of levels in the corresponding variables in use, or 0 for numeric variables. Used only when \code{x} does not contain levels information (i.e. \code{x} is a \code{matrix} or \code{big.matrix}). If \code{x} is a \code{data.frame}, \code{varnlevels} will be inferred from \code{x}. If \code{x} is not a \code{data.frame} and \code{varnlevels} is \code{NULL}, all variables will be treated as numeric. If all columns of \code{x} are used, \code{varnlevels} should have as many elements as there are columns of \code{x}. But if varselect is specified, then \code{varnlevels} and \code{varselect} should be of the same length.}
   \item{nsplitvar}{The number of variables to split on at each node. Default: If \code{varselect} is specified, the square root of the number of variables specified; otherwise, the square root of the number of columns of \code{x}.}

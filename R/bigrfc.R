@@ -1,6 +1,6 @@
 bigrfc <- function(x,
                    y,
-                   ntrees=500L,
+                   ntrees=50L,
                    varselect=NULL,
                    varnlevels=NULL,
                    nsplitvar=round(sqrt(ifelse(is.null(varselect), ncol(x),
@@ -54,8 +54,8 @@ bigrfc <- function(x,
         stop ("Argument ntrees must be an integer.")
     }
     ntrees <- as.integer(round(ntrees))
-    if (ntrees < 1L) {
-        stop("Argument ntrees must be at least 1.")
+    if (ntrees < 0L) {
+        stop("Argument ntrees must not be negative.")
     }
     
     # Check varselect.
@@ -253,8 +253,10 @@ bigrfc <- function(x,
     
     # Grow forest --------------------------------------------------------------
     
-    forest <- grow(forest, x, ntrees, printerrfreq=printerrfreq,
-                   printclserr=printclserr, trace=trace)
+    if (ntrees > 0L) {
+        forest <- grow(forest, x, ntrees, printerrfreq=printerrfreq,
+                       printclserr=printclserr, trace=trace)
+    }
     
     return(forest)
 }
