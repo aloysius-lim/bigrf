@@ -89,6 +89,11 @@ bigrfc <- function(x,
         varnlevels <- integer(length(varselect))
         varnlevels[factorvars] <- as.integer(sapply(x[varselect][factorvars],
                                                  function(n) length(levels(n))))
+        # Logicals should be considered factors with 2 levels.
+        logicalvars <- sapply(x[varselect], is.logical)
+        factorvars[logicalvars] <- TRUE
+        varnlevels[logicalvars] <- 2L
+        rm(logicalvars)
     } else if (is.null(varnlevels)) {
         warning("x is not a data.frame and argument varnlevels is not ",
                 "specified. Number of levels cannot be inferred so all ",

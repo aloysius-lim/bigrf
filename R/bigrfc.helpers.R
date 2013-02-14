@@ -39,11 +39,16 @@ makex <- function(x, backingfile="", cachepath=NULL) {
     # Copy data.
     old.opt <- options(bigmemory.typecast.warning=FALSE)
     for (j in seq_len(ncol(x))) {
-        if (xtype %in% c("integer", "char")) {
-            xnew[, j] <- as.integer(x[, j])
+        if (class(x) == "data.frame" && class(x[[j]]) == "logical") {
+            # Logical columns in data.frames need to be converted to integers,
+            # with 2 for TRUE and 1 for FALSE.
+            xcol <- as.integer(x[[j]]) + 1L
+        } else if (xtype %in% c("integer", "char")) {
+            xcol <- as.integer(x[, j])
         } else {
-            xnew[, j] <- x[, j]
+            xcol <- x[, j]
         }
+        xnew[, j] <- xcol
     }
     options(old.opt)
     
