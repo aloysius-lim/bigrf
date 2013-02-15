@@ -8,7 +8,7 @@
   Compute the prototypes for each class in the training set, which provide a picture of how each variable relates to the classification. They are useful representations of a "typical" example of each class.
 }
 \usage{
-\S4method{prototypes}{bigcforest, bigrfprox}(forest, prox, nprot=1L, x=NULL,
+\S4method{prototypes}{bigcforest,bigrfprox}(forest, prox, nprot=1L, x=NULL,
     reuse.cache=FALSE, trace=0L)
 }
 \arguments{

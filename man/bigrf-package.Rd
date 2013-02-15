@@ -20,7 +20,7 @@
     Copyright: \tab 2013 Aloysius Lim\cr
     URL: \tab \url{https://github.com/aloysius-lim/bigrf}\cr
     BugReports: \tab \url{https://github.com/aloysius-lim/bigrf/issues}\cr
-    Built: \tab R 2.15.1; universal-apple-darwin9.8.0; 2013-02-08 03:21:49 UTC; unix\cr
+    Built: \tab R 2.15.1; universal-apple-darwin9.8.0; 2013-02-15 03:47:16 UTC; unix\cr
   }
 
   Index:

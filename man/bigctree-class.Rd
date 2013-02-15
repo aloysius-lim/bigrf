@@ -30,5 +30,5 @@
   No methods defined with class "bigctree" in the signature.
 }
 \keyword{classes}
-\keyword{model}
+\keyword{models}
 \keyword{tree}
