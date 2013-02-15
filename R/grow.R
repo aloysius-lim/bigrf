@@ -5,7 +5,7 @@ setGeneric("grow", function(forest, ...) standardGeneric("grow"))
 setMethod("grow", signature(forest="bigcforest"), function(
     forest,
     x=NULL,
-    ntrees=500L,
+    ntrees=50L,
     printerrfreq=10L,
     printclserr=TRUE,
     reuse.cache=FALSE,

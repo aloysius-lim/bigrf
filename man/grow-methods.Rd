@@ -8,13 +8,13 @@
   Grow more trees in a random forest, using the same parameters.
 }
 \usage{
-\S4method{grow}{bigcforest}(forest, x=NULL, ntrees=500L, printerrfreq=10L,
+\S4method{grow}{bigcforest}(forest, x=NULL, ntrees=50L, printerrfreq=10L,
     printclserr=TRUE, reuse.cache=FALSE, trace=0L)
 }
 \arguments{
   \item{forest}{A random forest of class \code{"\linkS4class{bigcforest}"}.}
   \item{x}{A \code{\link{big.matrix}}, \code{matrix} or \code{data.frame} of predictor variables. The data must not have changed, otherwise unexpected modelling results may occur. If a \code{matrix} or \code{data.frame} is specified, it will be converted into a \code{big.matrix} for computation. Optional if \code{reuse.cache} is \code{TRUE}.}
-  \item{ntrees}{The number of additional trees to grow in the forest.}
+  \item{ntrees}{The number of additional trees to grow in the forest. Default: 50.}
   \item{printerrfreq}{An integer, specifying how often error estimates should be printed to the screen. Default: error estimates will be printed every 10 trees.}
   \item{printclserr}{\code{TRUE} for error estimates for individual classes to be printed, in addition to the overall error estimates. Default: \code{TRUE}.}
   \item{reuse.cache}{\code{TRUE} to reuse disk caches of the \code{big.matrix}'s \code{x} and \code{asave} from the initial building of the random forest, which may significantly reduce initialization time for large data sets. If \code{TRUE}, the user must ensure that the files \file{x} and \file{x.desc} in \code{forest@cachepath} have not been modified or deleted. Files \file{asave} and \file{asave.desc} must also be present if there are any numeric variables.}
