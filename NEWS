@@ -1,0 +1,21 @@
+bigrf News
+
+For a detailed list of changes, see git commit history at
+https://github.com/aloysius-lim/bigrf.
+
+
+
+Changes in version 0.1-2
+
+Bug Fixes:
+
+  * Set the OS type for this package to unix only, as dependency bigmemory
+    is now only available for unix.
+
+  * Added file .gitignore to .Rbuildignore, to pass R CMD check.
+
+
+
+Changes in version 0.1-1
+
+  * Initial release
