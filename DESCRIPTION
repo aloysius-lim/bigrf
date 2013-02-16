@@ -1,6 +1,6 @@
 Package: bigrf
-Version: 0.1-1
-Date: 2013-02-15
+Version: 0.1-2
+Date: 2013-02-17
 Title: Big Random Forests: Classification and Regression Forests for Large Data Sets
 Authors@R: c(person("Aloysius", "Lim", role = c("aut", "cre"),
                     email="aloysius.lim@gmail.com"),
@@ -8,6 +8,7 @@ Authors@R: c(person("Aloysius", "Lim", role = c("aut", "cre"),
              person("Adele", "Cutler", role = "aut"))
 Author: Aloysius Lim, Leo Breiman, Adele Cutler
 Maintainer: Aloysius Lim <aloysius.lim@gmail.com>
+OS_type: linux
 Depends: methods, bigmemory
 Imports: foreach
 LinkingTo: bigmemory
