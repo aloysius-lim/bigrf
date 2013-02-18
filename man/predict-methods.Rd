@@ -49,9 +49,9 @@ y <- Cars93$Type
 vars <- c(4:22)
 
 # Run model, grow 50 trees on the first 60 examples.
-forest <- bigrfc(x[1:60, ], y[1:60], ntree=50L, varselect=vars)
+forest <- bigrfc(x[1:60, ], y[1:60], ntree=50L, varselect=vars, cachepath=NULL)
 
 # Get predictions for the remaining examples.
-predictions <- predict(forest, x[-(1:60), ], y[-(1:60)])
+predictions <- predict(forest, x[-(1:60), ], y[-(1:60)], cachepath=NULL)
 }
 \keyword{methods}

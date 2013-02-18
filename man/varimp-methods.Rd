@@ -53,7 +53,7 @@ y <- Cars93$Type
 vars <- c(4:22)
 
 # Run model, grow 50 trees.
-forest <- bigrfc(x, y, ntree=50L, varselect=vars)
+forest <- bigrfc(x, y, ntree=50L, varselect=vars, cachepath=NULL)
 
 # Calculate variable importance, including those for each out-of-bag example.
 importance <- varimp(forest, x, impbyexample=TRUE)

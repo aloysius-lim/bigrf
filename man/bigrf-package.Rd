@@ -4,13 +4,13 @@
 \docType{package}
 \title{Big Random Forests: Classification and Regression Forests for Large Data Sets}
 \description{
-  This is an implementation of Leo Breiman's and Adele Cutler's Random Forest algorithms for classification and regression, with optimizations for performance and for handling of data sets that are too large to be processed in memory. Forests can be built in parallel at two levels. First, trees can be built in parallel on a single machine using \code{\link[foreach]{foreach}}. Second, multiple forests can be built in parallel on multiple machines, then merged into one. For large data sets, disk-based \code{\link[bigmemory]{big.matrix}}'s may be used for storing data and intermediate computations, to prevent excessive virtual memory swapping by the operating system. Currently, only classification forests with a subset of the functionality in Breiman and Cutler's original code are implemented. More functionality and regression trees will be added in the future.
+  This is an implementation of Leo Breiman's and Adele Cutler's Random Forest algorithms for classification and regression, with optimizations for performance and for handling of data sets that are too large to be processed in memory. Forests can be built in parallel at two levels. First, trees can be built in parallel on a single machine using \code{\link[foreach]{foreach}}. Second, multiple forests can be built in parallel on multiple machines, then merged into one. For large data sets, disk-based \code{\link[bigmemory]{big.matrix}}'s may be used for storing data and intermediate computations, to prevent excessive virtual memory swapping by the operating system. Currently, only classification forests with a subset of the functionality in Breiman and Cutler's original code are implemented. More functionality and regression trees will be added in the future. See file INSTALL-WINDOWS in the source package for Windows installation instructions.
 }
 \details{
   \tabular{ll}{
     Package: \tab bigrf\cr
-    Version: \tab 0.1-2\cr
-    Date: \tab 2013-02-17\cr
+    Version: \tab 0.1-3\cr
+    Date: \tab 2013-02-18\cr
     OS_type: \tab linux\cr
     Depends: \tab methods, bigmemory\cr
     Imports: \tab foreach\cr
@@ -53,10 +53,10 @@
   The main entry point for this package is \code{\link[bigrf]{bigrfc}}, which is used to build a classification random forest on the given training data and forest-building parameters. \code{bigrfc} returns the forest as an object of class \code{"\linkS4class{bigcforest}"}, which contains the trees grown as objects of class \code{"\linkS4class{bigctree}"}. After a forest is built, more trees can be grown using \code{\link[bigrf]{grow}}.
 }
 \section{Performance Optimizations}{
-  For better performance, trees may be grown in parallel by registering an appropriate parallel backend for \pkg{\link[foreach:foreach-package]{foreach}}. As an example, the following code uses the \pkg{\link[doMC:doMC-package]{doMC}} to enable tree-growing on all available cores on the machine. This code must be executed before calling \code{bigrfc} or \code{grow}. See \pkg{\link[foreach:foreach-package]{foreach}} for more details on supported parallel backends.
+  For better performance, trees may be grown in parallel by registering an appropriate parallel backend for \pkg{\link[foreach:foreach-package]{foreach}}. As an example, the following code uses the \pkg{\link[doParallel:doParallel-package]{doParallel}} package to enable tree-growing on all available cores on the machine. This code must be executed before calling \code{bigrfc} or \code{grow}. See \pkg{\link[foreach:foreach-package]{foreach}} for more details on supported parallel backends.
   \preformatted{
-    library(doMC)
-    registerDoMC(cores=multicore:::detectCores(all.tests=TRUE))
+    library(doParallel)
+    registerDoParallel(cores=detectCores(all.tests=TRUE))
   }
   Multiple random forests can also be built in parallel on multiple machines (using the same training data and parameters), then merged into one forest using \code{\link[bigrf]{merge}}.
   \cr\cr

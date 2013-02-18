@@ -34,5 +34,6 @@ newdata <- generateSyntheticClass(Cars93)
 vars <- c(4:22)
 
 # Run model, grow 50 trees.
-forest <- bigrfc(newdata$x, newdata$y, ntree=50L, varselect=vars)
+forest <- bigrfc(newdata$x, newdata$y, ntree=50L, varselect=vars,
+                 cachepath=NULL)
 }

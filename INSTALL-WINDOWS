@@ -1,0 +1,9 @@
+Officially, bigrf for Windows cannot be supported in CRAN, because one of the dependencies, the bigmemory package, is no longer available for Windows. However, users should be able to install bigmemory and bigrf manually.
+
+To install bigrf on Windows:
+
+1. Download and install the windows binary for bigmemory from http://cran.r-project.org/web/packages/bigmemory/.
+
+2. Download and install bigrf from sources. Sources are available at http://cran.r-project.org/web/packages/bigrf/. 
+
+Instructions for manually installing binary and source packages can be found in the R Installation and Administration manual.

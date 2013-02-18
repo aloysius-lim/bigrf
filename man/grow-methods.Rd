@@ -46,7 +46,7 @@ y <- Cars93$Type
 vars <- c(4:22)
 
 # Run model, grow 50 trees.
-forest <- bigrfc(x, y, ntree=50L, varselect=vars)
+forest <- bigrfc(x, y, ntree=50L, varselect=vars, cachepath=NULL)
 
 # Grow 30 more trees.
 forest <- grow(forest, x, ntree=30L)

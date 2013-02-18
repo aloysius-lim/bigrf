@@ -5,12 +5,23 @@ https://github.com/aloysius-lim/bigrf.
 
 
 
+Changes in version 0.1-3
+
+Updates:
+
+  * Suggests the doParallel that uses the parallel package that ships with R,
+    instead of doMC, doMPI, doRedis, doSNOW.
+
+  * Requires R >= 2.14, when the parallel package was released.
+
 Changes in version 0.1-2
 
 Bug Fixes:
 
   * Set the OS type for this package to unix only, as dependency bigmemory
-    is now only available for unix.
+    is now only available for unix. However, Windows users can still use this
+    package by manually downloading and installing bigmemory (windows binary for
+    older version available on CRAN) and bigrf (install from source).
 
   * Added file .gitignore to .Rbuildignore, to pass R CMD check.
 

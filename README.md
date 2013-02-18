@@ -11,10 +11,10 @@ Capabilities and Usage
 Performance Optimizations
 -------------------------
 
-For better performance, trees may be grown in parallel by registering an appropriate parallel backend for [`foreach`](http://cran.r-project.org/web/packages). As an example, the following code uses the [`doMC`](http://cran.r-project.org/web/packages/doMC/) backend to enable tree-growing on all available cores on the machine. This code must be executed before calling `bigrfc` or `grow`. See the documentation for [`foreach`](http://cran.r-project.org/web/packages) for more details on supported parallel backends.
+For better performance, trees may be grown in parallel by registering an appropriate parallel backend for [`foreach`](http://cran.r-project.org/web/packages). As an example, the following code uses the [`doParallel`](http://cran.r-project.org/web/packages/doParallel/) backend to enable tree-growing on all available cores on the machine. This code must be executed before calling `bigrfc` or `grow`. See the documentation for [`foreach`](http://cran.r-project.org/web/packages) for more details on supported parallel backends.
 
-    library(doMC)
-    registerDoMC(cores=multicore:::detectCores(all.tests=TRUE))
+    library(doParallel)
+    registerDoParallel(cores=detectCores(all.tests=TRUE))
 
 Multiple random forests can also be built in parallel on multiple machines (using the same training data and parameters), then merged into one forest using `merge`.
 
