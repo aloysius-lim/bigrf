@@ -344,6 +344,9 @@ SEXP growtree(BigMatrix *x, BigMatrix *a, BigMatrix *aOut, SEXP forestP,
         // if (*nnodes >= maxnodes - 1) {
         //   break;
         // }
+        
+        // Check for R interrupt.
+        R_CheckUserInterrupt();
     }
     
     // Increment nnodes by 1 because R starts counting at 1.
@@ -408,6 +411,9 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *a,
     int maxeslevels, int nrandsplit, const int *ncase, const double *inweight,
     int ndstart, int ndend, const double *ndclasspop, int *bestvar,
     double *decsplit, int *nbest, int *ncatsplit) {
+    
+    // Mark top of memory stack.
+    void *vmax = vmaxget();
     
     // Initialize function arguments.
     MatrixAccessor<xtype> xAcc(*x);
@@ -585,6 +591,9 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *a,
     // Clean up after random number generation.
     PutRNGstate();
     
+    // Release memory.
+    vmaxset(vmax);
+    
     // Return.
     return stat;    
 }
@@ -597,6 +606,9 @@ template <typename xtype>
 void movedata(BigMatrix *x, BigMatrix *a, int nexamples, const int *factorvars,
     const int *varselect, const int *contvarseq, int ndstart, int *ndendl,
     int ndend, int *ncase, int bestvar, int nbest, const int *bestcatsplit) {
+
+    // Mark top of memory stack.
+    void *vmax = vmaxget();
 
     // Initialize function arguments.
     MatrixAccessor<xtype> xAcc(*x);
@@ -632,6 +644,9 @@ void movedata(BigMatrix *x, BigMatrix *a, int nexamples, const int *factorvars,
     
     movedataWorker(a, factorvars, contvarseq, ndstart, ndend, idmove, ncase,
         bestvar, bestvarA);
+        
+    // Release memory.
+    vmaxset(vmax);
 }
 
 
@@ -644,6 +659,9 @@ void movedataOut(BigMatrix *x, BigMatrix *a, int nexamples,
     int ndstart, int *ndendl, int ndend, int *ncase, int bestvar,
     double bestnumsplit, const int *bestcatsplit) {
     
+    // Mark top of memory stack.
+    void *vmax = vmaxget();
+
     // Initialize function arguments.
     MatrixAccessor<xtype> xAcc(*x);
     MatrixAccessor<int> aAcc(*a);
@@ -685,6 +703,9 @@ void movedataOut(BigMatrix *x, BigMatrix *a, int nexamples,
         movedataWorker(a, factorvars, contvarseq, ndstart, ndend, idmove, ncase,
             bestvar, bestvarA);
     }
+    
+    // Release memory.
+    vmaxset(vmax);
 }
 
 

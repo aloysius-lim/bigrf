@@ -5,9 +5,22 @@ https://github.com/aloysius-lim/bigrf.
 
 
 
+Changes in version 0.1-4
+
+Improvements:
+
+  * Added check for R user interrupt after processing each tree node.
+
+Performance Enhancements:
+
+  * Better memory management in grow method, releasing allocated memory after
+    each call to findbestsplit, movedata and movedataOut.
+
+
+
 Changes in version 0.1-3
 
-Updates:
+Package Updates:
 
   * Suggests the doParallel that uses the parallel package that ships with R,
     instead of doMC, doMPI, doRedis, doSNOW.
