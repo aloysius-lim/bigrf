@@ -223,6 +223,10 @@ setMethod("grow", signature(forest="bigcforest"), function(
         tree <- .Call("growtreeC", x@address, xtype, a@address, a.out@address,
                       forest, insamp, inweight, treenum, trace)
         
+        # Clean up to free memory.
+        rm(insamp, inweight, a, a.out, xtype)
+        gc()
+        
         list(treenum=treenum,
              oldntrees=oldntrees,
              ntrees=ntrees,
