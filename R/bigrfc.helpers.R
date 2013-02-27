@@ -77,7 +77,7 @@ makea <- function(forest, x) {
     
     w <- which(!forest@factorvars)
     for (i in seq_along(w)) {
-        asave[, i] <- order(x[, forest@varselect[w[i]]])
+        asave[, i] <- as.integer(morder(x, forest@varselect[w[i]]))
     }
     
     return(asave)
