@@ -112,7 +112,11 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
     
     # Calculate variable importance --------------------------------------------
     
-    for (tree in forest) {
+    for (treenum in seq_along(forest)) {
+        if (trace >= 1L) message("Processing tree ", treenum, ".")
+        
+        tree <- forest[[treenum]]
+        
         # Count correct oob classifications.
         w <- which(tree@insamp == 0L & tree@trainpredclass == y.int)
         correct <- sum(tree@nodewt[tree@trainprednode[w]])
