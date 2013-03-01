@@ -14,7 +14,13 @@ Improvements:
 Performance Enhancements:
 
   * Better memory management in grow method, releasing allocated memory after
-    each call to findbestsplit, movedata and movedataOut.
+    finding the best split for each node. This should reduce RAM usage overall.
+
+  * More efficient algorithm for proximities method. Reduced number of passes
+    through trainprednode in each tree from forest@ntrees * forest@nexamples to
+    forest@ntrees * [sum over all trees(tree@nnodes)].
+
+  * Parallelised proximities method.
 
 
 

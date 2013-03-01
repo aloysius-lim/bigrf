@@ -16,8 +16,8 @@ setMethod("proximities", signature(forest="bigcforest"), function(
         stop ("Argument trace must be an integer.")
     }
     trace <- as.integer(round(trace))
-    if (trace < 0L || trace > 1L) {
-        stop("Argument trace must be 0 or 1.")
+    if (trace < 0L || trace > 2L) {
+        stop("Argument trace must be 0, 1 or 2.")
     }
     
     if (trace >= 1L) message("Checking arguments.")
@@ -68,14 +68,13 @@ setMethod("proximities", signature(forest="bigcforest"), function(
     
     # Create big.matrix for indices of examples in proximity matrix (only if
     # nnearest < forest@nexamples).
-    if (trace >= 1L) message("Creating big.matrix(s) for proximities.")
     if (nnearest < forest@nexamples) {
         if (is.null(cachepath)) {
             examples <- big.matrix(forest@nexamples, nnearest,
-                                   type="double")
+                                   type="integer")
         } else {
             examples <- big.matrix(forest@nexamples, nnearest,
-                                   type="double",
+                                   type="integer",
                                    backingfile="prox.examples",
                                    descriptorfile="prox.examples.desc",
                                    backingpath=cachepath)
@@ -92,36 +91,62 @@ setMethod("proximities", signature(forest="bigcforest"), function(
         
     
     
+    # Pre-compute which examples fall in each node -----------------------------
+    
+    if (trace >= 1L) message("Pre-computing examples in each node of each ",
+                             "tree.")
+    
+    node.examples <- list()
+    length(node.examples) <- forest@ntrees
+    
+    node.examples <- foreach(t=seq_along(forest)) %dopar% {
+        if (trace >= 2L) message("Processing tree ", t, ".")
+        
+        tree <- forest[[t]]
+        nex <- list()
+        length(nex) <- tree@nnodes
+        
+        for (i in which(tree@treemap[, 1] == 0L)) {
+            nex[[i]] <- which(tree@trainprednode == i)
+        }
+        
+        nex
+    }
+    
+    
+    
     # Compute proximities ------------------------------------------------------
     
-    for (i in seq_len(forest@nexamples)) {
-        if (trace >= 1L) message("Computing proximities for example ", i, ".")
+    if (trace >= 1L) message("Computing proximities.")
+    # Process in batchsize batches of batchsize examples.
+    batchsize <- as.integer(round(sqrt(forest@nexamples)))
+    batches <- data.frame(start=(1:batchsize) * batchsize - (batchsize - 1L),
+                          end=(1:batchsize) * batchsize)
+    batches <- batches[batches$start <= forest@nexamples, ]
+    batches$end[nrow(batches)] <- forest@nexamples
+    
+    foreach(b=seq_len(nrow(batches)), .inorder=FALSE) %dopar% {
+        if (trace >= 2L) message("Computing proximities for examples ",
+                                 batches$start[b], " to ", batches$end[b], ".")
         
-        p <- numeric(forest@nexamples)
-        for (t in seq_along(forest)) {
-            tree <- forest[[t]]
+        for (i in batches$start[b]:batches$end[b]) {
+            p <- numeric(forest@nexamples)
+            for (t in seq_along(forest)) {
+                tree <- forest[[t]]
+                # Example numbers of all examples in the same node as example i.
+                w <- node.examples[[t]][[tree@trainprednode[i]]]
+                p[w] <- p[w] + 1L
+            }
             
-            # Example numbers of all examples in the same node as example i.
-            w <- which(tree@trainprednode == tree@trainprednode[i])
-            p[w] <- p[w] + 1L
-            
-            # Computation in original Fortran code, which does not make sense.
-            # if (tree@insamp[i] > 0L) {
-            #     w <- tree@insamp[w] == 0L
-            #     p[w] <- p[w] + wtx[i] /
-            #         tree@termincount[tree@trainprednode[i]]
-            # } else {
-            #     w <- tree@insamp[w] > 0L
-            #     p[w] <- p[w] + wtx[w] / tree@termincount[tree@trainprednode[w]]
-            # }
+            if (nnearest == forest@nexamples) {
+                prox[i, ] <- p / forest@ntrees
+            } else {
+                examples[i, ] <- order(p, decreasing=TRUE)[seq_len(nnearest)]
+                prox[i, ] <- p[examples[i, ]] / forest@ntrees
+            }
         }
         
-        if (nnearest == forest@nexamples) {
-            prox[i, ] <- p / forest@ntrees
-        } else {
-            examples[i, ] <- order(p, decreasing=TRUE)[seq_len(nnearest)]
-            prox[i, ] <- p[examples[i, ]] / forest@ntrees
-        }
+        NULL
     }
     
     # Return.

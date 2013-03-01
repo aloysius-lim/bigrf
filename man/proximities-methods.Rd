@@ -15,7 +15,7 @@
   \item{forest}{A random forest of class \code{"\linkS4class{bigcforest}"}.}
   \item{nnearest}{The number of most proximate examples for which to compute proximity measures for each training example. Setting this to a smaller number will speed up computation of scaling co-ordinates. Default: \code{forest@nexamples}.}
   \item{cachepath}{Path to folder where the proximity matrix can be stored. If \code{NULL}, then the \code{big.matrix}'s will be created in memory with no disk caching, which would be suitable for small data sets. If the user wishes to reuse the cached files, it is suggested that a folder other than \code{tempdir()} is used, as the operating system may automatically delete any cache files in \code{tempdir()}. Default: \code{tempdir()}.}
-  \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output. Default: \code{0}.}
+  \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output. \code{2} to print even more verbose output on processing of each tree and example. Default: \code{0}.}
 }
 \value{
   An object of class \code{"\linkS4class{bigrfprox}"} containing the proximity matrix.
