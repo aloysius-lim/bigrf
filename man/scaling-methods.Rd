@@ -13,7 +13,7 @@
 \arguments{
   \item{prox}{A proximity matrix of class \code{"\linkS4class{bigrfprox}"}.}
   \item{nscale}{The number of scaling co-ordinates to compute. Typically, the first two or three scaling co-ordinates are the most useful. Default: \code{2L}.}
-  \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output. Default: \code{0}.}
+  \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output. \code{2} to print even more verbose output on the progress of finding scaling coordinates. Default: \code{0}.}
 }
 \value{
   A \code{matrix} containing the scaling co-ordinates for each example, where the \code{i}th column contains the \code{i}th scaling co-ordinates.

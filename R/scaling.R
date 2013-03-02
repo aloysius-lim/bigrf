@@ -16,8 +16,8 @@ setMethod("scaling", signature(prox="bigrfprox"),
         stop ("Argument trace must be an integer.")
     }
     trace <- as.integer(round(trace))
-    if (trace < 0L || trace > 1L) {
-        stop("Argument trace must be 0 or 1.")
+    if (trace < 0L || trace > 2L) {
+        stop("Argument trace must be 0, 1 or 2.")
     }
     
     if (trace >= 1L) message("Checking arguments.")
@@ -50,7 +50,9 @@ setMethod("scaling", signature(prox="bigrfprox"),
     ev <- matrix(numeric(), nexamples, nscale)
     bl <- numeric(nscale)
     dl <- numeric(nscale)
-    red <- sapply(seq_len(nexamples), function(i) sum(prox[i, ]) / nexamples)
+    red <- foreach(i=seq_len(nexamples), .combine=c) %dopar% {
+        sum(prox[i, ]) / nexamples
+    }
     sred <- sum(red) / nexamples
     
     
@@ -61,14 +63,18 @@ setMethod("scaling", signature(prox="bigrfprox"),
         if (trace >= 1L) message("Computing scaling co-ordinate ", it, ".")
         
         y <- rep(c(-1, 1), length.out=nexamples)
-        repeat {
+        ynorm.prev <- Inf
+        for (k in 1:1000) {
             u <- y / sqrt(y %*% y)
             
             if (nnearest == nexamples) {
-                y <- sapply(seq_len(nexamples), function(i) sum(prox[i, ] * u))
+                y <- foreach(i=seq_len(nexamples), .combine=c) %dopar% {
+                    sum(prox[i, ] * u)
+                }
             } else {
-                y <- sapply(seq_len(nexamples),
-                            function(i) sum(prox[i, ] * u[prox@examples[i, ]]))
+                y <- foreach(i=seq_len(nexamples), .combine=c) %dopar% {
+                    sum(prox[i, ] * u[prox@examples[i, ]])
+                }
             }
             
             y <- 0.5 * (y - (red - sred) * sum(u) - red %*% u)
@@ -83,12 +89,19 @@ setMethod("scaling", signature(prox="bigrfprox"),
             sa <- abs(ra)
             ynorm <- sum((y - ra * u) ^ 2)
             
-            if (ynorm < sa * 1.0e-7) {
+            if (trace >= 2L) message("Scaling co-ordinate ", it, ": ynorm = ",
+                                     ynorm, ", threshold = ",
+                                     sa * 1.0e-7, ".")
+            
+            if (ynorm < sa * 1.0e-7 ||
+                    (k >= 5L && ynorm / ynorm.prev >= 0.995)) {
                 scale[, it] <- sqrt(sa) * u
                 ev[, it] <- u
                 dl[it] <- ra
 				break
             }
+            
+            ynorm.prev <- ynorm
         }
     }
     

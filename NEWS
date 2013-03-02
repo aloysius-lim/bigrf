@@ -11,6 +11,14 @@ Improvements:
 
   * Added check for R user interrupt after processing each tree node.
 
+  * Added additional level of verbosity for proximities and scaling methods.
+
+  * Added additional stop conditions in scaling method, to prevent infinite
+    loops. Scaling computation now stops after 1,000 iterations per co-ordinate,
+    when intermediate variable ynorm does not decrease by more than 0.05%, or
+    when ynorm crosses below a certain threshold determined during the
+    iteration.
+
 Performance Enhancements:
 
   * Better memory management in grow method, releasing allocated memory after
@@ -21,6 +29,8 @@ Performance Enhancements:
     forest@ntrees * [sum over all trees(tree@nnodes)].
 
   * Parallelised proximities method.
+
+  * Parallelised some parts of scaling method.
 
 
 
