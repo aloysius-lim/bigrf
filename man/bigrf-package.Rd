@@ -10,7 +10,7 @@
   \tabular{ll}{
     Package: \tab bigrf\cr
     Version: \tab 0.1-4\cr
-    Date: \tab 2013-03-02\cr
+    Date: \tab 2013-03-05\cr
     OS_type: \tab linux\cr
     Depends: \tab R (>= 2.14), methods, bigmemory\cr
     Imports: \tab foreach\cr
@@ -21,7 +21,7 @@
     Copyright: \tab 2013 Aloysius Lim\cr
     URL: \tab \url{https://github.com/aloysius-lim/bigrf}\cr
     BugReports: \tab \url{https://github.com/aloysius-lim/bigrf/issues}\cr
-    Built: \tab R 2.15.1; universal-apple-darwin9.8.0; 2013-03-02 13:37:09 UTC; unix\cr
+    Built: \tab R 2R 2.15.1; universal-apple-darwin9.8.0; 2013-03-05 10:49:19 UTC; unix\cr
   }
 
   Index:
