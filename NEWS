@@ -7,6 +7,10 @@ https://github.com/aloysius-lim/bigrf.
 
 Changes in version 0.1-4
 
+Package Updates:
+
+  * Fixed license information.
+
 Improvements:
 
   * Added check for R user interrupt after processing each tree node.
