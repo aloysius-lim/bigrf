@@ -11,7 +11,7 @@
     Package: \tab bigrf\cr
     Version: \tab 0.1-4\cr
     Date: \tab 2013-03-05\cr
-    OS_type: \tab linux\cr
+    OS_type: \tab unix\cr
     Depends: \tab R (>= 2.14), methods, bigmemory\cr
     Imports: \tab foreach\cr
     LinkingTo: \tab bigmemory\cr

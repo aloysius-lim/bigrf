@@ -8,7 +8,7 @@ Authors@R: c(person("Aloysius", "Lim", role = c("aut", "cre"),
              person("Adele", "Cutler", role = "aut"))
 Author: Aloysius Lim, Leo Breiman, Adele Cutler
 Maintainer: Aloysius Lim <aloysius.lim@gmail.com>
-OS_type: linux
+OS_type: unix
 Depends: R (>= 2.14), methods, bigmemory
 Imports: foreach
 LinkingTo: bigmemory
