@@ -89,7 +89,7 @@ setMethod("predict", signature(object="bigcforest"), function(
     # Convert x to big.matrix, as C functions only support this at the moment.
     if (class(x) != "big.matrix") {
         if (trace >= 1L) message("Converting x into a big.matrix.")
-        x <- makex(x, "xtest", forest@cachepath)
+        x <- makex(x, "xtest", cachepath)
     }
     
     ntest <- as.integer(nrow(x))
