@@ -5,6 +5,18 @@ https://github.com/aloysius-lim/bigrf.
 
 
 
+Changes in version 0.1-5 (11th April 2013)
+
+Package updates:
+
+  * Added LinkingTo dependency BH, due to changes in dependencies in the
+    bigmemory package.
+
+Bug Fixes:
+
+  * Predict method now observes the cachepath parameter.
+
+
 Changes in version 0.1-4 (5th Mar 2013)
 
 Package Updates:
@@ -37,7 +49,6 @@ Performance Enhancements:
   * Parallelised some parts of scaling method.
 
 
-
 Changes in version 0.1-3 (18th Feb 2013)
 
 Package Updates:
@@ -46,7 +57,6 @@ Package Updates:
     instead of doMC, doMPI, doRedis, doSNOW.
 
   * Requires R >= 2.14, when the parallel package was released.
-
 
 
 Changes in version 0.1-2 (17th Feb 2013)
@@ -59,7 +69,6 @@ Bug Fixes:
     older version available on CRAN) and bigrf (install from source).
 
   * Added file .gitignore to .Rbuildignore, to pass R CMD check.
-
 
 
 Changes in version 0.1-1 (15th Feb 2013)
