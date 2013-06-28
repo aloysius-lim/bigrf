@@ -5,6 +5,14 @@ https://github.com/aloysius-lim/bigrf.
 
 
 
+Changes in version 0.1-6 (28th June 2013)
+
+Bug Fixes:
+
+  * Fixed segfault when running bigrfc on categorical-only data (i.e. data with
+    no numeric attributes).
+
+
 Changes in version 0.1-5 (11th April 2013)
 
 Package updates:

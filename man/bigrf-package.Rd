@@ -9,8 +9,8 @@
 \details{
   \tabular{ll}{
     Package: \tab bigrf\cr
-    Version: \tab 0.1-5\cr
-    Date: \tab 2013-04-11\cr
+    Version: \tab 0.1-6\cr
+    Date: \tab 2013-06-28\cr
     OS_type: \tab unix\cr
     Depends: \tab R (>= 2.14), methods, bigmemory\cr
     Imports: \tab foreach\cr

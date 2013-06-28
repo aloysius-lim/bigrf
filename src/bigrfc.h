@@ -33,20 +33,21 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *a,
    to the best split on the current node. */
 template <typename xtype>
 void movedata(BigMatrix *x, BigMatrix *a, int nexamples, const int *factorvars,
-    const int *varselect, const int *contvarseq, int ndstart, int *ndendl,
-    int ndend, int *ncase, int bestvar, int nbest, const int *bestcatsplit);
+    bool haveNumericVar, const int *varselect, const int *contvarseq,
+    int ndstart, int *ndendl, int ndend, int *ncase, int bestvar, int nbest,
+    const int *bestcatsplit);
 
 /* Similar to movedata, except for out-of-bag examples. */
 template <typename xtype>
 void movedataOut(BigMatrix *x, BigMatrix *a, int nexamples,
-    const int *factorvars, const int *varselect, const int *contvarseq,
-    int ndstart, int *ndendl, int ndend, int *ncase, int bestvar,
-    double bestnumsplit, const int *bestcatsplit);
+    const int *factorvars, bool haveNumericVar, const int *varselect,
+    const int *contvarseq, int ndstart, int *ndendl, int ndend, int *ncase,
+    int bestvar, double bestnumsplit, const int *bestcatsplit);
 
 /* Worker function for movedata and movedataOut that does the actual moving. */
-void movedataWorker(BigMatrix *a, const int *factorvars, const int *contvarseq,
-    int ndstart, int ndend, const int *idmove, int *ncase, int bestvar,
-    int bestvarA);
+void movedataWorker(BigMatrix *a, const int *factorvars, bool haveNumericVar,
+    const int *contvarseq, int ndstart, int ndend, const int *idmove,
+    int *ncase, int bestvar, int bestvarA);
     
 /* Predicts classification for test set. */
 template <typename xtype>

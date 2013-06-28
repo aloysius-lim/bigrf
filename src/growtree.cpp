@@ -89,6 +89,14 @@ SEXP growtree(BigMatrix *x, BigMatrix *a, BigMatrix *aOut, SEXP forestP,
     const int maxeslevels = *INTEGER(GET_SLOT(forestP, install("maxeslevels")));
     const int nrandsplit = *INTEGER(GET_SLOT(forestP, install("nrandsplit")));
     
+    // Any numeric variables?
+    bool haveNumericVar = false;
+    for (int i = 0; i < nvar; i++) {
+        if (!factorvars[i]) {
+            haveNumericVar = true;
+        }
+    }
+    
     // Theoretically, 2*nexamples - 1 should be enough
     const int maxnodes = 2 * nexamples + 1;
     
@@ -277,13 +285,13 @@ SEXP growtree(BigMatrix *x, BigMatrix *a, BigMatrix *aOut, SEXP forestP,
         }
         
         // Move data in a and ncase to reflect split.
-        movedata<xtype>(x, a, nexamples, factorvars, varselect, contvarseq,
-            ndstart[nd], &ndendl, ndend[nd], ncase, splitBestvar, splitNumsplit,
-            splitCatsplit);
+        movedata<xtype>(x, a, nexamples, factorvars, haveNumericVar, varselect,
+            contvarseq, ndstart[nd], &ndendl, ndend[nd], ncase, splitBestvar,
+            splitNumsplit, splitCatsplit);
         if (ndendOut[nd] - ndstartOut[nd] + 1 > 0) {
-            movedataOut<xtype>(x, aOut, nexamples, factorvars, varselect,
-                contvarseq, ndstartOut[nd], &ndendlOut, ndendOut[nd], ncaseOut,
-                splitBestvar, bestnumsplit[nd], splitCatsplit);
+            movedataOut<xtype>(x, aOut, nexamples, factorvars, haveNumericVar,
+                varselect, contvarseq, ndstartOut[nd], &ndendlOut, ndendOut[nd],
+                ncaseOut, splitBestvar, bestnumsplit[nd], splitCatsplit);
         }
 
         // Update tree data. The left node will be nnodes + 1, and the right
@@ -604,8 +612,9 @@ int findbestsplit(BigMatrix *x, const int *y, BigMatrix *a,
    to the best split on the current node. Modifies a, ndendl and ncase. */
 template <typename xtype>
 void movedata(BigMatrix *x, BigMatrix *a, int nexamples, const int *factorvars,
-    const int *varselect, const int *contvarseq, int ndstart, int *ndendl,
-    int ndend, int *ncase, int bestvar, int nbest, const int *bestcatsplit) {
+    bool haveNumericVar, const int *varselect, const int *contvarseq,
+    int ndstart, int *ndendl, int ndend, int *ncase, int bestvar, int nbest,
+    const int *bestcatsplit) {
 
     // Mark top of memory stack.
     void *vmax = vmaxget();
@@ -642,8 +651,8 @@ void movedata(BigMatrix *x, BigMatrix *a, int nexamples, const int *factorvars,
         }
     }
     
-    movedataWorker(a, factorvars, contvarseq, ndstart, ndend, idmove, ncase,
-        bestvar, bestvarA);
+    movedataWorker(a, factorvars, haveNumericVar, contvarseq, ndstart, ndend,
+        idmove, ncase, bestvar, bestvarA);
         
     // Release memory.
     vmaxset(vmax);
@@ -655,9 +664,9 @@ void movedata(BigMatrix *x, BigMatrix *a, int nexamples, const int *factorvars,
    ncase. */
 template <typename xtype>
 void movedataOut(BigMatrix *x, BigMatrix *a, int nexamples,
-    const int *factorvars, const int *varselect, const int *contvarseq,
-    int ndstart, int *ndendl, int ndend, int *ncase, int bestvar,
-    double bestnumsplit, const int *bestcatsplit) {
+    const int *factorvars, bool haveNumericVar, const int *varselect,
+    const int *contvarseq, int ndstart, int *ndendl, int ndend, int *ncase,
+    int bestvar, double bestnumsplit, const int *bestcatsplit) {
     
     // Mark top of memory stack.
     void *vmax = vmaxget();
@@ -700,8 +709,8 @@ void movedataOut(BigMatrix *x, BigMatrix *a, int nexamples,
     
     if (!(*ndendl < ndstart || *ndendl == ndend)) {
         // At least one example is split from the rest of the group.
-        movedataWorker(a, factorvars, contvarseq, ndstart, ndend, idmove, ncase,
-            bestvar, bestvarA);
+        movedataWorker(a, factorvars, haveNumericVar, contvarseq, ndstart,
+            ndend, idmove, ncase, bestvar, bestvarA);
     }
     
     // Release memory.
@@ -711,31 +720,33 @@ void movedataOut(BigMatrix *x, BigMatrix *a, int nexamples,
 
 
 /* Worker function for movedata and movedataOut that does the actual moving. */
-void movedataWorker(BigMatrix *a, const int *factorvars, const int *contvarseq,
-    int ndstart, int ndend, const int *idmove, int *ncase, int bestvar,
-    int bestvarA) {
+void movedataWorker(BigMatrix *a, const int *factorvars, bool haveNumericVar,
+    const int *contvarseq, int ndstart, int ndend, const int *idmove,
+    int *ncase, int bestvar, int bestvarA) {
     
     // Initialize function arguments.
     MatrixAccessor<int> aAcc(*a);
+    int *tmp = (int*) R_alloc(ndend - ndstart + 1, sizeof(int));
     
     // shift example nos. right and left for numerical variables.
-    int *tmp = (int*) R_alloc(ndend - ndstart + 1, sizeof(int));
-    for (int i = 0; i < a->ncol(); i++) {
-        int *aCol = aAcc[i];
-        int k = 0;
-        for (int j = ndstart; j <= ndend; j++) {
-            if (idmove[aCol[j] - 1] == 1) {
-                tmp[k++] = aCol[j];
+    if (haveNumericVar) {
+        for (int i = 0; i < a->ncol(); i++) {
+            int *aCol = aAcc[i];
+            int k = 0;
+            for (int j = ndstart; j <= ndend; j++) {
+                if (idmove[aCol[j] - 1] == 1) {
+                    tmp[k++] = aCol[j];
+                }
             }
-        }
-        for (int j = ndstart; j <= ndend; j++) {
-            if (idmove[aCol[j] - 1] == 0) {
-                tmp[k++] = aCol[j];
+            for (int j = ndstart; j <= ndend; j++) {
+                if (idmove[aCol[j] - 1] == 0) {
+                    tmp[k++] = aCol[j];
+                }
             }
-        }
-        k = 0;
-        for (int j = ndstart; j <= ndend; j++) {
-            aCol[j] = tmp[k++];
+            k = 0;
+            for (int j = ndstart; j <= ndend; j++) {
+                aCol[j] = tmp[k++];
+            }
         }
     }
     
