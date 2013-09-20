@@ -1,19 +1,17 @@
 Package: bigrf
-Version: 0.1-7
-Date: 2013-09-20
+Version: 0.1-8
+Date: 2013-09-21
 Title: Big Random Forests: Classification and Regression Forests for Large Data Sets
 Authors@R: c(person("Aloysius", "Lim", role = c("aut", "cre"),
                     email="aloysius.lim@gmail.com"),
              person("Leo", "Breiman", role = "aut"),
              person("Adele", "Cutler", role = "aut"))
-Author: Aloysius Lim, Leo Breiman, Adele Cutler
 Maintainer: Aloysius Lim <aloysius.lim@gmail.com>
 OS_type: unix
 Depends: R (>= 2.14), methods, bigmemory, BH
 Imports: foreach
-LinkingTo: bigmemory, BH
 Suggests: MASS, doParallel
-Enhances: bigmemory
+LinkingTo: bigmemory, BH
 Description: This is an implementation of Leo Breiman's and Adele Cutler's
   Random Forest algorithms for classification and regression, with optimizations
   for performance and for handling of data sets that are too large to be

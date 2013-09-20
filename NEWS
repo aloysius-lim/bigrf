@@ -4,6 +4,15 @@ For a detailed list of changes, see git commit history at
 https://github.com/aloysius-lim/bigrf.
 
 
+Changes in version 0.1-8 (21st September 2013)
+
+Package updates:
+
+  * DESCRIPTION file updates to comply with package submission requirements.
+
+  * Removed INSTALL-WINDOWS.
+
+
 Changes in version 0.1-7 (20th September 2013)
 
 Package updates:
