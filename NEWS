@@ -4,6 +4,12 @@ For a detailed list of changes, see git commit history at
 https://github.com/aloysius-lim/bigrf.
 
 
+Changes in version 0.1-7 (20th September 2013)
+
+Package updates:
+
+  * Added README.md (used on github only) to .Rbuildignore.
+
 
 Changes in version 0.1-6 (28th June 2013)
 

@@ -1,6 +1,6 @@
 Package: bigrf
-Version: 0.1-6
-Date: 2013-06-28
+Version: 0.1-7
+Date: 2013-09-20
 Title: Big Random Forests: Classification and Regression Forests for Large Data Sets
 Authors@R: c(person("Aloysius", "Lim", role = c("aut", "cre"),
                     email="aloysius.lim@gmail.com"),
