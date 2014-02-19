@@ -42,11 +42,11 @@ y <- Cars93$Type
 # Select variables with which to train model.
 vars <- c(4:22)
 
-# Run model, grow 50 trees.
-forest <- bigrfc(x, y, ntree=50L, varselect=vars, cachepath=NULL)
+# Run model, grow 15 trees.
+forest <- bigrfc(x, y, ntree=15L, varselect=vars, cachepath=NULL)
 
 # Build a second forest.
-forest2 <- bigrfc(x, y, ntree=20L, varselect=vars, cachepath=NULL)
+forest2 <- bigrfc(x, y, ntree=10L, varselect=vars, cachepath=NULL)
 
 # Merge the two forests.
 big.forest <- merge(forest, forest2)

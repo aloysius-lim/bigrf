@@ -4,6 +4,15 @@ For a detailed list of changes, see git commit history at
 https://github.com/aloysius-lim/bigrf.
 
 
+Changes in version 0.1-9 (20th February 2014)
+
+Package updates:
+
+  * Reduced number of trees used in examples, to reduce running time.
+
+  * Removed outdated information from DESCRIPTION file.
+
+
 Changes in version 0.1-8 (21st September 2013)
 
 Package updates:

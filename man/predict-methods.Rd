@@ -48,8 +48,8 @@ y <- Cars93$Type
 # Select variables with which to train model.
 vars <- c(4:22)
 
-# Run model, grow 50 trees on the first 60 examples.
-forest <- bigrfc(x[1:60, ], y[1:60], ntree=50L, varselect=vars, cachepath=NULL)
+# Run model, grow 30 trees on the first 60 examples.
+forest <- bigrfc(x[1:60, ], y[1:60], ntree=30L, varselect=vars, cachepath=NULL)
 
 # Get predictions for the remaining examples.
 predictions <- predict(forest, x[-(1:60), ], y[-(1:60)], cachepath=NULL)

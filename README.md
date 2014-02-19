@@ -1,7 +1,7 @@
 bigrf
 =====
 
-This is an R implementation of Leo Breiman's and Adele Cutler's Random Forest algorithms for classification and regression, with optimizations for performance and for handling of data sets that are too large to be processed in memory. Forests can be built in parallel at two levels. First, trees can be grown in parallel on a single machine using [`foreach`](http://cran.r-project.org/web/packages/foreach/). Second, multiple forests can be built in parallel on multiple machines, then merged into one. For large data sets, disk-based [`big.matrix`](http://cran.r-project.org/web/packages/bigmemory/)'s may be used for storing data and intermediate computations, to prevent excessive virtual memory swapping by the operating system. Currently, only classification forests with a subset of the functionality in Breiman and Cutler's original code are implemented. More functionality and regression trees will be added in the future.
+This is an R implementation of Leo Breiman's and Adele Cutler's Random Forest algorithms for classification and regression, with optimizations for performance and for handling of data sets that are too large to be processed in memory. Forests can be built in parallel at two levels. First, trees can be grown in parallel on a single machine using [`foreach`](http://cran.r-project.org/web/packages/foreach/). Second, multiple forests can be built in parallel on multiple machines, then merged into one. For large data sets, disk-based [`big.matrix`](http://cran.r-project.org/web/packages/bigmemory/)'s may be used for storing data and intermediate computations, to prevent excessive virtual memory swapping by the operating system. Currently, only classification forests with a subset of the functionality in Breiman and Cutler's original code are implemented. More functionality and regression trees may be added in the future.
 
 Capabilities and Usage
 ----------------------
@@ -62,10 +62,10 @@ Usage Examples
     
     # Merge the 2 forests.
     forest <- merge(forest1, forest2)
-	
-	# Grow even more trees.
-	forest <- grow(forest, x[1:60, ], ntree=30L)
-	
+	  
+    # Grow even more trees.
+    forest <- grow(forest, x[1:60, ], ntree=30L)
+	  
     # Get predictions for the remaining examples.
     predictions <- predict(forest, x[-(1:60), ], y[-(1:60)])
     
