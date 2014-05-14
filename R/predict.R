@@ -148,7 +148,8 @@ setMethod("predict", signature(object="bigcforest"), function(
         rm(pred)
     }
     
-    summary(prediction)
+    if (trace >= 1L)
+        summary(prediction)
     
     return(prediction)
 })

@@ -3,6 +3,13 @@ bigrf News
 For a detailed list of changes, see git commit history at
 https://github.com/aloysius-lim/bigrf.
 
+Changes in version 0.1-10 (14th May 2014)
+
+Improvements:
+
+  * grow() and predict() methods now print the summary at the end only if
+    trace >= 1.
+
 
 Changes in version 0.1-9 (20th February 2014)
 

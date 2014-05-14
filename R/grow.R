@@ -264,8 +264,10 @@ setMethod("grow", signature(forest="bigcforest"), function(
     
     
     # Print results ------------------------------------------------------------
-    cat("\n")
-    summary(forest)
+    if (trace >= 1L) {
+        cat("\n")
+        summary(forest)
+    }
     
     return(forest)
 })

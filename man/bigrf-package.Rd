@@ -9,15 +9,15 @@
 \details{
   \tabular{ll}{
     Package: \tab bigrf\cr
-    Version: \tab 0.1-9\cr
-    Date: \tab 2014-02-20\cr
+    Version: \tab 0.1-10\cr
+    Date: \tab 2014-05-14\cr
     OS_type: \tab unix\cr
     Depends: \tab R (>= 2.14), methods, bigmemory, BH\cr
     Imports: \tab foreach\cr
     Suggests: \tab MASS, doParallel\cr
     LinkingTo: \tab bigmemory, BH\cr
     License: \tab GPL-3\cr
-    Copyright: \tab 2013 Aloysius Lim\cr
+    Copyright: \tab 2013-2014 Aloysius Lim\cr
     URL: \tab \url{https://github.com/aloysius-lim/bigrf}\cr
     BugReports: \tab \url{https://github.com/aloysius-lim/bigrf/issues}\cr
   }

@@ -1,6 +1,6 @@
 Package: bigrf
-Version: 0.1-9
-Date: 2014-02-20
+Version: 0.1-10
+Date: 2014-05-14
 Title: Big Random Forests: Classification and Regression Forests for Large Data Sets
 Authors@R: c(person("Aloysius", "Lim", role = c("aut", "cre"),
                     email="aloysius.lim@gmail.com"),
@@ -25,6 +25,6 @@ Description: This is an implementation of Leo Breiman's and Adele Cutler's
   implemented. More functionality and regression trees may be added in the
   future.
 License: GPL-3
-Copyright: 2013 Aloysius Lim
+Copyright: 2013-2014 Aloysius Lim
 URL: https://github.com/aloysius-lim/bigrf
 BugReports: https://github.com/aloysius-lim/bigrf/issues

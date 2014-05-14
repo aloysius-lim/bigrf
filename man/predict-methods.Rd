@@ -18,7 +18,7 @@
   \item{printerrfreq}{An integer, specifying how often error estimates should be printed to the screen. Default: error estimates will be printed every 10 trees.}
   \item{printclserr}{\code{TRUE} for error estimates for individual classes to be printed, in addition to the overall error estimates. Default: \code{TRUE}.}
   \item{cachepath}{Path to folder where data caches used in building the forest can be stored. If \code{NULL}, then the \code{big.matrix}'s will be created in memory, with no disk caching; this will be suitable for small data sets. Default: \code{tempdir()}.}
-  \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output on prediction by trees. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles output, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.}
+  \item{trace}{\code{0} for no verbose output. \code{1} to print verbose output on prediction by trees, and a summary of the predictions. Default: \code{0}. Due to the way \code{\link{\%dopar\%}} handles output, you may not see the verbose output in some GUIs like RStudio. For best results, run R from the command line in order to see all the verbose output.}
 }
 \details{
   These methods copy all the trees from \code{y} into \code{x}, and calculates the error statistics and confusion matrices of the merged forest.
