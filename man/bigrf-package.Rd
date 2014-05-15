@@ -9,10 +9,10 @@
 \details{
   \tabular{ll}{
     Package: \tab bigrf\cr
-    Version: \tab 0.1-10\cr
-    Date: \tab 2014-05-14\cr
+    Version: \tab 0.1-11\cr
+    Date: \tab 2014-05-16\cr
     OS_type: \tab unix\cr
-    Depends: \tab R (>= 2.14), methods, bigmemory, BH\cr
+    Depends: \tab R (>= 2.14), methods, bigmemory\cr
     Imports: \tab foreach\cr
     Suggests: \tab MASS, doParallel\cr
     LinkingTo: \tab bigmemory, BH\cr

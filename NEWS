@@ -3,6 +3,14 @@ bigrf News
 For a detailed list of changes, see git commit history at
 https://github.com/aloysius-lim/bigrf.
 
+
+Changes in version 0.1-11 (16th May 2014)
+
+Package updates:
+
+  * Removed BH package as an Imports dependency; it is now only in LinkingTo.
+
+
 Changes in version 0.1-10 (14th May 2014)
 
 Improvements:
