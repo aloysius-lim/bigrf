@@ -99,7 +99,7 @@ bigrfc <- function(x,
                 "specified. Number of levels cannot be inferred so all ",
                 "variables will be treated as numeric.")
         factorvars <- logical(length(varselect))
-        varnlevels <- numeric(length(varselect))
+        varnlevels <- integer(length(varselect))
     } else {
         if (!is.integer(varnlevels)) {
             stop("Argument varnlevels must be an integer vector.")
