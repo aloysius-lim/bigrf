@@ -95,7 +95,7 @@ setMethod("varimp", signature(forest="bigcforest"),  function(
     
     nvar <- length(forest@varselect)
     ntest <- as.integer(nrow(x));
-    xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
+    xtype <- as.integer(bigmemory:::getCType(x))
     
     importance <- numeric(nvar)
     importance.sq <- numeric(nvar)
