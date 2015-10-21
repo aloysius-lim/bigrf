@@ -4,6 +4,13 @@ For a detailed list of changes, see git commit history at
 https://github.com/aloysius-lim/bigrf.
 
 
+Changes in version 0.1-12 (21st Oct 2015)
+
+Package updates:
+
+  * Updated for compatability with bigmemory 4.5.8.
+
+
 Changes in version 0.1-11 (16th May 2014)
 
 Package updates:

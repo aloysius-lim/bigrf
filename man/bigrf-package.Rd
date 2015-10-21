@@ -9,15 +9,15 @@
 \details{
   \tabular{ll}{
     Package: \tab bigrf\cr
-    Version: \tab 0.1-11\cr
-    Date: \tab 2014-05-16\cr
+    Version: \tab 0.1-12\cr
+    Date: \tab 2015-10-21\cr
     OS_type: \tab unix\cr
-    Depends: \tab R (>= 2.14), methods, bigmemory\cr
+    Depends: \tab R (>= 2.14), methods, bigmemory (>= 4.5.8)\cr
     Imports: \tab foreach\cr
     Suggests: \tab MASS, doParallel\cr
     LinkingTo: \tab bigmemory, BH\cr
     License: \tab GPL-3\cr
-    Copyright: \tab 2013-2014 Aloysius Lim\cr
+    Copyright: \tab 2013-2015 Aloysius Lim\cr
     URL: \tab \url{https://github.com/aloysius-lim/bigrf}\cr
     BugReports: \tab \url{https://github.com/aloysius-lim/bigrf/issues}\cr
   }
@@ -64,14 +64,14 @@
 }
 \author{
   Original Fortran77 code by Leo Breiman and Adele Cutler.
-  
+
   R port with disk caching and parallelization enhancements by Aloysius Lim.
-  
+
   Maintainer: Aloysius Lim
 }
 \references{
   Breiman, L. (2001). Random forests. \emph{Machine learning}, \bold{45(1)}, 5-32.
-  
+
   Breiman, L. & Cutler, A. (n.d.). Random Forests. Retrieved from \url{http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm}.
 }
 \seealso{
