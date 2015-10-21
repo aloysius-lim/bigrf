@@ -219,7 +219,7 @@ setMethod("grow", signature(forest="bigcforest"), function(
         
         if (trace >= 2L) message("Tree ", treenum, ": Growing tree.")
         
-        xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
+        xtype <- as.integer(bigmemory:::getCType(x))
         tree <- .Call("growtreeC", x@address, xtype, a@address, a.out@address,
                       forest, insamp, inweight, treenum, trace)
         

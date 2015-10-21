@@ -93,7 +93,7 @@ setMethod("predict", signature(object="bigcforest"), function(
     }
     
     ntest <- as.integer(nrow(x))
-    xtype <- as.integer(.Call("CGetType", x@address, PACKAGE="bigmemory"))
+    xtype <- as.integer(bigmemory:::getCType(x))
     ynclass <- length(levels(forest@y))
     
     # fast fix on the test data
